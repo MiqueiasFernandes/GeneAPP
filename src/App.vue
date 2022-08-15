@@ -2,11 +2,11 @@
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
+import { BeakerIcon } from '@heroicons/vue/solid'
 
-const navigation = [
-  { name: 'Home', to: '/' },
-  { name: 'About', to: '/about' },
-]
+
+const pages = (router) => router.options.routes.filter(x => !['404'].includes(x.meta.title))
+
 
 </script>
 
@@ -26,24 +26,23 @@ const navigation = [
         </div>
         <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
           <div class="flex-shrink-0 flex items-center">
-            <img class="block lg:hidden h-8 w-auto"
-              src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=500" alt="Workflow" />
-            <img class="hidden lg:block h-8 w-auto"
-              src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=500" alt="Workflow" />
+          <BeakerIcon class="h-8 text-white" aria-hidden="true"/>
           </div>
+
+
           <div class="hidden sm:block sm:ml-6">
             <div class="flex space-x-4">
 
-              <router-link v-for="item in navigation" :key="item.name"
-                :class="[$route.meta.title === item.name ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium']"
-                :aria-current="item.current ? 'page' : undefined" :to="item.to">{{ item.name }}</router-link>
+              <router-link v-for="item in pages($router)" 
+                :class="[$route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium']"
+                :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined" 
+                :to="item.path">{{ item.meta.title }}</router-link>
+
             </div>
 
-
-
-
-
           </div>
+        
+
         </div>
         <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
           <button type="button"
@@ -109,4 +108,6 @@ const navigation = [
       <router-view />
     </main>
   </div>
+
+
 </template>
