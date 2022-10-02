@@ -3,7 +3,8 @@ import { LinkIcon } from '@heroicons/vue/solid'
 const props = defineProps({
   href: String,
   target: { type: String, default: '_blank' },
-  acent: { default: true }
+  acent: { default: true },
+  icon: { default: true}
 });
 </script>
 <template>
@@ -17,7 +18,7 @@ const props = defineProps({
       'bg-indigo-600 text-white hover:bg-indigo-500': acent,
       'bg-white text-indigo-600 hover:text-indigo-500': !acent
     }">
-      <LinkIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+      <LinkIcon v-if="icon" class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
       <slot />
     </a>
   </div>
