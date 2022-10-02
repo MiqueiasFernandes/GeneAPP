@@ -38,7 +38,7 @@ const pages = (router) => router.options.routes
               <router-link v-for="item in pages($router)"
                 :class="[$route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium']"
                 :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined" :to="item.path">{{
-                    item.meta.title
+                item.meta.title
                 }}</router-link>
 
             </div>
@@ -98,7 +98,7 @@ const pages = (router) => router.options.routes
     </DisclosurePanel>
   </Disclosure>
 
-<!-- resolver pagina inicial / para start/ -->
+  <!-- resolver pagina inicial / para start/ -->
 
   <div>
     <header class="bg-white shadow" v-if="$route.meta.title">
@@ -112,9 +112,7 @@ const pages = (router) => router.options.routes
       <router-view />
     </main>
   </div>
-<div class="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8">
-  footer
-</div>
-
-
+  <div class="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8">
+    <span class="text-xl font-extrabold ">Desenvolvido por <i class=" text-indigo-500 ">mikeias.net</i></span>
+  </div>
 </template>
