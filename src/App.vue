@@ -98,7 +98,7 @@ const pages = (router) => router.options.routes
     </DisclosurePanel>
   </Disclosure>
 
-
+<!-- resolver pagina inicial / para start/ -->
 
   <div>
     <header class="bg-white shadow" v-if="$route.meta.title">
