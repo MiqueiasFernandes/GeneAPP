@@ -13,7 +13,7 @@ export default defineConfig({
     Components({ resolvers: [HeadlessUiResolver()] }),
     AutoImport({
       include: [/\.vue$/, /\.js$/],
-      imports: ['vue', { 'vue-router/auto': VueRouterExports }],
+      imports: ['vue', '@vueuse/head', { 'vue-router/auto': VueRouterExports }],
     }),
   ],
   server: {

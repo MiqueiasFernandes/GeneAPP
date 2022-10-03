@@ -3,13 +3,16 @@
   "meta": {
     "title": "Start",
     "description": "Get started on GeneAPP",
-    "ordem": 1
+    "ordem": 2
   }
 }
 </route>
 
 <script setup>
 import { ClipboardListIcon, FolderDownloadIcon, DownloadIcon } from '@heroicons/vue/solid'
+useHead({
+    title: 'Start',
+  })
 </script>
   
 <template>
@@ -72,7 +75,7 @@ import { ClipboardListIcon, FolderDownloadIcon, DownloadIcon } from '@heroicons/
           <li><span class="font-medium">Amostra:</span> <span class="font-mono">teste de fonte</span></li>
         </ul>
       </div>
-      <img src="img/asexp.png" width="400" class="mx-3 mt-3" />
+      <img src="/img/asexp.png" width="400" class="mx-3 mt-3" />
     </div>
   </div>
 
@@ -85,7 +88,7 @@ import { ClipboardListIcon, FolderDownloadIcon, DownloadIcon } from '@heroicons/
           <ClipboardListIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
           Clone Colab Notebook
         </ButtonLink>
-        <ButtonLink :href="'https://www.ncbi.nlm.nih.gov/'" :icon="false" :acent="false" class="mx-2">
+        <ButtonLink :href="'/data/as_data_gen.sh.zip'" :icon="false" :acent="false" class="mx-2">
           <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
           Download Script
         </ButtonLink>
