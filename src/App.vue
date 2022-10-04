@@ -6,10 +6,8 @@ import { BeakerIcon } from '@heroicons/vue/solid'
 
 
 const pages = (router) => router.options.routes
-  .filter(x => !['404'].includes(x.meta.title))
+  .filter(x => parseInt(x.meta.ordem) > 0)
   .sort((a, b) => a.meta.ordem - b.meta.ordem)
-
-
 </script>
 
 <template>
@@ -28,7 +26,7 @@ const pages = (router) => router.options.routes
         </div>
         <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
           <div class="flex-shrink-0 flex items-center">
-            <BeakerIcon class="h-8 text-white" aria-hidden="true" />
+            <a href="/"><BeakerIcon class="h-8 text-white" aria-hidden="true" /></a>
           </div>
 
 

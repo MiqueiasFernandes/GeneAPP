@@ -3,16 +3,14 @@
   "meta": {
     "title": "Start",
     "description": "Get started on GeneAPP",
-    "ordem": 2
+    "ordem": 1
   }
 }
 </route>
 
 <script setup>
 import { ClipboardListIcon, FolderDownloadIcon, DownloadIcon } from '@heroicons/vue/solid'
-useHead({
-    title: 'Start',
-  })
+useHead({ title: 'Get started on GeneAPP' })
 </script>
   
 <template>
@@ -35,7 +33,8 @@ useHead({
           Esse mecanismo habilita os eucariotos, em seus genes multi-exons, estender a diversidade
           de seu transcriptoma e proteoma por meio de diferentes isoformas
           mesmo com um número limitado de genes.
-          O  <span class="font-semibold">splicing alternativo diferencial (DAS)</span> é obtido pelacomparacao do AS de 2 condicoes.
+          O <span class="font-semibold">splicing alternativo diferencial (DAS)</span> é obtido pelacomparacao do AS de 2
+          condicoes.
           Para encontrar DAS, em primeiro momento sao obtidas replicatas biologicas do transcriptoma que sao
           sequenciadas
           e i) mapeadas ao genoma (mapeamento) ou ii) alinhadas ao transcriptoma para quantificar as isoformas.
@@ -58,7 +57,8 @@ useHead({
           atras
           o custo para gerar esse volume de dados com tecnologias de highthrougthput era alto as analises de DAS nao
           eram tao comumns
-          quando comparada as de <span class="font-semibold">expresssao diferencial (DE)</span>. Assim é possivel encontrar dados onde so foram 
+          quando comparada as de <span class="font-semibold">expresssao diferencial (DE)</span>. Assim é possivel
+          encontrar dados onde so foram
           analisados DE que podemos usar para tentar descobrir DAS extendendo as analised de DE.
           Nesse exemplo vamos utilizar parte dos dados brutos de um experimento publicado no NCBI
           de uma analise em Arabidosis thaliana. voce pode encontrar dados de plantas em bancos de
@@ -97,45 +97,80 @@ useHead({
     <div class="mx-auto max-w-screen-xl sm:px-6 lg:px-8 text-justify  lg:flex lg:items-center lg:justify-between ">
       <div>
         <p class="indent-3">
-          <span class=" font-extrabold">C</span>om os dados definidos sera necerraio rodar softesres para descobrir o DAS e gerar consolidar os resultados
-      para importar no GeneAPP. O GeneAPP pode explorar resultados de software de abordagem event=based (como rMTAS)
-       e isoform-based (como 3DRNASeq). Para auxiliar na execucao dessas analises que exeige muitas linhas de comando para
-       configuracao do ambiente e execucao dos programas, desenvolvi o pipeline as_data_gen.sh em bash script. esse script
-       pode ser obtido e executado em uma maquina local com s.o. LINUX, na nuvem, em cluster ou como nesse exemplo no Colab.
-       Para executar esse script o usuario deve passar os argumentos epxlicados a seguir. A proxima imagem e um print do codigo
-       que deve ser digitado no Colab, para testar, pode-se clonar esse notebook pelo botao ao lado. importante observar que o script
-       foi desenvolvido apenas para auxiliar o usuario, sendo necessario altrea-lo de acordo com as necessidades de cada experimento. 
-       Os softesres executados pelos scirpt possuem sua propria licenca, o usuario deve observar cada uma sob sua responsabilidade. 
-      </p>
-      <img src="/img/datagen.png" width="800" class="my-4"/>
-      <ol class="list-none">
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">1</span> nesta linha o script é obtido diretamente do repositorio para rodar.</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">2</span> o primeiro arqumento é a localizacao do genoma, pode passar a URL para que ele seja baixado ou o caminho do arquivo fasta que contem as sequencias de nucleotideos do genoma no computafdor onde o script sera executado.</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">3</span> agora eh o caminho do aruqivo da anotacao GTF, se houver no mesmo local um aqrquivo GFF ele sera baixado tambem, seus nomes precisam ser identicos variando apenas a extensao (.gtf / .gff)</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">4</span> por ultimo dados do organismo precisa passar as sequencias dos transcritos, recomendo usar as sequencias da CDS</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">5</span> informar o caminho do diretorio para persistir os resultados, no COlab pode-se conectar ao G. Drive e informar aqui o cominho dentro dele, sera explicado melhor a seguir</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">6</span> informar argumentos para o sra-tools, aqui, por exemplo estou limitando as reads ate o spot 999,999 nao e necessario baixar o arquivo FASTQ completo para essa analise de teste</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">7</span> informar cada uma das amostras pelo padrao <span class="font-mono">RUN,NOME,FATOR</span> com espaco</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">8</span> informar parametros para passar ao programas rMATS, nesse exemplo estou informando o parametro obrigatorio <span class="font-mono">--read-length</span> com o valor 150.  Informar outros parametros opcionais no script, o argumento <span class="font-mono">KEEP_TEMP</span> indica para nao apagar a pasta demporaria,</li>
-        <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">9</span> esses dois ultimos argumentos sao opcionais</li>
-      </ol>
-      <p class="indent-3 mt-3">
-        <span class=" font-extrabold">A</span>s etapas de preparacao do ambiente, download dos daods brutos, controle de qualidade, mapeamento e anotacao sao onerosas podendo levar dias para executar, nesse exemplo custam XXhrs. 
-      TEndo em visata isso, e que euando o Colab reclica o ambiente por falta de interacao ele apaga todos os dados, o script foi projetado para retornar onde parou em cada etapa/amostra os dados processaos pelo que persiste no diretorio de saida.
-      Assim caso o ususario queira reproduzir esse caso de uso recomendo que conecte o notebook ao G Drive e aponte a pasta de saida para uma pasta dentro do G Drive. Caso contrario sera necessario acompanhar o andamento da execucao do script.
-      Caso o usario tente reproduzir em localhost deve observar o limite de RAM, DISCO e as configuracoes no sistema que o scriot tenta realizar em modo administrador, oque faz necessario executar em maquina virtual ou subsistema para nao afetar as configuracoes atuais e permiitr acesso de superususario sudo.
-      </p>
-      <p class="indent-3 mt-3"><span class=" font-extrabold">S</span>erao gerados varios outputs de programas,
-        log de cada execucao e os dados para ser importados no GeneAPP. entre os arquivos salvos na pasta de output o to3d.zip, rmats_out.zip e  results.zip sao os mais importantes.
-        consulte o arquivo com controle de qualidade de cada amostra em unico arquivo gerado pelo multiqc na pasta results. 
-        a taxa de mapeamento no genoma pode ser encontrada pelo arquivo summary.txt salvo na pasta de output tambem.
-        no arquiv compatado rmats_out.zip estao todo outupt do rMATS e do MASER, contendo alguns graficos.
-        no arquivo compatado to3d.zip sao guardados todos arquivos necessarios para executar as analises no servidor web do 3DRNaseq.
-        COmo o script executa o 3DRNASeq tambem nesse arquivo estao os resultados de uma analise padrao no 3DRNASeq, reitero que os parametros do programa devem ser customizados para cada analsie.
-        nesse caso de uso foram utilizados muitos parametro default para os programas.
-        Ao descompactar o arquivo results.zip o ususario tera acesso a pasta <span class="font-mono">geneapp</span> que contem os arquivos necessarios para analise nesse aplicativo GeneAPP.
-      </p>
-</div>
+          <span class=" font-extrabold">C</span>om os dados definidos sera necerraio rodar softesres para descobrir o
+          DAS e gerar consolidar os resultados
+          para importar no GeneAPP. O GeneAPP pode explorar resultados de software de abordagem event=based (como rMTAS)
+          e isoform-based (como 3DRNASeq). Para auxiliar na execucao dessas analises que exeige muitas linhas de comando
+          para
+          configuracao do ambiente e execucao dos programas, desenvolvi o pipeline as_data_gen.sh em bash script. esse
+          script
+          pode ser obtido e executado em uma maquina local com s.o. LINUX, na nuvem, em cluster ou como nesse exemplo no
+          Colab.
+          Para executar esse script o usuario deve passar os argumentos epxlicados a seguir. A proxima imagem e um print
+          do codigo
+          que deve ser digitado no Colab, para testar, pode-se clonar esse notebook pelo botao ao lado. importante
+          observar que o script
+          foi desenvolvido apenas para auxiliar o usuario, sendo necessario altrea-lo de acordo com as necessidades de
+          cada experimento.
+          Os softesres executados pelos scirpt possuem sua propria licenca, o usuario deve observar cada uma sob sua
+          responsabilidade.
+        </p>
+        <img src="/img/datagen.png" width="800" class="my-4" />
+        <ol class="list-none">
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">1</span> nesta linha o script é
+            obtido diretamente do repositorio para rodar.</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">2</span> o primeiro arqumento é a
+            localizacao do genoma, pode passar a URL para que ele seja baixado ou o caminho do arquivo fasta que contem
+            as sequencias de nucleotideos do genoma no computafdor onde o script sera executado.</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">3</span> agora eh o caminho do
+            aruqivo da anotacao GTF, se houver no mesmo local um aqrquivo GFF ele sera baixado tambem, seus nomes
+            precisam ser identicos variando apenas a extensao (.gtf / .gff)</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">4</span> por ultimo dados do
+            organismo precisa passar as sequencias dos transcritos, recomendo usar as sequencias da CDS</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">5</span> informar o caminho do
+            diretorio para persistir os resultados, no COlab pode-se conectar ao G. Drive e informar aqui o cominho
+            dentro dele, sera explicado melhor a seguir</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">6</span> informar argumentos para o
+            sra-tools, aqui, por exemplo estou limitando as reads ate o spot 999,999 nao e necessario baixar o arquivo
+            FASTQ completo para essa analise de teste</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">7</span> informar cada uma das
+            amostras pelo padrao <span class="font-mono">RUN,NOME,FATOR</span> com espaco</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">8</span> informar parametros para
+            passar ao programas rMATS, nesse exemplo estou informando o parametro obrigatorio <span
+              class="font-mono">--read-length</span> com o valor 150. Informar outros parametros opcionais no script, o
+            argumento <span class="font-mono">KEEP_TEMP</span> indica para nao apagar a pasta demporaria,</li>
+          <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">9</span> esses dois ultimos
+            argumentos sao opcionais</li>
+        </ol>
+        <p class="indent-3 mt-3">
+          <span class=" font-extrabold">A</span>s etapas de preparacao do ambiente, download dos daods brutos, controle
+          de qualidade, mapeamento e anotacao sao onerosas podendo levar dias para executar, nesse exemplo custam XXhrs.
+          TEndo em visata isso, e que euando o Colab reclica o ambiente por falta de interacao ele apaga todos os dados,
+          o script foi projetado para retornar onde parou em cada etapa/amostra os dados processaos pelo que persiste no
+          diretorio de saida.
+          Assim caso o ususario queira reproduzir esse caso de uso recomendo que conecte o notebook ao G Drive e aponte
+          a pasta de saida para uma pasta dentro do G Drive. Caso contrario sera necessario acompanhar o andamento da
+          execucao do script.
+          Caso o usario tente reproduzir em localhost deve observar o limite de RAM, DISCO e as configuracoes no sistema
+          que o scriot tenta realizar em modo administrador, oque faz necessario executar em maquina virtual ou
+          subsistema para nao afetar as configuracoes atuais e permiitr acesso de superususario sudo.
+        </p>
+        <p class="indent-3 mt-3"><span class=" font-extrabold">S</span>erao gerados varios outputs de programas,
+          log de cada execucao e os dados para ser importados no GeneAPP. entre os arquivos salvos na pasta de output o
+          to3d.zip, rmats_out.zip e results.zip sao os mais importantes.
+          consulte o arquivo com controle de qualidade de cada amostra em unico arquivo gerado pelo multiqc na pasta
+          results.
+          a taxa de mapeamento no genoma pode ser encontrada pelo arquivo summary.txt salvo na pasta de output tambem.
+          no arquiv compatado rmats_out.zip estao todo outupt do rMATS e do MASER, contendo alguns graficos.
+          no arquivo compatado to3d.zip sao guardados todos arquivos necessarios para executar as analises no servidor
+          web do 3DRNaseq.
+          COmo o script executa o 3DRNASeq tambem nesse arquivo estao os resultados de uma analise padrao no 3DRNASeq,
+          reitero que os parametros do programa devem ser customizados para cada analsie.
+          nesse caso de uso foram utilizados muitos parametro default para os programas.
+          Ao descompactar o arquivo results.zip o ususario tera acesso a pasta <span class="font-mono">geneapp</span>
+          que contem os arquivos necessarios para analise nesse aplicativo GeneAPP.
+        </p>
+      </div>
     </div>
   </div>
 

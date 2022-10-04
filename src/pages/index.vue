@@ -1,20 +1,18 @@
 <route lang="json">
-  {
-    "meta": {
-      "title": "Home",
-      "description": "Welcome to GeneAPP",
-      "ordem": 1
-    }
+{
+  "meta": {
+    "title": "GeneAPP",
+    "description": "Welcome to GeneAPP!",
+    "ordem": 0
   }
-  </route>
-  
-  <script setup>
-  useHead({
-    title: 'Home',
-  })
-  </script>
+}
+</route>
+    
+<script setup>
+useHead({ title: 'GeneAPP' })
+</script>
     
 
 <template>
-    hello word
+  hello word
 </template>
