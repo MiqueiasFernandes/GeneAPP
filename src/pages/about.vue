@@ -18,15 +18,20 @@ useHead({ title: 'About' })
       <h2 class="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 sm:text-4xl sm:leading-10">
         About Page
         <br />
-        <span class="text-indigo-600">Vite + Vue 3 + Tailwind CSS</span>
+        <span class="text-indigo-600">
+          a principio esse projeto era para ser uma solucao web
+        entretanto nesse ambiente ha 2 limitacoes
+        1 - o tamanho dos arquivos do projeto de teste do protiop chegou a 3mb
+        oque é grande para abrir e processar em navegador, mas pequeno para desktop
+        2 - as tecnologias web se reinventam a cada dia, venho de um pique java>angular>django>vue 
+        mas ultimametne sem tempo para reaprender o vue que mudou radicalmente 2>3 tudo (options>composition!)
+        sem tempo para reaprender botstrap>tailwind prefiro migrar para oque ja sei.
+        em "File chooser dialog can only be shown with a user activation"
+        </span>
       </h2>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <div class="inline-flex rounded-md shadow">
-          <router-link to="/"
-            class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-5 py-3 text-base font-medium leading-6 text-white transition duration-150 ease-in-out hover:bg-indigo-500 focus:outline-none">
-            Back Home</router-link>
-        </div>
-        <ButtonRepo />
+       
+        
       </div>
     </div>
   </div>

@@ -1,10 +1,10 @@
 <script setup>
 const props = defineProps({
-    grid: { type: Number, default: 1 },
+    grid: { default: 1 },
 });
 </script>
 <template>
-    <div :class="'mt-1 '+(grid > 1 ? ('grid grid-cols-'+grid+' gap-'+grid) : '')">
+    <div :class="`my-1 grid gap-6 grid-cols-${grid} md:grid-cols-${grid}`">
         <slot />
     </div>
 </template>
