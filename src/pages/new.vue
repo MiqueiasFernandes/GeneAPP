@@ -9,34 +9,62 @@
 </route>
       
 <script setup>
-useHead({ title: 'New Project' })
+import { ColorSwatchIcon } from '@heroicons/vue/solid'
+import { CSV } from "../core/utils/CSV";
+import { Projeto } from "../core/model/Projeto";
+
+useHead({ title: 'New Project' });
+const proj_name_ref = ref()
+const projeto = ref(new Projeto(proj_name_ref));
+
+function setExperimento() {
+  CSV.open(dt => {
+    dt.get_col("FACTOR").forEach(f => projeto.value.add_fator(f));
+  });
+}
 
 </script>
 
 
 <template>
-
-
-
-  <div class="w-full px-4 pt-32">
+  {{projeto}}
+  <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl bg-white p-2">
 
 
       <Sanfona titulo="Configurar o projeto">
+        <FormRow grid="6">
+          <FormCol span="2">
+            <FormInputText label="Nome do projeto" ref="proj_name_ref" content="AS Experiment" />
+          </FormCol>
+          <FormCol span="2">
+            <Button color="acent" @click="setExperimento">Experiment</Button>
+          </FormCol>
+        </FormRow>
 
-        <input type="email" class="form-input px-4 py-3 rounded-full">
 
-        <select class="form-select px-4 py-3 rounded-full">
-          <!-- ... -->
-        </select>
 
-        <input type="checkbox" class="form-checkbox rounded text-pink-500" />
-
+        <FormRow grid="6" v-for="fator in projeto.fatores">
+          <FormCol span="2">
+            <FormInputText :label="'Label of ' + fator.nome" :content="fator.nome" />
+          </FormCol>
+          <FormCol span="2">
+            <ColorSwatchIcon :style="{ color: fator.cor}" class="w-8 h-8 inline-flex rounded-full cursor-pointer border-4 border-white 
+              focus:outline-none focus:shadow-outline" @click="fator.show_cor = !fator.show_cor" />
+            <input type="color" v-model="fator.cor" :hidden="!fator.show_cor">
+          </FormCol>
+        </FormRow>
 
       </Sanfona>
+
+
       <Sanfona titulo="Carregar dados obrigatorios">
-        teste de onteudo 2
+
       </Sanfona>
+
+
+
+
       <Sanfona titulo="Carregar dados complementares">
         <div class="antialiased text-gray-900 px-6">
           <div class="max-w-8xl mx-auto py-2 divide-y md:max-w-4xl">
@@ -46,36 +74,25 @@ useHead({ title: 'New Project' })
 
               <FormRow>
                 <Button>teste de botao</Button>
-                <Button :color="'acent'">teste de botao</Button>
-                <Button :color="'blue'">teste de botao</Button>
-                <Button :color="'rose'">teste de botao</Button>
+                <Button color="acent">teste de botao</Button>
+                <Button color="blue">teste de botao</Button>
+                <Button color="rose">teste de botao</Button>
               </FormRow>
 
 
               <FormRow grid="6">
-                <div class="col-span-4">
+                <FormCol span="4">
                   <label for="city" class="block text-sm font-medium text-gray-700">col1</label>
                   <FormInputText />
-                </div>
-                <div class="col-span-2 ">
-                  <Button :color="'rose'">teste</Button>
-                </div>
+                </FormCol>
+                <FormCol span="2" end>
+                  <Button :color="'rose'">color do ge</Button>
+                </FormCol>
               </FormRow>
 
-              <FormRow grid="6">
-                <div class="col-span-6 sm:col-span-6 lg:col-span-2">
-                  <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                  <FormInputText />
-                </div>
-                <div class="col-span-6 sm:col-span-6 lg:col-span-2">
-                  <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                  <FormInputText />
-                </div>
-                <div class="col-span-6 sm:col-span-6 lg:col-span-2">
-                  <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                  <FormInputText />
-                </div>
-              </FormRow>
+
+
+
 
 
 
