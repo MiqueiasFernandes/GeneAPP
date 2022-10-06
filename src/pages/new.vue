@@ -12,6 +12,9 @@
 import { ColorSwatchIcon } from '@heroicons/vue/solid'
 import { CSV } from "../core/utils/CSV";
 import { Projeto } from "../core/model/Projeto";
+import {Line} from "../core/d3/Line";
+import {Drawable} from "../core/d3/Drawable";
+import {Bounds, Margin} from "../core/d3/Bounds";
 
 useHead({ title: 'New Project' });
 const proj_name_ref = ref()
@@ -23,11 +26,29 @@ function setExperimento() {
   });
 }
 
+function  plot() {
+  const dw = new Drawable(
+        null,
+        "canvas",
+        new Bounds(800, 600, 0, 0, {
+          top: 20,
+          bottom: 50,
+          right: 200,
+          left: 100,
+        })
+      );
+     new Line(dw, dw.bounds).plot();
+}
+
 </script>
 
 
 <template>
   {{projeto}}
+  <button @click="plot">plotar</button>
+
+<div id="canvas">{{canvas}}</div>
+
   <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl bg-white p-2">
 
