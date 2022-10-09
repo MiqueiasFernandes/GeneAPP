@@ -9,79 +9,115 @@
 </route>
       
 <script setup>
-import { ColorSwatchIcon } from '@heroicons/vue/solid'
-import { CSV } from "../core/utils/CSV";
+import { ColorSwatchIcon } from '@heroicons/vue/solid';
 import { Projeto } from "../core/model/Projeto";
-import {Line} from "../core/d3/Line";
-import {Drawable} from "../core/d3/Drawable";
-import {Bounds, Margin} from "../core/d3/Bounds";
+import { Line } from "../core/d3/Line";
+import { Drawable } from "../core/d3/Drawable";
+import { Bounds } from "../core/d3/Bounds";
+import { Arquivo } from '../core/utils/Arquivo';
+import { Locus, Cromossomo, Gene, Isoforma, UTR, Exon } from '../core/model';
 
 useHead({ title: 'New Project' });
-const proj_name_ref = ref()
-const projeto = ref(new Projeto(proj_name_ref));
+
+const projeto = ref(new Projeto("AS Experiment"));
+const percent = ref(-1);
+const file = ref(null);
+const raw_data = [];
 
 function setExperimento() {
-  CSV.open(dt => {
-    dt.get_col("FACTOR").forEach(f => projeto.value.add_fator(f));
-  });
+
+  Arquivo.importManyData(
+    (raw, f, s) => {
+      raw.split('\n').forEach(x => raw_data.push(x));
+      if (s < 1) {
+
+        const result = projeto.value.validarRawData(raw_data);
+
+        if (result.erros > 0) {
+          alert(`Carregou incorretamente. ERRO ${erros.join(', ')}`);
+          window.location.href = window.location.href;
+        }
+
+        file.value = "Processando ...";
+        projeto.value.parseFiles(result.metadata, result.files, s => (percent.value = s));
+
+        percent.value = 200;
+        return;
+
+
+      }
+    },
+    (status, f) => {
+      file.value = f;
+      percent.value = status[0] * 100 / status[1];
+    },
+    (x) => (x.some(x => x.name.startsWith("parte0_")) ? x[x.indexOf(x.filter(x => x.name.startsWith("parte0_"))[0])] : x[0])
+  );
 }
 
-function  plot() {
+function plot() {
   const dw = new Drawable(
-        null,
-        "canvas",
-        new Bounds(800, 600, 0, 0, {
-          top: 20,
-          bottom: 50,
-          right: 200,
-          left: 100,
-        })
-      );
-     new Line(dw, dw.bounds).plot();
+    null,
+    "canvas",
+    new Bounds(800, 600, 0, 0, {
+      top: 20,
+      bottom: 50,
+      right: 200,
+      left: 100,
+    })
+  );
+  new Line(dw, dw.bounds).plot();
 }
 
 </script>
 
 
 <template>
-  {{projeto}}
+
   <button @click="plot">plotar</button>
 
-<div id="canvas">{{canvas}}</div>
+  <div id="canvas">{{canvas}}</div>
 
   <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl bg-white p-2">
 
-
       <Sanfona titulo="Configurar o projeto">
-        <FormRow grid="6">
-          <FormCol span="2">
-            <FormInputText label="Nome do projeto" ref="proj_name_ref" content="AS Experiment" />
-          </FormCol>
-          <FormCol span="2">
-            <Button color="acent" @click="setExperimento">Experiment</Button>
+        <FormRow>
+          <FormCol>
+            <FormInputText label="Nome do projeto" :content="projeto.nome" @update="(x) => (projeto.nome = x)" />
           </FormCol>
         </FormRow>
-
-
-
-        <FormRow grid="6" v-for="fator in projeto.fatores">
-          <FormCol span="2">
-            <FormInputText :label="'Label of ' + fator.nome" :content="fator.nome" />
+        <FormRow v-if="percent < 200">
+          <FormCol v-if="percent < 0">
+            <Button color="acent" @click="setExperimento">Load experiment data</Button>
           </FormCol>
-          <FormCol span="2">
+          <FormCol v-else>
+            <ProgressBar :label="file" :percent="percent"></ProgressBar>
+          </FormCol>
+        </FormRow>
+        <FormRow grid="6" v-for="fator in projeto.fatores">
+          <FormCol span="6">
+            <FormInputText :label="'Label of ' + fator.nome" :content="fator.nome" @update="(x) => (fator.nome = x)" />
+          </FormCol>
+          <FormCol span="6" style="margin-top: -2.5rem;" class="flex justify-end">
             <ColorSwatchIcon :style="{ color: fator.cor}" class="w-8 h-8 inline-flex rounded-full cursor-pointer border-4 border-white 
               focus:outline-none focus:shadow-outline" @click="fator.show_cor = !fator.show_cor" />
             <input type="color" v-model="fator.cor" :hidden="!fator.show_cor">
           </FormCol>
         </FormRow>
-
       </Sanfona>
-
 
       <Sanfona titulo="Carregar dados obrigatorios">
-
+        <FormRow>
+          <FormCol>
+            <Button color="acent" @click="setData">Experiment Files</Button>
+          </FormCol>
+        </FormRow>
       </Sanfona>
+
+
+
+
 
 
 

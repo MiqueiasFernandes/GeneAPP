@@ -1,6 +1,6 @@
 <script setup>
 const props = defineProps({
-    span: { default: 2, required: true },
+    span: { default: 2 },
     end: Boolean
 });
 </script>
