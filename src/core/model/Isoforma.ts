@@ -2,7 +2,7 @@ import { Anotacao } from "./Anotacao";
 import { CDS } from "./CDS";
 import { Exon } from "./Exon";
 import { Gene } from "./Gene";
-import { Intron } from "./intron";
+import { Intron } from "./Intron";
 import { Locus } from "./Locus";
 import { UTR } from "./UTR";
 
