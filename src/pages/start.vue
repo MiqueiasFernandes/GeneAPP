@@ -84,7 +84,7 @@ useHead({ title: 'Get started on GeneAPP' })
       <template #titulo> 2. Gene APP Data Generation</template>
       <template #subtitulo>Como gerar dados para o GeneAPP?</template>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <ButtonLink :href="'https://www.ncbi.nlm.nih.gov/'" :icon="false">
+        <ButtonLink :href="'https://github.com/MiqueiasFernandes/GeneAPP/blob/main/public/data/Generate_AS_data.ipynb'" :icon="false">
           <ClipboardListIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
           Clone Colab Notebook
         </ButtonLink>
