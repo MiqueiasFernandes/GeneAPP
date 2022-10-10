@@ -10,6 +10,9 @@ export class Gene extends Locus {
     private as_events = new Array<AlternativeSplicing>();
     private dexp: DifferentialExpression = null;
 
+
+    getAS = () => this.as_events;
+
     addAS(as: AlternativeSplicing) {
         this.as_events.push(as)
     }

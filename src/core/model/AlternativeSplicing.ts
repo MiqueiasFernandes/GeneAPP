@@ -16,6 +16,8 @@ export class AlternativeSplicing {
         this.extra = extra;
         gene.addAS(this);
     }
+
+    getEvidence = () => this.evidence;
 }
 
 export class AS3dranseq extends AlternativeSplicing {

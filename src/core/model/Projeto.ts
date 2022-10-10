@@ -419,7 +419,7 @@ export class Projeto {
             .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
             .map(e => Object.assign(e, { MASER: mats_a3ss_sig.includes(e.ID) }))
             .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
-                new ASrmats(this.genes[das["target"]], das, 'A3SS')
+                new ASrmats(this.genes[das["GeneID"]], das, 'A3SS')
             ));
 
         /// A5SS 'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'longExonStart_0base', 'longExonEnd', 'shortES', 'shortEE', 'flankingES', 'flankingEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
@@ -427,7 +427,7 @@ export class Projeto {
             .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
             .map(e => Object.assign(e, { MASER: mats_a5ss_sig.includes(e.ID) }))
             .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
-                new ASrmats(this.genes[das["target"]], das, 'A5SS')
+                new ASrmats(this.genes[das["GeneID"]], das, 'A5SS')
             ));
 
         /// SE   'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'exonStart_0base', 'exonEnd', 'upstreamES', 'upstreamEE', 'downstreamES', 'downstreamEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
@@ -435,7 +435,7 @@ export class Projeto {
             .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
             .map(e => Object.assign(e, { MASER: mats_se_sig.includes(e.ID) }))
             .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
-                new ASrmats(this.genes[das["target"]], das, 'SE')
+                new ASrmats(this.genes[das["GeneID"]], das, 'SE')
             ));
 
         /// RI   'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'riExonStart_0base', 'riExonEnd', 'upstreamES', 'upstreamEE', 'downstreamES', 'downstreamEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
@@ -443,7 +443,7 @@ export class Projeto {
             .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
             .map(e => Object.assign(e, { MASER: mats_ri_sig.includes(e.ID) }))
             .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
-                new ASrmats(this.genes[das["target"]], das, 'RI')
+                new ASrmats(this.genes[das["GeneID"]], das, 'RI')
             ));
 
         return null;
@@ -483,8 +483,6 @@ export class Projeto {
 
         ///cobertura
         setTimeout(() => { this.parseCobertura(files); fn_status(cont += 20) }, 500); //100
-
-        console.log(this.genes['AT5G67240']);
 
     }
 }
