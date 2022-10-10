@@ -8,3 +8,4 @@ export * from './Isoforma';
 export * from './Locus';
 export * from './UTR';
 export * from './Projeto';
+export * from './Fator';

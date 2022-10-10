@@ -1,10 +1,22 @@
+import { AlternativeSplicing } from "./AlternativeSplicing";
 import { Cromossomo } from "./Cromossomo";
+import { DifferentialExpression } from "./DifferentialExpression";
 import { Isoforma } from "./Isoforma";
 import { Locus } from "./Locus";
 
 export class Gene extends Locus {
     private isoformas: Array<Isoforma> = new Array<Isoforma>();
     private bed = {};
+    private as_events = new Array<AlternativeSplicing>();
+    private dexp: DifferentialExpression = null;
+
+    addAS(as: AlternativeSplicing) {
+        this.as_events.push(as)
+    }
+
+    setDE(de: DifferentialExpression) {
+        this.dexp = de;
+    }
 
     addIsoforma(isoforma: Isoforma) {
         this.isoformas.push(isoforma);

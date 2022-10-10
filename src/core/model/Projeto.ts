@@ -7,57 +7,15 @@ import { Gene } from "./Gene";
 import { Isoforma } from "./Isoforma";
 import { Locus } from "./Locus";
 import { UTR } from "./UTR";
-
-class Sample {
-    path: string;
-    nome: string;
-    run: string;
-    fator: string;
-    tpm_genes = {};
-    tpm_trans = {};
-
-    constructor(path: string) {
-        this.path = path;
-    }
-
-    config(row) {
-        this.nome = row.SAMPLE;
-        this.run = row.RUN;
-        this.fator = row.FACTOR;
-    }
-
-    fillTPM(dt, gene = true) {
-        dt
-            .map(r => [r["@"], r[`${this.fator}.${this.nome}`]])
-            .forEach(r => ((gene ? this.tpm_genes : this.tpm_trans)[r[0]] = parseFloat(r[1])));
-    }
-}
-
-class Fator {
-    nome: String;
-    samples: Array<Sample> = new Array<Sample>();
-    cor: String;
-    is_control = false;
-    is_case = false;
-
-    constructor(raw: string, color: string) {
-        //sample_MT1/MT1.rmats.bam,sample_MT2/MT2.rmats.bam,sample_MT3/MT3.rmats.bam,{MUTANT.bams}
-        const dt = raw.split(',').reverse();
-        this.nome = dt[0].slice(1, -1).split(".")[0];
-        this.samples = dt.slice(1).map(x => new Sample(x.split('/')[0]));
-        this.cor = color || "#ff2486";
-    }
-
-    setControl = () => this.is_control = true;
-    setCase = () => this.is_case = true;
-}
+import { Fator } from "./Fator";
+import { AlternativeSplicing, AS3dranseq, ASrmats } from "./AlternativeSplicing";
+import { DifferentialExpression } from "./DifferentialExpression";
 
 export class Projeto {
     nome: String;
     fatores: Array<Fator> = new Array<Fator>();
     taxonomy: string = null;
     cromossomos: Array<Cromossomo> = new Array<Cromossomo>();
-    private parse_status = 0;
     private qc_status: CSV = null;
     private gene2isos = {};
     private iso2gene = {};
@@ -68,6 +26,9 @@ export class Projeto {
     private genes = {};
     private isoformas_FASTA = {};
     private isoformas_GFF = {};
+    private das_genes: Array<AlternativeSplicing> = new Array<AlternativeSplicing>();
+    private de_genes: Array<DifferentialExpression> = new Array<DifferentialExpression>();
+
 
     constructor(nome: string) {
         this.nome = nome;
@@ -413,24 +374,79 @@ export class Projeto {
         this.part(files, 'cov_all.bed').map(x => x.split(',')).forEach(r => this.genes[r[1]].setBED(r));
     }
 
-    parseRMATS(files): boolean {
-        const rmats_data = files
-            .filter(f => [
-                "A3SS.MATS.JCEC.txt", 'A5SS.MATS.JCEC.txt', 'RI.MATS.JCEC.txt', 'SE.MATS.JCEC.txt', 'MXE.MATS.JCEC.txt',
-                'sign_events_A3SS.tsv', 'sign_events_A5SS.tsv', 'sign_events_RI.tsv', 'sign_events_SE.tsv'
-            ].indexOf(f[0]) === 0)
-            .map(x => x[1]);
-        return true;
+    parse3D(files, headers): string {
+
+        const fnSTR = x => x.trim().replaceAll('"', '');
+        const fnFloat = x => parseFloat(x);
+
+        const Significant_DAS_genes = this
+            .getCSV(files, 'Significant DAS genes list and statistics.csv', headers)
+            .getRows({ "target": fnSTR, 'adj.pval': fnFloat, 'maxdeltaPS': fnFloat });
+
+        const Significant_DE_genes = this.getCSV(files, 'Significant DE genes list and statistics.csv', headers)
+            .getRows({ "target": fnSTR, 'adj.pval': fnFloat, 'log2FC': fnFloat });
+
+        Significant_DAS_genes
+            .forEach(das => this.genes[das["target"]] && this.das_genes.push(
+                new AS3dranseq(this.genes[das["target"]], das)
+            ));
+
+        Significant_DE_genes
+            .forEach(de => this.genes[de["target"]] && this.de_genes.push(
+                new DifferentialExpression(this.genes[de["target"]], de['log2FC'], de['adj.pval'])
+            ));
+
+        return null;
     }
 
-    parse3D(files): boolean {
+    parseRMATS(files, headers): string {
 
-        const to3d_data = files
-            .filter(f => [
-                'Significant DAS genes list and statistics.csv', 'Significant DE genes list and statistics.csv'
-            ].indexOf(f[0]) === 0)
-            .map(x => x[1]);
-        return true;
+        const fnSTR = x => x.trim().replaceAll('"', '');
+        const fnFloat = x => parseFloat(x);
+
+        const mats_a3ss_sig = this.getCSV(files, 'sign_events_A3SS.tsv.csv', headers, '\t').get_col('ID');
+        const mats_a5ss_sig = this.getCSV(files, 'sign_events_A5SS.tsv.csv', headers, '\t').get_col('ID');
+        const mats_se_sig = this.getCSV(files, 'sign_events_SE.tsv.csv', headers, '\t').get_col('ID');
+        const mats_ri_sig = this.getCSV(files, 'sign_events_RI.tsv.csv', headers, '\t').get_col('ID');
+
+        const mats_a3ss = this.getCSV(files, 'A3SS.MATS.JCEC.txt.csv', headers, '\t');
+        const mats_a5ss = this.getCSV(files, 'A5SS.MATS.JCEC.txt.csv', headers, '\t');
+        const mats_se = this.getCSV(files, 'SE.MATS.JCEC.txt.csv', headers, '\t');
+        const mats_ri = this.getCSV(files, 'RI.MATS.JCEC.txt.csv', headers, '\t');
+
+        /// A3SS 'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'longExonStart_0base', 'longExonEnd', 'shortES', 'shortEE', 'flankingES', 'flankingEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
+        mats_a3ss
+            .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
+            .map(e => Object.assign(e, { MASER: mats_a3ss_sig.includes(e.ID) }))
+            .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
+                new ASrmats(this.genes[das["target"]], das, 'A3SS')
+            ));
+
+        /// A5SS 'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'longExonStart_0base', 'longExonEnd', 'shortES', 'shortEE', 'flankingES', 'flankingEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
+        mats_a5ss
+            .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
+            .map(e => Object.assign(e, { MASER: mats_a5ss_sig.includes(e.ID) }))
+            .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
+                new ASrmats(this.genes[das["target"]], das, 'A5SS')
+            ));
+
+        /// SE   'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'exonStart_0base', 'exonEnd', 'upstreamES', 'upstreamEE', 'downstreamES', 'downstreamEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
+        mats_se
+            .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
+            .map(e => Object.assign(e, { MASER: mats_se_sig.includes(e.ID) }))
+            .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
+                new ASrmats(this.genes[das["target"]], das, 'SE')
+            ));
+
+        /// RI   'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'riExonStart_0base', 'riExonEnd', 'upstreamES', 'upstreamEE', 'downstreamES', 'downstreamEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
+        mats_ri
+            .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
+            .map(e => Object.assign(e, { MASER: mats_ri_sig.includes(e.ID) }))
+            .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
+                new ASrmats(this.genes[das["target"]], das, 'RI')
+            ));
+
+        return null;
     }
 
     parseFiles(result, fn_status): string {
@@ -441,22 +457,23 @@ export class Projeto {
         const headers = result.headers;
 
         var error_msg = null;
+        var cont = 0;
 
         /// basicos
         if (error_msg = this.parse_dados_basicos(metadata, files, headers)) return error_msg;
-        fn_status(10);
+        fn_status(cont += 10);
 
         /// gff
         if (error_msg = this.parseGFF(files, headers)) return error_msg;
-        fn_status(20);
-
-        /// rmats
-        fn_status(30);
+        fn_status(cont += 10);
 
         /// 3d
-        fn_status(40);
+        if (error_msg = this.parse3D(files, headers)) return error_msg;
+        fn_status(cont += 10);
 
-        var cont = 40;
+        /// rmats
+        if (error_msg = this.parseRMATS(files, headers)) return error_msg;
+        fn_status(cont += 10);
 
         /// tpm
         setTimeout(() => { this.parseTPM(files, headers); fn_status(cont += 20) }, 200); //60
@@ -467,7 +484,7 @@ export class Projeto {
         ///cobertura
         setTimeout(() => { this.parseCobertura(files); fn_status(cont += 20) }, 500); //100
 
-        console.log(this.cromossomos);
+        console.log(this.genes['AT5G67240']);
 
     }
 }
