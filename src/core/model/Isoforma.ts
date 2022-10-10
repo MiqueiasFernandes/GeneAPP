@@ -1,3 +1,4 @@
+import { Anotacao } from "./Anotacao";
 import { CDS } from "./CDS";
 import { Exon } from "./Exon";
 import { Gene } from "./Gene";
@@ -12,6 +13,7 @@ export class Isoforma extends Locus {
     private three_prime_utr: UTR = null;
     private cds: CDS = null;
     private gene: Gene = null;
+    private anotacao: Array<Anotacao> = new Array<Anotacao>();
 
     addExon = (exon: Exon) => this.exons.push(exon);
     addIntron = (intron: Intron) => this.introns.push(intron);

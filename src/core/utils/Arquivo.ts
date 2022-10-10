@@ -36,7 +36,7 @@ export class Arquivo {
                 files = files.filter(f => f !== processar);
                 fn_status([processados.push(processar), qtd, files.length], processar.name);
                 fn_data(R.target.result, processar.name, files.length);
-                files.length > 0 && setTimeout(_ => reader.readAsText(processar = fn_choose(files)), 500);
+                files.length > 0 && setTimeout(_ => reader.readAsText(processar = fn_choose(files)), 200);
             };
             reader.readAsText(processar);
         };

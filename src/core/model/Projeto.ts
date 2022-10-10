@@ -1,3 +1,6 @@
+import { Conj } from "../utils/Conj";
+import { CSV } from "../utils/CSV";
+import { Anotacao } from "./Anotacao";
 import { Cromossomo } from "./Cromossomo";
 import { Exon } from "./Exon";
 import { Gene } from "./Gene";
@@ -9,14 +12,24 @@ class Sample {
     path: string;
     nome: string;
     run: string;
+    fator: string;
+    tpm_genes = {};
+    tpm_trans = {};
 
     constructor(path: string) {
         this.path = path;
     }
 
-    config(line: string[]) {
-        this.nome = line[1];
-        this.run = line[0];
+    config(row) {
+        this.nome = row.SAMPLE;
+        this.run = row.RUN;
+        this.fator = row.FACTOR;
+    }
+
+    fillTPM(dt, gene = true) {
+        dt
+            .map(r => [r["@"].replaceAll('"', ''), r[`${this.fator}.${this.nome}`]])
+            .forEach(r => ((gene ? this.tpm_genes : this.tpm_trans)[r[0]] = parseFloat(r[1])));
     }
 }
 
@@ -24,6 +37,8 @@ class Fator {
     nome: String;
     samples: Array<Sample> = new Array<Sample>();
     cor: String;
+    is_control = false;
+    is_case = false;
 
     constructor(raw: string, color: string) {
         //sample_MT1/MT1.rmats.bam,sample_MT2/MT2.rmats.bam,sample_MT3/MT3.rmats.bam,{MUTANT.bams}
@@ -33,6 +48,8 @@ class Fator {
         this.cor = color || "#ff2486";
     }
 
+    setControl = () => this.is_control = true;
+    setCase = () => this.is_case = true;
 }
 
 export class Projeto {
@@ -41,6 +58,14 @@ export class Projeto {
     taxonomy: string = null;
     cromossomos: Array<Cromossomo> = new Array<Cromossomo>();
     private parse_status = 0;
+    private qc_status: CSV = null;
+    private gene2isos = {};
+    private iso2gene = {};
+    private as_genes = [];
+    private as_isos = [];
+    private full_map_table: string[][] = [];
+    private gene_prefix: number = 0;
+    private genes = {};
 
     constructor(nome: string) {
         this.nome = nome;
@@ -49,34 +74,34 @@ export class Projeto {
 
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
+        fator.is_control = this.fatores.length < 1;
+        fator.is_case = this.fatores.length > 0;
         this.fatores.some(f => f.nome === fator.nome) || this.fatores.push(fator);
     }
 
-    getFator = path => this.fatores.filter(f => f.nome === path)[0];
+    getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
 
-    setDesign(lines: string[]) {
-        if (lines[0] === 'RUN,SAMPLE,FACTOR,FOLDER') {
-            lines
-                .slice(1)
-                .map(x => x.split(","))
-                .forEach(line => this.getFator(line[2]).samples.filter(s => s.path === line[3])[0].config(line));
+    setDesign(csv: CSV) {
+        if (['RUN', 'SAMPLE', 'FACTOR', 'FOLDER'].every(x => csv.get_header().includes(x))) {
+            csv.getRows().forEach(r => this.getFator(r.FACTOR).samples.filter(s => s.path === r.FOLDER)[0].config(r));
         }
         else
-            throw 'Line 1 do desenho experimental errada: ' + lines[0];
+            throw 'Line 1 do desenho experimental errada: ' + csv.get_header();
     }
 
-    validarRawData(raw_data): { erros: string[], metadata, files } {
+    validarRawData(raw_data): { erros: string[], metadata, files, headers } {
         const part1 = raw_data.indexOf('part=1');
         const part2 = raw_data.indexOf('part=2');
         const part3 = raw_data.indexOf('part=3');
         const part4 = raw_data.indexOf('part=4');
 
         if (part1 !== 0 || part1 >= part2 || part2 >= part3 || part3 >= part4) {
-            return { erros: ["Divisao incorreta das partes"], metadata: null, files: null };
+            return { erros: ["Divisao incorreta das partes"], metadata: null, files: null, headers: null };
         }
 
         const metadata = raw_data.slice(part1 + 1, part2).map(l => l.split('=')).map(l => [l[0], l.slice(1).join('=')]);
         const alias = raw_data.slice(part2 + 1, part3).map(l => l.split('='));
+        const headers = raw_data.slice(part4 + 1).map(l => l.split(':'));
         var files = raw_data.slice(part3 + 1, part4).concat(raw_data.slice(part4 + 1));
         files = alias.map(x => [
             x[0],
@@ -85,121 +110,264 @@ export class Projeto {
         const conf_lines = f => parseInt(metadata.filter(x => x[0] === 'lines' && x[1].endsWith(f[0]))[0][1].trim().split(' ')[0]);
         const erros = files.filter(f => f[1].length !== conf_lines(f)).map(f => [f[0], f[1].length, conf_lines(f)]);
         if (erros.length > 0) {
-            return { erros: erros.map(e => e[0] + ' {R' + e[1] + 'E' + e[2] + '}'), metadata: null, files: null };
+            return { erros: erros.map(e => e[0] + ' {R' + e[1] + 'E' + e[2] + '}'), metadata: null, files: null, headers: null };
         }
-        return { erros: undefined, metadata, files };
+        return { erros: undefined, metadata, files, headers };
     }
 
     private part = (v, t) => v.filter(x => x[0] === t)[0][1];
 
-    parse_dados_basicos(metadata, files) {
+    private getCSV = (v, t, h, s = ",") => {
+        const lines = this.part(v, t);
+        const header = h ? h.filter(x => x[0] === t)[0][1] : null;
+        return CSV.fromLines(lines.filter(l => l !== header), s, header ? header.split(s) : []);
+    }
+
+    parse_dados_basicos(metadata, files, headers): string {
+
         metadata.filter(x => x[0] === "map").map(x => x[1]).forEach(x => this.addFator(x));
-        this.setDesign(this.part(files, 'experimental_design.csv'));
+        const experimental_design = this.getCSV(files, 'experimental_design.csv', headers);
+        this.setDesign(experimental_design);
         this.taxonomy = metadata
             .filter(x => x[0] === "gff" && x[1].startsWith('##species https://www.ncbi'))[0][1].trim().split(' ')[1];
 
+        this.qc_status = this.getCSV(files, 'multiqc_general_stats.txt.csv', headers, '\t');
 
-        const multiqc_data = files.filter(f => f[0] === 'multiqc_general_stats.txt').map(x => x[1]);
-        const resumo_data = files.filter(f => f[0] === 'resumo.txt').map(x => x[1]);
 
-        this.parse_status += 10;
+        const log = [
+            ///Tamanho do genoma: 
+            ///Quantiade de sequencias no genoma: 
+            ///Quantidade de genes: 
+            ///Quantidade de genes cod prot: 
+            ///Quantiade de transcritos: 
+            ///Tamanho total de transcritos: 
+            ///Genes com AS anotado: 
+            ///CDS de genes com AS anotado: 
+            ///Tamanho total da CDS de genes com AS:
+            /// Mapeamento no $LABEL: 
+            ///tratando $SAMPLE como 
+            ///Surviving' 
+            ///CDS expressa em $SAMPLE: 
+            ///analise rMATS 
+            ///analise 3DRnaSEQ  SIGNIFICATIVO genes" >> $RESUMO
+            /// Total : ... AS genes encontrados | so rMATS $SO_RMATS | so 3DRNASEQ $SO_3D | ambos $AMBOS 
+        ];
+
+        return null;
     }
 
-    parseGFF(files): boolean {
+    parseTPM(files, headers): string {
+        const tpm_genes = this.getCSV(files, 'TPM_genes.csv', headers);
+        const tpm_trns = this.getCSV(files, 'TPM_trans.csv', headers);
+        this.fatores.forEach(f => f.samples.forEach(s => s.fillTPM(tpm_genes.getRows())));
+        this.fatores.forEach(f => f.samples.forEach(s => s.fillTPM(tpm_trns.getRows(), false)));
+
+        const transcript_gene_mapping = this.getCSV(files, 'transcript_gene_mapping.csv', headers);
+        transcript_gene_mapping.getRows().forEach(r => {
+            if (!this.gene2isos[r.GENEID]) this.gene2isos[r.GENEID] = [];
+            this.gene2isos[r.GENEID].push(r.TXNAME);
+            this.iso2gene[r.TXNAME] = r.GENEID;
+        });
+
+        return null;
+    }
+
+    parseGFF(files, headers): string {
+
         const cromossomos = {};
-        this.part(files, 'gene.gff.min')
+        const valid_genes = Object.keys(this.gene2isos);
+        const valid_mrnas = Object.keys(this.iso2gene);
+        const as_gene_isos = this.part(files, 'all_as_isoforms.txt').map(x => x.split(','))
+        const as_genes = as_gene_isos.map(x => x[0]);
+        const as_isos = as_gene_isos.map(x => x[1]);
+        this.as_genes = new Conj(as_genes.filter(g => valid_genes.includes(g))).uniq();
+        this.as_isos = new Conj(as_isos.filter(i => valid_mrnas.includes(i))).uniq();
+
+        const gene2mrna2cds2ptn = this.getCSV(files, 'gene2mrna2cds2ptn.csv', headers);
+        const gene_test = this.as_genes[0];
+        const mrna_test = this.as_isos[0];
+
+        const gene_ok = gene2mrna2cds2ptn.get_col('gene').some(g => g === gene_test);
+        const iso_mrna = gene2mrna2cds2ptn.get_col('mrna').some(g => g === mrna_test);
+        const iso_cds = gene2mrna2cds2ptn.get_col('cds').some(g => g === mrna_test);
+        //const iso_ptn = gene2mrna2cds2ptn.get_col('protein').some(g => g === mrna_test);
+
+        if (!gene_ok) return "Gene " + gene_test + " NAO ENCONTRADO no MAPA";
+        if (!iso_mrna && !iso_cds) return "mRNA " + mrna_test + " NAO ENCONTRADO no MAPA";
+
+        const gff = this.part(files, 'gene.gff.min')
             .map(x => x.split('\t'))
             .sort((a, b) => {
                 const A = a[2];
                 const B = b[2];
-
                 if (A === B) return 0;
-
                 if (A === "region") return -1;
-
                 if (A === "gene") {
                     if (B === "region") return 1;
                     return -1;
                 }
-
                 if (['mRNA', 'transcript', 'primary_transcript'].includes(A)) {
                     if (["region", "gene"].includes(B)) return 1;
                     return -1;
                 }
-
                 return 1;
-            })
-            .forEach(
-                l => {
-                    const crh_nome = l[0];
-                    const tipo = l[2];
-                    const locus = Locus.fromGFF(null, l, null);
-                    switch (tipo) {
-                        case "region":
-                            cromossomos[crh_nome] = new Cromossomo(crh_nome, locus.end + 1);
+            });
+
+        const gene_ids = gff
+            .filter(x => x[2] === 'gene')
+            .map(x => x[8].split('ID=')[1].split(';')[0]);
+
+        if (!gene_ids.includes(gene_test)) {
+            if (gene_ids.includes('gene-' + gene_test)) {
+                console.warn("Genes do GFF com nome prefixado em `gene-` corrigindo.");
+                this.gene_prefix = 5;
+            } else
+                return `Gene ${gene_test} NAO ENCONTRADO nos genes do GFF`;
+        }
+
+        const ptna_test = gene2mrna2cds2ptn.getRows().filter(g => g.gene === gene_test)[0].protein;
+        const ptna_ver = gff.filter(x => x[8].includes(ptna_test));
+
+        if (ptna_ver.length < 1) return "Protein " + ptna_test + " NAO ENCONTRADO no GFF";
+
+        const qual_tipo_tem_prot = ptna_ver[0][2];
+        const qual_prop_tem_prot = ptna_ver[0][8].split('=' + ptna_test)[0].split(';').reverse()[0] + '=';
+        const qual_id = ptna_ver[0][8].split(';').filter(x => x.startsWith('ID='));
+        const qual_parent = ptna_ver[0][8].split(';').filter(x => x.startsWith('Parent='));
+        const qual_prop_id = qual_id.length > 0 ? (qual_id[0].split('=')[0] + '=') : null;
+        const qual_prop_parent = qual_parent.length > 0 ? (qual_parent[0].split('=')[0] + '=') : null;
+
+        const new_table = Object.fromEntries(gff.filter(x => x[2] === qual_tipo_tem_prot)
+            .map(x => x[8])
+            .filter(x => x.includes(qual_prop_tem_prot) &&
+                ((qual_prop_id && x.includes(qual_prop_id)) || (qual_prop_parent && x.includes(qual_prop_parent))))
+            .map(x => [
+                x.split(qual_prop_tem_prot)[1].split(';')[0],
+                [qual_prop_id && x.includes(qual_prop_id) ? x.split(qual_prop_id)[1].split(';')[0] : null,
+                qual_prop_parent && x.includes(qual_prop_parent) ? x.split(qual_prop_parent)[1].split(';')[0] : null]
+            ]));
+
+        var full_table_gene2iso2ptn = [];
+        this.as_isos.forEach(i => full_table_gene2iso2ptn.push([i]));
+        full_table_gene2iso2ptn.forEach(x => x.push(this.iso2gene[x[0]]));
+        const conv = Object.fromEntries(gene2mrna2cds2ptn.getRows().map(x => [iso_mrna ? x.mrna : x.cds, x.protein]))
+        full_table_gene2iso2ptn.forEach(x => x.push(conv[x[0]]));
+        full_table_gene2iso2ptn = full_table_gene2iso2ptn.map(x => x.concat(new_table[x[2]]));
+        ///['lcl|NC_003070.9_cds_NP_001030925.1_25', 'AT1G01080', 'NP_001030925.1', 'cds-NP_001030925.1', 'rna-NM_001035848.1']
+
+        const mrna_ids = gff
+            .filter(x => x[2] === 'mRNA')
+            .concat(gff.filter(x => x[2] === 'transcript'))
+            .concat(gff.filter(x => x[2] === 'primary_transcript'))
+            .map(x => x[8].split('ID=')[1].split(';')[0]);
+
+        const line_test = full_table_gene2iso2ptn[0];
+        const mrnaI = mrna_ids.includes(line_test[3]) ? 3 : mrna_ids.includes(line_test[4]) ? 4 : null;
+
+        if (!mrnaI) return "CDS ou mRNA do GFF NAO possui ID da proteina.";
+
+        this.full_map_table = full_table_gene2iso2ptn.map(x => [x[1], x[0], x[mrnaI], x[2]]);
+        const adc = {};
+        this.full_map_table.forEach(x => {
+            !valid_genes.includes(x[0]) && valid_genes.push(x[0]);
+            !valid_mrnas.includes(x[1]) && valid_genes.push(x[1]);
+            !valid_mrnas.includes(x[2]) && valid_genes.push(x[2]);
+            this.gene2isos[x[0]].push(x[1]);
+            this.gene2isos[x[0]].push(x[2]);
+            this.iso2gene[x[1]] = x[0];
+            this.iso2gene[x[2]] = x[0];
+            !this.as_genes.includes(x[0]) && this.as_genes.push(x[0]);
+            !this.as_isos.includes(x[2]) && this.as_isos.push(x[2]);
+            adc[x[2]] = [x[1], x[3]];
+        });
+
+        gff.forEach(
+            l => {
+                const crh_nome = l[0];
+                const tipo = l[2];
+                const locus = Locus.fromGFF(null, l, null);
+                switch (tipo) {
+                    case "region":
+                        cromossomos[crh_nome] = new Cromossomo(crh_nome, locus.end + 1);
+                        break;
+                    case "gene":
+                        locus.meta['NID'] = locus.meta.ID.slice(this.gene_prefix);
+                        if (!this.as_genes.includes(locus.meta['NID']))
                             break;
-                        case "gene":
-                            if (cromossomos[crh_nome]) {
-                                const gene = new Gene(
-                                    cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta['ID']);
-                                gene.meta = locus.meta;
-                                cromossomos[crh_nome].addGene(gene);
+                        if (cromossomos[crh_nome]) {
+                            const gene = new Gene(
+                                cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
+                            gene.meta = locus.meta;
+                            cromossomos[crh_nome].addGene(gene);
+                            this.genes[locus.meta['NID']] = gene;
+                        } else {
+                            console.warn(`Cromossomo ${crh_nome} not found: ${l}`);
+                        }
+                        break;
+                    case 'mRNA':
+                    case 'transcript':
+                    case 'primary_transcript':
+                        if (!this.as_isos.includes(locus.meta.ID))
+                            break;
+                        const mrna = new Isoforma(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
+                        mrna.meta = locus.meta;
+                        const gene = cromossomos[crh_nome].getGeneByID(mrna.meta.Parent);
+                        if (gene) {
+                            if (adc[mrna.meta.ID]) {
+                                mrna.meta['MRNA'] = adc[mrna.meta.ID][0];
+                                mrna.meta['PTNA'] = adc[mrna.meta.ID][1];
                             } else {
-                                console.warn(`Cromossomo ${crh_nome} not found: ${l}`);
+                                console.warn(locus);
                             }
-                            break;
-                        case 'mRNA':
-                        case 'transcript':
-                        case 'primary_transcript':
-                            const mrna = new Isoforma(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta['ID']);
-                            mrna.meta = locus.meta;
-                            const gene = cromossomos[crh_nome].getGeneByID(mrna.meta.Parent);
-                            if (gene) {
-                                gene.addIsoforma(mrna);
-                            } else {
+                            gene.addIsoforma(mrna);
+                        } else {
+                            if (valid_genes.includes(mrna.meta.Parent))
                                 console.warn(`Gene ${mrna.meta.Parent} for ${tipo} not found: ${l}`);
-                            }
-                            break;
-                        case 'five_prime_UTR':
-                        case 'three_prime_UTR':
-                            const utr = new UTR(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
-                            utr.meta = locus.meta;
-                            utr.is_five = 'five_prime_UTR' === tipo;
-                            utr.is_three = 'three_prime_UTR' === tipo;
-                            var iso = cromossomos[crh_nome].getIsoformByID(utr.meta.Parent);
-                            if (iso) {
-                                utr.is_five && iso.setFivePrimeUTR(utr);
-                                utr.is_three && iso.setThreePrimeUTR(utr);
-                            } else {
+                        }
+                        break;
+                    case 'five_prime_UTR':
+                    case 'three_prime_UTR':
+                        const utr = new UTR(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
+                        utr.meta = locus.meta;
+                        utr.is_five = 'five_prime_UTR' === tipo;
+                        utr.is_three = 'three_prime_UTR' === tipo;
+                        var iso = cromossomos[crh_nome].getIsoformByID(utr.meta.Parent);
+                        if (iso) {
+                            utr.is_five && iso.setFivePrimeUTR(utr);
+                            utr.is_three && iso.setThreePrimeUTR(utr);
+                        } else {
+                            if (valid_mrnas.includes(utr.meta.Parent))
                                 console.warn(`Isoform ${utr.meta.Parent} for ${tipo} not found: ${l}`);
-                            }
-                            break;
-                        case 'exon':
-                            const exon = new Exon(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
-                            exon.meta = locus.meta;
-                            iso = cromossomos[crh_nome].getIsoformByID(exon.meta.Parent);
-                            if (iso) {
-                                iso.addExon(exon);
-                            } else {
+                        }
+                        break;
+                    case 'exon':
+                        const exon = new Exon(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
+                        exon.meta = locus.meta;
+                        iso = cromossomos[crh_nome].getIsoformByID(exon.meta.Parent);
+                        if (iso) {
+                            iso.addExon(exon);
+                        } else {
+                            if (valid_mrnas.includes(exon.meta.Parent))
                                 console.warn(`Isoform ${exon.meta.Parent} for ${tipo} not found: ${l}`);
-                            }
-                            break;
-                        case 'CDS':
-                            const cds = new Locus(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
-                            cds.meta = locus.meta;
-                            iso = cromossomos[crh_nome].getIsoformByID(cds.meta.Parent);
-                            if (iso) {
-                                iso.setCDS(cds);
-                            } else {
+                        }
+                        break;
+                    case 'CDS':
+                        const cds = new Locus(cromossomos[crh_nome], locus.start, locus.end, locus.strand, locus.meta.ID);
+                        cds.meta = locus.meta;
+                        iso = cromossomos[crh_nome].getIsoformByID(cds.meta.Parent);
+                        if (iso) {
+                            iso.setCDS(cds);
+                        } else {
+                            if (valid_mrnas.includes(cds.meta.Parent))
                                 console.warn(`Isoform ${cds.meta.Parent} for ${tipo} not found: ${l}`);
-                            }
-                            break;
-                        default:
-                            cromossomos[crh_nome].addLocus(Locus.fromGFF(cromossomos[crh_nome], l, tipo));
-                            break;
-                    }
+                        }
+                        break;
+                    default:
+                        cromossomos[crh_nome].addLocus(Locus.fromGFF(cromossomos[crh_nome], l, tipo));
+                        break;
                 }
-            );
+            }
+        );
 
         Object.keys(cromossomos)
             .map(k => cromossomos[k])
@@ -207,18 +375,23 @@ export class Projeto {
                 c.update();
                 this.cromossomos.push(c);
             });
-        this.parse_status += 10;
-        return true;
     }
 
-    parseTPM(files): boolean {
-        const tpm_data = [
-            files.filter(f => f[0] === 'TPM_genes.csv').map(x => x[1]),
-            files.filter(f => f[0] === 'TPM_trans.csv').map(x => x[1]),
-            files.filter(f => f[0] === 'transcript_gene_mapping.csv').map(x => x[1])
-        ];
-        return true;
+    parseAnotacao(files): string {
+        const anotacao = this.part(files, 'anotacao.tsv').map(x => x.split('\t')).map(x => [x[0].split(',')[0], x]);
+        this.cromossomos.forEach(c => c.getGenes().forEach(g => g.getIsoformas().forEach(iso =>
+            anotacao.filter(a => a[0] === iso.meta['PTNA']).map(a => a[1]).forEach(a => iso.add_anotacao(Anotacao.fromRaw(a)))
+        )));
+        return null;
     }
+
+    getALLGenes = () => Object.values(this.genes);
+
+    parseCobertura(files): string {
+        this.part(files, 'cov_all.bed').map(x => x.split(',')).forEach(r => this.genes[r[1]].setBED(r));
+        return null;
+    }
+
 
     parseRMATS(files): boolean {
         const rmats_data = files
@@ -240,26 +413,37 @@ export class Projeto {
         return true;
     }
 
-    parseCobertura(files): boolean {
+    parseFiles(result, fn_status): string {
 
-        const cobertura_data = files.filter(f => f[0] === 'cov_all.bed').map(x => x[1]);
-        return true;
-    }
-
-    parseAnotacao(files): boolean {
-        const anotacao_data = files.filter(f => f[0] === 'anotacao.tsv').map(x => x[1]);
-        return true;
-    }
-
-    parseFiles(metadata, files, fn_status) {
         fn_status(0);
-        /// tpm > gff > anotacao
+        const metadata = result.metadata;
+        const files = result.files;
+        const headers = result.headers;
+
+        var error_msg = null;
+
         /// basicos
+        if (error_msg = this.parse_dados_basicos(metadata, files, headers)) return error_msg;
+        fn_status(10);
+
+        /// tpm > gff > anotacao
+        if (error_msg = this.parseTPM(files, headers)) return error_msg;
+        fn_status(20);
+
+        if (error_msg = this.parseGFF(files, headers)) return error_msg;
+        fn_status(30);
+
+        if (error_msg = this.parseAnotacao(files)) return error_msg;
+        fn_status(40);
+
+        ///cobertura
+        if (error_msg = this.parseCobertura(files)) return error_msg;
+        fn_status(50);
+
         /// rmats
         /// 3d
-        ///cobertura
-        setTimeout(() => { this.parse_dados_basicos(metadata, files); fn_status(this.parse_status) }, 100);
-        setTimeout(() => { this.parseGFF(files); fn_status(this.parse_status) }, 100);
+
+        console.log(this.cromossomos);
 
     }
 }

@@ -24,15 +24,17 @@ export class Cromossomo {
     getGeneByID(id: string): Gene {
         return this.genes.filter(g => g.meta.ID === id)[0];
     }
-    
+
     getIsoformByID(id: string): Isoforma {
         for (const gene of this.genes) {
             if (gene.hasIsoforma(id))
-            return gene.getIsoformaByID(id);
+                return gene.getIsoformaByID(id);
         }
     }
 
     update() {
         this.genes.forEach(g => g.update(this));
     }
+
+    getGenes = () => this.genes;
 }

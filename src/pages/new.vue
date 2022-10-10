@@ -15,7 +15,6 @@ import { Line } from "../core/d3/Line";
 import { Drawable } from "../core/d3/Drawable";
 import { Bounds } from "../core/d3/Bounds";
 import { Arquivo } from '../core/utils/Arquivo';
-import { Locus, Cromossomo, Gene, Isoforma, UTR, Exon } from '../core/model';
 
 useHead({ title: 'New Project' });
 
@@ -39,7 +38,11 @@ function setExperimento() {
         }
 
         file.value = "Processando ...";
-        projeto.value.parseFiles(result.metadata, result.files, s => (percent.value = s));
+        const error = projeto.value.parseFiles(result, s => (percent.value = s));
+        if (error) {
+          alert(`Carregou incorretamente. ERRO ${error}`);
+          window.location.href = window.location.href;
+        }
 
         percent.value = 200;
         return;
@@ -51,7 +54,7 @@ function setExperimento() {
       file.value = f;
       percent.value = status[0] * 100 / status[1];
     },
-    (x) => (x.some(x => x.name.startsWith("parte0_")) ? x[x.indexOf(x.filter(x => x.name.startsWith("parte0_"))[0])] : x[0])
+    files => files.sort((a, b) => a.name.localeCompare(b.name))[0]
   );
 }
 
@@ -100,6 +103,12 @@ function plot() {
             <FormInputText :label="'Label of ' + fator.nome" :content="fator.nome" @update="(x) => (fator.nome = x)" />
           </FormCol>
           <FormCol span="6" style="margin-top: -2.5rem;" class="flex justify-end">
+
+            <Button v-if="fator.is_control"
+              @click="fator.is_control = !(fator.is_case = !fator.is_case)">controle</Button>
+            <Button v-if="fator.is_case"
+              @click="fator.is_control = !(fator.is_case = !fator.is_case)">tratamento</Button>
+
             <ColorSwatchIcon :style="{ color: fator.cor}" class="w-8 h-8 inline-flex rounded-full cursor-pointer border-4 border-white 
               focus:outline-none focus:shadow-outline" @click="fator.show_cor = !fator.show_cor" />
             <input type="color" v-model="fator.cor" :hidden="!fator.show_cor">

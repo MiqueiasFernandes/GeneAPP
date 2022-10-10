@@ -1,9 +1,11 @@
 import { Arquivo } from "./Arquivo";
 
 export class CSV {
-    data: string[][] = null;
-    rows = [];
-    cols = [];
+
+    private data: string[][] = null;
+    private rows = [];
+    private cols = [];
+
     constructor(raw: string, sep = ",", header = []) {
         this.data = raw.split('\n').map(r => r.split(sep));
         if (header.length < 1) {
@@ -13,6 +15,8 @@ export class CSV {
             this.cols = header;
             this.rows = this.data;
         }
+        this.cols = this.cols.map(x => (x.trim().replaceAll('"', '') || '@'));
+        this.rows = this.rows.map(r => Object.fromEntries(this.cols.map((c, i) => [c, r[i]])));
     }
 
     get_header(): string[] {
@@ -20,15 +24,20 @@ export class CSV {
     }
 
     get_col(name): string[] {
-        const c = this.cols.indexOf(name);
-        return this.rows.map(r => r[c]);
+        return this.rows.map(r => r[name]);
     }
 
     get_row(index): string[] {
         return this.data[index];
     }
 
+    getRows = () => this.rows;
+
     static open(fn, sep = ",", header = []) {
         Arquivo.importData(raw => fn(new CSV(raw, sep, header)))
+    }
+
+    static fromLines(lines: string[], sep = ',', header = []): CSV {
+        return new CSV(lines.join('\n'), sep, header);
     }
 }
