@@ -31,7 +31,7 @@ export class CSV {
         return this.data[index];
     }
 
-    getRows = () => this.rows;
+    getRows = (t = null) => this.rows.map(r => Object.fromEntries(this.cols.map(c => [c, t && t[c] ? t[c](r[c]) : r[c]])));
 
     static open(fn, sep = ",", header = []) {
         Arquivo.importData(raw => fn(new CSV(raw, sep, header)))

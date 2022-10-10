@@ -28,7 +28,7 @@ class Sample {
 
     fillTPM(dt, gene = true) {
         dt
-            .map(r => [r["@"].replaceAll('"', ''), r[`${this.fator}.${this.nome}`]])
+            .map(r => [r["@"], r[`${this.fator}.${this.nome}`]])
             .forEach(r => ((gene ? this.tpm_genes : this.tpm_trans)[r[0]] = parseFloat(r[1])));
     }
 }
@@ -66,11 +66,17 @@ export class Projeto {
     private full_map_table: string[][] = [];
     private gene_prefix: number = 0;
     private genes = {};
+    private isoformas_FASTA = {};
+    private isoformas_GFF = {};
 
     constructor(nome: string) {
         this.nome = nome;
         this.fatores = new Array<Fator>();
     }
+
+    getALLGenes = (): Gene[] => Object.values(this.genes);
+    getALLIsos = (fasta: boolean = false): Isoforma[] => Object.values(fasta ? this.isoformas_FASTA : this.isoformas_GFF);
+    getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
 
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
@@ -78,8 +84,6 @@ export class Projeto {
         fator.is_case = this.fatores.length > 0;
         this.fatores.some(f => f.nome === fator.nome) || this.fatores.push(fator);
     }
-
-    getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
 
     setDesign(csv: CSV) {
         if (['RUN', 'SAMPLE', 'FACTOR', 'FOLDER'].every(x => csv.get_header().includes(x))) {
@@ -156,11 +160,7 @@ export class Projeto {
         return null;
     }
 
-    parseTPM(files, headers): string {
-        const tpm_genes = this.getCSV(files, 'TPM_genes.csv', headers);
-        const tpm_trns = this.getCSV(files, 'TPM_trans.csv', headers);
-        this.fatores.forEach(f => f.samples.forEach(s => s.fillTPM(tpm_genes.getRows())));
-        this.fatores.forEach(f => f.samples.forEach(s => s.fillTPM(tpm_trns.getRows(), false)));
+    parseGFF(files, headers): string {
 
         const transcript_gene_mapping = this.getCSV(files, 'transcript_gene_mapping.csv', headers);
         transcript_gene_mapping.getRows().forEach(r => {
@@ -168,11 +168,6 @@ export class Projeto {
             this.gene2isos[r.GENEID].push(r.TXNAME);
             this.iso2gene[r.TXNAME] = r.GENEID;
         });
-
-        return null;
-    }
-
-    parseGFF(files, headers): string {
 
         const cromossomos = {};
         const valid_genes = Object.keys(this.gene2isos);
@@ -316,10 +311,12 @@ export class Projeto {
                             if (adc[mrna.meta.ID]) {
                                 mrna.meta['MRNA'] = adc[mrna.meta.ID][0];
                                 mrna.meta['PTNA'] = adc[mrna.meta.ID][1];
+                                this.isoformas_FASTA[mrna.meta['MRNA']] = mrna;
                             } else {
                                 console.warn(locus);
                             }
                             gene.addIsoforma(mrna);
+                            this.isoformas_GFF[mrna.meta.ID] = mrna;
                         } else {
                             if (valid_genes.includes(mrna.meta.Parent))
                                 console.warn(`Gene ${mrna.meta.Parent} for ${tipo} not found: ${l}`);
@@ -377,21 +374,44 @@ export class Projeto {
             });
     }
 
-    parseAnotacao(files): string {
+    parseTPM(files, headers) {
+
+        const tpm_genes = this.getCSV(files, 'TPM_genes.csv', headers).getRows({ "@": x => x.replaceAll('"', '') });
+        this.fatores.forEach(f => f.samples.forEach(s => s.fillTPM(tpm_genes)));
+        tpm_genes.forEach(tpm => {
+            if (this.as_genes.includes(tpm['@']))
+                (this.genes[tpm['@']].tpm = tpm)
+        });
+
+        const tpm_trns = this.getCSV(files, 'TPM_trans.csv', headers).getRows({ "@": x => x.replaceAll('"', '') });
+        this.fatores.forEach(f => f.samples.forEach(s => s.fillTPM(tpm_trns, false)));
+        tpm_trns.forEach(tpm => {
+            if (this.as_isos.includes(tpm['@'])) {
+                var iso = this.isoformas_FASTA[tpm['@']];
+                if (iso) {
+                    iso.tpm = tpm;
+                } else
+                    iso = this.isoformas_GFF[tpm['@']];
+                if (iso) {
+                    iso.tpm = tpm;
+                } else {
+                    console.warn(`Isoforma ${tpm['@']} de AS e TPM não encontrada na lista.`);
+                }
+            }
+        });
+
+    }
+
+    parseAnotacao(files) {
         const anotacao = this.part(files, 'anotacao.tsv').map(x => x.split('\t')).map(x => [x[0].split(',')[0], x]);
-        this.cromossomos.forEach(c => c.getGenes().forEach(g => g.getIsoformas().forEach(iso =>
+        this.getALLIsos().forEach(iso =>
             anotacao.filter(a => a[0] === iso.meta['PTNA']).map(a => a[1]).forEach(a => iso.add_anotacao(Anotacao.fromRaw(a)))
-        )));
-        return null;
+        );
     }
 
-    getALLGenes = () => Object.values(this.genes);
-
-    parseCobertura(files): string {
+    parseCobertura(files) {
         this.part(files, 'cov_all.bed').map(x => x.split(',')).forEach(r => this.genes[r[1]].setBED(r));
-        return null;
     }
-
 
     parseRMATS(files): boolean {
         const rmats_data = files
@@ -426,22 +446,26 @@ export class Projeto {
         if (error_msg = this.parse_dados_basicos(metadata, files, headers)) return error_msg;
         fn_status(10);
 
-        /// tpm > gff > anotacao
-        if (error_msg = this.parseTPM(files, headers)) return error_msg;
+        /// gff
+        if (error_msg = this.parseGFF(files, headers)) return error_msg;
         fn_status(20);
 
-        if (error_msg = this.parseGFF(files, headers)) return error_msg;
+        /// rmats
         fn_status(30);
 
-        if (error_msg = this.parseAnotacao(files)) return error_msg;
+        /// 3d
         fn_status(40);
 
-        ///cobertura
-        if (error_msg = this.parseCobertura(files)) return error_msg;
-        fn_status(50);
+        var cont = 40;
 
-        /// rmats
-        /// 3d
+        /// tpm
+        setTimeout(() => { this.parseTPM(files, headers); fn_status(cont += 20) }, 200); //60
+
+        /// anotacao
+        setTimeout(() => { this.parseAnotacao(files); fn_status(cont += 20) }, 300); //80
+
+        ///cobertura
+        setTimeout(() => { this.parseCobertura(files); fn_status(cont += 20) }, 500); //100
 
         console.log(this.cromossomos);
 
