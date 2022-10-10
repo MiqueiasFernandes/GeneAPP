@@ -19,14 +19,7 @@ useHead({ title: 'About' })
         About Page
         <br />
         <span class="text-indigo-600">
-          a principio esse projeto era para ser uma solucao web
-        entretanto nesse ambiente ha 2 limitacoes
-        1 - o tamanho dos arquivos do projeto de teste do protiop chegou a 3mb
-        oque é grande para abrir e processar em navegador, mas pequeno para desktop
-        2 - as tecnologias web se reinventam a cada dia, venho de um pique java>angular>django>vue 
-        mas ultimametne sem tempo para reaprender o vue que mudou radicalmente 2>3 tudo (options>composition!)
-        sem tempo para reaprender botstrap>tailwind prefiro migrar para oque ja sei.
-        em "File chooser dialog can only be shown with a user activation"
+         Sobre o projeto VUE SINGLE PAGE WEB APP
         </span>
       </h2>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
