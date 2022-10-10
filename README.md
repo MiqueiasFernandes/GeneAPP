@@ -5,16 +5,16 @@ O GeneAPP foi desenvolvido para auxiliar bioinformatas a explorar resultados das
 em especial output dos softwares rMATS e 3DRNAseq.
 
 Em resumo o aplicativo:
-    -Disponibiliza um script para gerar o dataset pelo no Colab
-    -Junta os outputs para os genes
-    -Gera graficos
+- Disponibiliza um script para gerar o dataset pelo no Colab
+- Junta os outputs para os genes
+- Gera graficos
 
 Recursos usados neste projeto:
 
 - [Vite 3](https://vitejs.dev/guide/)
 - [Vue 3](https://vuejs.org/guide/introduction.html)
 - [Tailwind CSS 3](https://tailwindcss.com/docs/configuration)
-- [Heroicons](https://github.com/tailwindlabs/heroicons#vue) - beautiful hand-crafted SVG icons
+- [Heroicons](https://github.com/tailwindlabs/heroicons#vue)
 
 ### Getting Started
 
