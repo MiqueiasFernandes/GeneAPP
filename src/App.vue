@@ -3,12 +3,14 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
 import { BeakerIcon } from '@heroicons/vue/solid'
-
+import { PROJETO } from "./core/State";
 
 const pages = (router) => router.options.routes
   .filter(x => parseInt(x.meta.ordem) > 0)
-  .sort((a, b) => a.meta.ordem - b.meta.ordem)
+  .sort((a, b) => a.meta.ordem - b.meta.ordem);
+
 </script>
+
 
 <template>
 
@@ -37,8 +39,8 @@ const pages = (router) => router.options.routes
 
               <router-link v-for="item in pages($router)" :class="[
               $route.meta.title === item.meta.title ? 
-              (item.meta.fbgc || 'bg-gray-900 text-white') : 
-              (item.meta.hfbgc || 'text-gray-300 hover:bg-gray-700 hover:text-white'), 
+              (((PROJETO.status > 0) && item.meta.fbgc) || 'bg-gray-900 text-white') : 
+              (((PROJETO.status > 0) && item.meta.hfbgc) || 'text-gray-300 hover:bg-gray-700 hover:text-white'), 
               'px-3 py-2 rounded-md text-sm font-medium']"
                 :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined" :to="item.path">{{
                 item.meta.title
@@ -112,6 +114,7 @@ const pages = (router) => router.options.routes
         <h1 @click="counter = 0" class="text-3xl font-bold leading-tight text-gray-900">
           {{ $route.meta.description }}
         </h1>
+        <h5>{{ PROJETO.nome }}</h5>
       </div>
     </header>
     <main>

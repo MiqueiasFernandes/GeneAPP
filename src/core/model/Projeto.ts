@@ -13,6 +13,7 @@ import { DifferentialExpression } from "./DifferentialExpression";
 
 export class Projeto {
     nome: String;
+    status = 0; // 0 vazio, 1 carregado
     fatores: Array<Fator> = new Array<Fator>();
     taxonomy: string = null;
     cromossomos: Array<Cromossomo> = new Array<Cromossomo>();
@@ -484,5 +485,6 @@ export class Projeto {
         ///cobertura
         setTimeout(() => { this.parseCobertura(files); fn_status(cont += 20) }, 500); //100
 
+        this.status = 1;
     }
 }

@@ -2132,7 +2132,7 @@ anotar_api() {
                 if grep FINISHED <(curl -sSX GET --header 'Accept: text/plain' "$API/status/$JOB") >/dev/null; then
                     curl -sSX GET --header 'Accept: text/tab-separated-values' "$API/result/$JOB/tsv" >$LOCAL/$ID.tsv
                     cat $LOCAL/$ID.tsv | sed "s/^/$ID,/" >>$TSV
-                    log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $(( $TTG / 10 )) : $(($(ls -1 $LOCAL | grep -c .) * 100 / $TTG))%]  anotacao de $ID obtida pelo job $JOB ok"
+                    log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $TTG : $(($(ls -1 $LOCAL | grep -c .) * 100 / $TTG))%]  anotacao de $ID obtida pelo job $JOB ok"
                     break
                 else
                     sleep 30s

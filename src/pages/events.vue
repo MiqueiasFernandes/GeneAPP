@@ -4,7 +4,7 @@
         "title": "Events",
         "description": "AS Events",
         "ordem": 4,
-        "fbgc": "bg-indigo-600 text-white",
+        "fbgc": "bg-indigo-800 text-white",
         "hfbgc": "bg-indigo-600 hover:bg-indigo-500 text-white"
     }
 }

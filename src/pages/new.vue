@@ -15,10 +15,11 @@ import { Line } from "../core/d3/Line";
 import { Drawable } from "../core/d3/Drawable";
 import { Bounds } from "../core/d3/Bounds";
 import { Arquivo } from '../core/utils/Arquivo';
+import { PROJETO } from "../core/State";
 
 useHead({ title: 'New Project' });
 
-const projeto = ref(new Projeto("AS Experiment"));
+const projeto = PROJETO;
 const percent = ref(-1);
 const file = ref(null);
 const raw_data = [];
@@ -30,7 +31,7 @@ function setExperimento() {
       raw.split('\n').forEach(x => raw_data.push(x));
       if (s < 1) {
 
-        const result = projeto.value.validarRawData(raw_data);
+        const result = projeto.validarRawData(raw_data);
 
         if (result.erros > 0) {
           alert(`Carregou incorretamente. ERRO ${erros.join(', ')}`);
@@ -38,7 +39,7 @@ function setExperimento() {
         }
 
         file.value = "Processando ...";
-        const error = projeto.value.parseFiles(result, s => (percent.value = s));
+        const error = projeto.parseFiles(result, s => (percent.value = s));
         if (error) {
           alert(`Carregou incorretamente. ERRO ${error}`);
           window.location.href = window.location.href;
@@ -121,7 +122,7 @@ function plot() {
 
       <Sanfona titulo="Carregar dados complementares">
       </Sanfona>
-      
+
     </div>
   </div>
 </template>
