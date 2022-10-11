@@ -526,7 +526,7 @@ quantificar() {
     [ $SKIP_MAP_CDS ] && log 5 $SID 5 "pulando mapemento na cds para amostra $SAMPLE"
 
     # 6 mapear nos genes que tem AS anotado
-    [ $SKIP_MAP_GENE ] || mapear $SID 6 $TMP_DIR/idxgenes $SAMPLE "AS_GENES" $IS_PE
+    [ $SKIP_MAP_GENE ] || mapear $SID 6 $TMP_DIR/idxgenes $SAMPLE "AS_GENES" $IS_PE ## && rm $SAMPLE.maped.sam
     [ $SKIP_MAP_GENE ] && log 5 $SID 6 "pulando mapemento no gene para amostra $SAMPLE"
 
     # 7 quantificar com salmon
@@ -561,7 +561,6 @@ quantificar() {
     cd $TMP_DIR
     echo "$(date +%d/%m\ %H:%M) Salvando $OUT_SAMPLE" >>$RESUMO
     zip -r $OUT_SAMPLE sample_$SAMPLE/** 1>$LOG_DIR/_5.$SID.9_zip.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.9_zip.$SAMPLE.err.txt
-    rm -f $TMP_SAMPLE/$SAMPLE.sorted.bam
 }
 
 quantificar_amostras() {
@@ -2095,7 +2094,7 @@ gerar_bed_cobertura() {
     ## gerar bed dos AS genes
     p=1
     rm -f cov_all.bed && mkdir $LOG_DIR/cov
-    for SAMPLE in $(cut -d, -f2 $TMP_DIR/to3d/exper*.csv | tail -n+2); do
+    for SAMPLE in $(cut -d, -f2 to3d/exper*.csv | tail -n+2); do
         if [ -f $TMP_DIR/sample_$SAMPLE/$SAMPLE.sorted.bam ]; then
             log 6 3 $p "Gerando BED dos genes para $SAMPLE"
             rm -f cov.bed
@@ -2127,13 +2126,13 @@ anotar_api() {
         SEQ=$(echo $l | cut -d, -f2 | tr -cd '[:alpha:]')
         if [ ! -f $LOCAL/$ID.tsv ]; then
             JOB=$(curl -sSX POST --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: text/plain' -d "email=$EMAIL&$Q&title=$ID&sequence=$SEQ" $API/run)
-            log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $TTG] $k rodando $ID pelo job $JOB ..."
+            ## log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $(( $TTG / 10 ))] $k rodando $ID pelo job $JOB ..."
             sleep 30s
             for i in $(seq $TIMEOUT); do
                 if grep FINISHED <(curl -sSX GET --header 'Accept: text/plain' "$API/status/$JOB") >/dev/null; then
                     curl -sSX GET --header 'Accept: text/tab-separated-values' "$API/result/$JOB/tsv" >$LOCAL/$ID.tsv
                     cat $LOCAL/$ID.tsv | sed "s/^/$ID,/" >>$TSV
-                    log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $TTG : $(($(ls -1 $LOCAL | grep -c .) * 100 / $TTG))%]  anotacao de $ID obtida pelo job $JOB ok"
+                    log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $(( $TTG / 10 )) : $(($(ls -1 $LOCAL | grep -c .) * 100 / $TTG))%]  anotacao de $ID obtida pelo job $JOB ok"
                     break
                 else
                     sleep 30s
