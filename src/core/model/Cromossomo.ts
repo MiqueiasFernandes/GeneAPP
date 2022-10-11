@@ -1,6 +1,6 @@
-import { Gene } from "./Gene";
-import { Isoforma } from "./Isoforma";
-import { Locus } from "./Locus";
+import { Gene } from "../locus/Gene";
+import { Isoforma } from "../locus/Isoforma";
+import { Locus } from "../locus/Locus";
 
 export class Cromossomo {
     private nome: string;

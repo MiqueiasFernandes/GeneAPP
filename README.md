@@ -26,3 +26,7 @@ npm run serve
 ```
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/web2033/vite-vue3-tailwind-starter)
+
+Desenvolvido por mikeias.net 
+para o Capitulo III da tese de Doutorado 
+submetida ao PPG em Bioinformatica do ICB/UFMG 

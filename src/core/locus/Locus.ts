@@ -1,5 +1,5 @@
-import { Anotacao } from "./Anotacao";
-import { Cromossomo } from "./Cromossomo";
+import { Anotacao } from "../model/Anotacao";
+import { Cromossomo } from "../model/Cromossomo";
 
 class Meta {
     ID: string;

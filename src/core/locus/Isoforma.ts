@@ -1,4 +1,4 @@
-import { Anotacao } from "./Anotacao";
+import { Anotacao } from "../model/Anotacao";
 import { CDS } from "./CDS";
 import { Exon } from "./Exon";
 import { Gene } from "./Gene";

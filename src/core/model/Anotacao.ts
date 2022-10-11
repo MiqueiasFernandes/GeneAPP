@@ -1,4 +1,4 @@
-import { Locus } from "./Locus";
+import { Locus } from "../locus/Locus";
 
 export class Anotacao {
     private key: string;

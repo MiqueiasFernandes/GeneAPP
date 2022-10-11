@@ -1,5 +1,5 @@
 import { Fator } from "./Fator";
-import { Gene } from "./Gene";
+import { Gene } from "../locus/Gene";
 
 export class AlternativeSplicing {
     private evidence: string;

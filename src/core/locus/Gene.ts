@@ -1,6 +1,6 @@
-import { AlternativeSplicing } from "./AlternativeSplicing";
-import { Cromossomo } from "./Cromossomo";
-import { DifferentialExpression } from "./DifferentialExpression";
+import { AlternativeSplicing } from "../model/AlternativeSplicing";
+import { Cromossomo } from "../model/Cromossomo";
+import { DifferentialExpression } from "../model/DifferentialExpression";
 import { Isoforma } from "./Isoforma";
 import { Locus } from "./Locus";
 

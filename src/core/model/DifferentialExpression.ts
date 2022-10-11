@@ -1,4 +1,4 @@
-import { Gene } from "./Gene";
+import { Gene } from "../locus/Gene";
 
 export class DifferentialExpression {
     private gene: Gene;
