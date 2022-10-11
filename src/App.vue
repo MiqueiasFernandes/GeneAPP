@@ -35,8 +35,11 @@ const pages = (router) => router.options.routes
           <div class="hidden sm:block sm:ml-6">
             <div class="flex space-x-4">
 
-              <router-link v-for="item in pages($router)"
-                :class="[$route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium']"
+              <router-link v-for="item in pages($router)" :class="[
+              $route.meta.title === item.meta.title ? 
+              (item.meta.fbgc || 'bg-gray-900 text-white') : 
+              (item.meta.hfbgc || 'text-gray-300 hover:bg-gray-700 hover:text-white'), 
+              'px-3 py-2 rounded-md text-sm font-medium']"
                 :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined" :to="item.path">{{
                 item.meta.title
                 }}</router-link>

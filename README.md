@@ -11,10 +11,15 @@ Em resumo o aplicativo:
 
 Recursos usados neste projeto:
 
-- [Vite 3](https://vitejs.dev/guide/)
-- [Vue 3](https://vuejs.org/guide/introduction.html)
-- [Tailwind CSS 3](https://tailwindcss.com/docs/configuration)
-- [Heroicons](https://github.com/tailwindlabs/heroicons#vue)
+- [Vite 3](https://vitejs.dev/guide/) (Pseudo backend)
+- [Vue 3](https://vuejs.org/guide/introduction.html) (framework JS)
+- [Tailwind CSS 3](https://tailwindcss.com/docs/configuration) (framework css)
+- [Heroicons](https://github.com/tailwindlabs/heroicons#vue) (icones)
+- [Node.js] (gerenciador de pacotes)
+- [D3] (graficos svg)
+- [Firebase] (hospedagem)
+- [VS CODE] (IDE)
+- [Colab] ()
 
 ### Getting Started
 

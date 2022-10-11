@@ -3,7 +3,7 @@
   "meta": {
     "title": "About",
     "description": "About GeneAPP",
-    "ordem": 4
+    "ordem": 6
   }
 }
 </route>
@@ -19,12 +19,10 @@ useHead({ title: 'About' })
         About Page
         <br />
         <span class="text-indigo-600">
-         Sobre o projeto VUE SINGLE PAGE WEB APP
+          Sobre o projeto VUE SINGLE PAGE WEB APP
         </span>
       </h2>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-       
-        
       </div>
     </div>
   </div>
