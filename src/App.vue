@@ -36,18 +36,16 @@ const pages = (router) => router.options.routes
 
           <div class="hidden sm:block sm:ml-6">
             <div class="flex space-x-4">
-
               <router-link v-for="item in pages($router)" :class="[
               $route.meta.title === item.meta.title ? 
-              (((PROJETO.status > 0) && item.meta.fbgc) || 'bg-gray-900 text-white') : 
-              (((PROJETO.status > 0) && item.meta.hfbgc) || 'text-gray-300 hover:bg-gray-700 hover:text-white'), 
+              (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.fbgc) || 'bg-gray-900 text-white') : 
+              (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.hfbgc) || 'text-gray-300 hover:bg-gray-700 hover:text-white'), 
               'px-3 py-2 rounded-md text-sm font-medium']"
-                :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined" :to="item.path">{{
+                :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined"
+                :to="((item.meta.rqproj) && (PROJETO.status < 1)) || ((item.meta.nqproj) && (PROJETO.status > 0)) ? '' : item.path">{{
                 item.meta.title
                 }}</router-link>
-
             </div>
-
           </div>
 
 

@@ -1,4 +1,3 @@
-
 export class Margin {
     top: number = 0;
     right: number = 0;

@@ -485,6 +485,5 @@ export class Projeto {
         ///cobertura
         setTimeout(() => { this.parseCobertura(files); fn_status(cont += 20) }, 500); //100
 
-        this.status = 1;
     }
 }

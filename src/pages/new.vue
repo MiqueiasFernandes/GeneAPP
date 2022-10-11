@@ -3,17 +3,16 @@
   "meta": {
     "title": "New",
     "description": "New project",
-    "ordem": 2
+    "ordem": 2,
+    "fbgc": "bg-indigo-800 text-white",
+    "hfbgc": "bg-indigo-600 hover:bg-indigo-500 text-white",
+    "nqproj": true
   }
 }
 </route>
       
 <script setup>
 import { ColorSwatchIcon } from '@heroicons/vue/solid';
-import { Projeto } from "../core/model/Projeto";
-import { Line } from "../core/d3/Line";
-import { Drawable } from "../core/d3/Drawable";
-import { Bounds } from "../core/d3/Bounds";
 import { Arquivo } from '../core/utils/Arquivo';
 import { PROJETO } from "../core/State";
 
@@ -39,7 +38,7 @@ function setExperimento() {
         }
 
         file.value = "Processando ...";
-        const error = projeto.parseFiles(result, s => (percent.value = s));
+        const error = projeto.parseFiles(result, s => { (percent.value = s) > 99 && projeto.status++ });
         if (error) {
           alert(`Carregou incorretamente. ERRO ${error}`);
           window.location.href = window.location.href;
@@ -54,29 +53,10 @@ function setExperimento() {
   );
 }
 
-function plot() {
-  const dw = new Drawable(
-    null,
-    "canvas",
-    new Bounds(800, 600, 0, 0, {
-      top: 20,
-      bottom: 50,
-      right: 200,
-      left: 100,
-    })
-  );
-  new Line(dw, dw.bounds).plot();
-}
-
 </script>
 
 
 <template>
-
-  <button @click="plot">plotar</button>
-
-  <div id="canvas">{{canvas}}</div>
-
   <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl bg-white p-2">
 

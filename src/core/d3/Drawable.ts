@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { Conj } from "../utils/Conj";
 import { Bounds } from "./Bounds";
 //import * as toPng from 'save-svg-as-png'
 
@@ -8,11 +9,11 @@ export class Drawable {
     static used_patterns_basic_color = {};
     static spectros = [[]];
 
-     bounds: Bounds;
-     bg: string;
-     svg: any;
-     drawable: Drawable;
-     svg_id: string;
+    bounds: Bounds;
+    bg: string;
+    svg: any;
+    drawable: Drawable;
+    svg_id: string;
 
     constructor(
         drawable: Drawable, element: string, bounds: Bounds, bg: string = "#f8f9fa", id: string
@@ -208,11 +209,11 @@ export class Drawable {
     }
 
     spectro(sid, x, amostras) {
-     //  if (!sid) {
-      //      sid = Drawable.spectros.push([...new Set(amostras)].sort((a, b) => a - b).map((s, i) => [s, i])) - 1
-      //  }
-      //  const spectros = Drawable.spectros[sid]
-      //  return [sid, x ? `rgb(${150 + spectros.find(y => y[0] === x)[1] * (100 / spectros.length)},0,0)` : '#000']
+        if (!sid) {
+            sid = Drawable.spectros.push(new Conj<number>(amostras).uniq().sort((a, b) => a - b).map((s, i) => [s, i])) - 1
+        }
+        const spectros = Drawable.spectros[sid]
+        return [sid, x ? `rgb(${150 + spectros.find(y => y[0] === x)[1] * (100 / spectros.length)},0,0)` : '#000']
     }
 
     regua(
@@ -235,17 +236,17 @@ export class Drawable {
             .call(pos(x_axis));
 
         if (regua) {
-          //  regua = this.line({ v: -999, y1: y - 11, y2: y + h, c: "gray" });
+            //  regua = this.line({ v: -999, y1: y - 11, y2: y + h, c: "gray" });
             const regua2 = this.text(-999, y - 15, '154', { hc: true, fs: '.8rem', serif: true });
-         //   this.line({ h: y, x1: x, x2: 1 + x + width, sw: 8 }).on(
-         //       "mousemove",
-         //       (coord) =>
-          //          regua &&
-          //          regua.attr("x1", coord.offsetX - offsetX) &&
-          //          regua.attr("x2", coord.offsetX - offsetX) &&
-          //          regua2.attr("x", coord.offsetX - offsetX) &&
-          //          regua2.text(parseInt(start + ppx * (coord.offsetX - offsetX)))
-          //  );
+            //   this.line({ h: y, x1: x, x2: 1 + x + width, sw: 8 }).on(
+            //       "mousemove",
+            //       (coord) =>
+            //          regua &&
+            //          regua.attr("x1", coord.offsetX - offsetX) &&
+            //          regua.attr("x2", coord.offsetX - offsetX) &&
+            //          regua2.attr("x", coord.offsetX - offsetX) &&
+            //          regua2.text(parseInt(start + ppx * (coord.offsetX - offsetX)))
+            //  );
         }
         return g;
     }
@@ -263,6 +264,6 @@ export class Drawable {
     }
 
     download() {
-      //  toPng.saveSvgAsPng(document.getElementById(this.svg_id), "diagram.png", { scale: 1 });
+        //  toPng.saveSvgAsPng(document.getElementById(this.svg_id), "diagram.png", { scale: 1 });
     }
 }
