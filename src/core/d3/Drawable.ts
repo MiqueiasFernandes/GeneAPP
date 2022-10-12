@@ -35,9 +35,9 @@ export class Drawable {
             .select('#' + element)
             .append("svg")
             .attr('id', this.svg_id = (element + '_svg'))
-            .style("background", this.bg)
-            .attr("width", this.bounds.total_with)
-            .attr("height", this.bounds.total_height)
+            .style("background", 'yellow')//this.bg)
+            .attr("width", '100%')///this.bounds.total_with)
+            .attr("height", '100%')///this.bounds.total_height)
             .append("g")
             .attr("transform", "translate(" + this.bounds.margin.left + "," + this.bounds.margin.top + ")");
         Drawable.used_patterns.push(this.svg.append("defs"));

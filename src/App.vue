@@ -3,15 +3,12 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
 import { BeakerIcon } from '@heroicons/vue/solid'
-import { onMounted } from 'vue';
 import { PROJETO } from "./core/State";
 
 const pages = (router) => router.options.routes
   .filter(x => parseInt(x.meta.ordem) > 0)
   .sort((a, b) => a.meta.ordem - b.meta.ordem);
-
 </script>
-
 
 <template>
 

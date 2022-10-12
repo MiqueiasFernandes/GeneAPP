@@ -14,28 +14,37 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Drawable, Line, Bounds } from '../core/d3';
+import { Canvas, ViewBox } from '../core/d3';
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
 const projeto = PROJETO;
 
-function plotar() {
-    const dw = new Drawable(
-        null,
-        "graphQC",
-        new Bounds(800, 600, 0, 0, {
-            top: 20,
-            bottom: 50,
-            right: 200,
-            left: 100,
-        })
-    );
-    new Line(dw, dw.bounds).plot();
+const cors = ['red', 'green', 'blue', 'yellow', 'pink', 'gray', 'orange', 'purple']
+var x = 0;
+
+function plotar(id, a, b) {
+    const box = new ViewBox(null, 5).withWidth(a).withHeight(b);
+    new Canvas(id, box, cors[x++ % 8])
+}
+
+
+function criar() {
+    const wC = 1100 / 6;
+    plotar('graphQc', wC * 3, 250);
+    plotar('graphRd', wC * 2, 250);
+    plotar('graphMp', wC, 250);
+
+    plotar('graphAs', wC, 250);
+    plotar('graphGc', wC * 5, 250);
+
+    plotar('graphCv', wC * 3, 250);
+    plotar('graphAn', wC * 3, 250);
 }
 
 onMounted(_ => {
-    plotar();
+    criar();
+    console.log(projeto.qc_status)
 })
 
 </script>
@@ -45,7 +54,7 @@ onMounted(_ => {
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-            <Tabs :names="['table', 'chart']" active="table">
+            <Tabs :names="['table', 'chart']" active="chart">
 
                 <template #table>
                     <TableIcon class="mr-2 w-5 h-5" /> Table
@@ -59,9 +68,26 @@ onMounted(_ => {
                 </template>
                 <template #chartContent>
 
-                    <Button @click="plotar">plotar</Button>
+                    <Button @click="criar">plotar</Button>
 
-                    <div id="graphQC"></div>
+
+                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
+                        <div class="mx-1 my-1" id="graphQc"></div>
+                        <div class="mx-1 my-1" id="graphRd"></div>
+                        <div class="mx-1 my-1" id="graphMp"></div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
+                        <div class="mx-1 my-1" id="graphAs"></div>
+                        <div class="mx-1 my-1" id="graphGc"></div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
+                        <div class="mx-1 my-1" id="graphCv"></div>
+                        <div class="mx-1 my-1" id="graphAn"></div>
+                    </div>
+
+
 
                 </template>
 

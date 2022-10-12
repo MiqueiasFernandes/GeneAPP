@@ -1,15 +1,22 @@
-export class Margin {
-    top: number = 0;
-    right: number = 0;
-    bottom: number = 0;
-    left: number = 0;
-}
+// export class Margin {
+//     top: number = 0;
+//     right: number = 0;
+//     bottom: number = 0;
+//     left: number = 0;
+
+//     constructor(top = 0, right = 0, bottom = 0, left = 0) {
+//         this.top = top;
+//         this.right = right;
+//         this.bottom = bottom;
+//         this.left = left;
+//     }
+// }
 
 export class Bounds {
 
     x: number;
     y: number;
-    margin: Margin;
+    margin: any; ///Margin;
     width: number;
     height: number;
     total_with: number;
@@ -17,12 +24,12 @@ export class Bounds {
     r: number;
     d: number;
 
-    constructor(w: number, h: number, x: number = 0, y: number = 0, margin = new Margin()) {
+    constructor(w: number, h: number, x: number = 0, y: number = 0, margin = {}) {
         this.x = x;
         this.y = y;
         this.margin = margin;
-        this.width = w - margin.left - margin.right;
-        this.height = h - margin.top - margin.bottom;
+        this.width =0;// w - margin.left - margin.right;
+        this.height = 0//h - margin.top - margin.bottom;
         this.total_with = w;
         this.total_height = h;
         this.r = x + this.width;
