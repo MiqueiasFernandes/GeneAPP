@@ -39,6 +39,7 @@ export class Projeto {
     getALLGenes = (): Gene[] => Object.values(this.genes);
     getALLIsos = (fasta: boolean = false): Isoforma[] => Object.values(fasta ? this.isoformas_FASTA : this.isoformas_GFF);
     getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
+    getFatorBySample = (sp: string) => this.fatores.filter(f => f.samples.some(s => s.nome === sp))[0];
 
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
@@ -98,7 +99,7 @@ export class Projeto {
             .filter(x => x[0] === "gff" && x[1].startsWith('##species https://www.ncbi'))[0][1].trim().split(' ')[1];
 
         this.qc_status = this.getCSV(files, 'multiqc_general_stats.txt.csv', headers, '\t');
-
+        this.qc_status.addCol('fator', r => r.Sample.replace(/.F$/, '').replace(/.R$/, ''));
 
         const log = [
             ///Tamanho do genoma: 

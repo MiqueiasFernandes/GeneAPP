@@ -33,6 +33,22 @@ export class CSV {
 
     getRows = (t = null) => this.rows.map(r => Object.fromEntries(this.cols.map(c => [c, t && t[c] ? t[c](r[c]) : r[c]])));
 
+    mapCol(col: string, fn): CSV {
+        this.rows = this.getRows(Object.fromEntries([[col, fn]]))
+        return this;
+    }
+
+    mapColInt(col: string, fn = parseInt): CSV {
+        this.rows = this.getRows(Object.fromEntries([[col, fn]]))
+        return this;
+    }
+
+    addCol(name: string, fn): CSV {
+        this.cols.push(name);
+        this.rows = this.rows.map(r => Object.assign(r, Object.fromEntries([[name, fn(r)]])));
+        return this;
+    }
+
     static open(fn, sep = ",", header = []) {
         Arquivo.importData(raw => fn(new CSV(raw, sep, header)))
     }

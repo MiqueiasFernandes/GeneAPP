@@ -14,8 +14,9 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox } from '../core/d3';
+import { Canvas, ViewBox, BarPlot, InlineDataSet } from '../core/d3';
 import { PROJETO } from "../core/State";
+import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
 
 const projeto = PROJETO;
@@ -29,9 +30,30 @@ function plotar(id, a, b) {
 }
 
 
+function plotQC(wC) {
+    // "Sample"
+    // "FastQC_mqc-generalstats-fastqc-percent_duplicates"
+    // "FastQC_mqc-generalstats-fastqc-percent_gc"
+    // "FastQC_mqc-generalstats-fastqc-percent_fails"
+    // "FastQC_mqc-generalstats-fastqc-total_sequences"
+
+    const box = new ViewBox().withWidth(wC * 3).withHeight(250).withMY(10, 40).withMX(80);
+    const dataSet = new InlineDataSet(projeto.qc_status);
+    new BarPlot('graphQc', box, 'white')
+        .setX("Sample")
+        .setY("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
+        .setFill((d) => projeto.getFatorBySample(d.fator).cor)
+        .setYlim([0, 160])
+        .plot(dataSet);
+
+}
+
+
 function criar() {
     const wC = 1100 / 6;
-    plotar('graphQc', wC * 3, 250);
+    // plotar('graphQc', wC * 3, 250);
+    plotQC(wC);
+
     plotar('graphRd', wC * 2, 250);
     plotar('graphMp', wC, 250);
 
@@ -44,7 +66,6 @@ function criar() {
 
 onMounted(_ => {
     criar();
-    console.log(projeto.qc_status)
 })
 
 </script>
@@ -72,7 +93,7 @@ onMounted(_ => {
 
 
                     <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
-                        <div class="mx-1 my-1" id="graphQc"></div>
+                        <div class="mx-1 my-1 p-2 bg-sky-500" id="graphQc"></div>
                         <div class="mx-1 my-1" id="graphRd"></div>
                         <div class="mx-1 my-1" id="graphMp"></div>
                     </div>

@@ -17,11 +17,23 @@ export class Canvas {
             .select(`#${elID}`)
             .append("svg")
             .style("background", bg)
-            .attr("width", viewBox.getBox().width)
-            .attr("height", viewBox.getBox().height);
-        this.svg = this.svg.append("g");
+            .attr("width", viewBox.getView().width)
+            .attr("height", viewBox.getView().height)
+            .append("g");
     }
 
+    rect(x: number, y: number, w: number, h: number, c = "black", r = 0, o = 1) {
+        return this.svg
+            .append("rect")
+            .attr("x", x)
+            .attr("y", y)
+            .attr("rx", r || 0)
+            .attr("ry", r || 0)
+            .attr("width", w)
+            .attr("height", h)
+            .attr("fill", c)
+            .attr("opacity", o);
+    }
 
 }
 

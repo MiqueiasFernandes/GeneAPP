@@ -27,6 +27,14 @@ export class Margin {
             size.width - (this.left + this.right),
             size.height - (this.top + this.bottom));
     }
+
+    mx(mx: number): Margin {
+        return new Margin(this.top, mx, this.bottom, mx);
+    }
+
+    my(my: number, mb?: number): Margin {
+        return new Margin(my, this.right, mb || my, this.left);
+    }
 }
 
 export class ViewBox {
@@ -39,7 +47,7 @@ export class ViewBox {
     private box: Size;
 
     constructor(view?: Size, margin?: number) {
-        this.with(view || new Size(300, 200), margin);
+        this.with(view || new Size(300, 200), Margin.simetric(margin || 0));
     }
 
     getX = () => this.x;
@@ -50,9 +58,19 @@ export class ViewBox {
     getView = () => this.view;
     getBox = () => this.box;
 
-    with(view: Size, margin?: number): ViewBox {
+    withMargin(margin: Margin): ViewBox {
+        this.margin = margin;
+        this.box = this.margin.process(this.view);
+        this.x = margin.left;
+        this.y = margin.top;
+        this.x1 = this.x + this.box.width;
+        this.y1 = this.y + this.box.height;
+        return this;
+    }
+
+    with(view: Size, margin?: Margin): ViewBox {
         this.view = view;
-        this.withMargin(margin ? Margin.simetric(margin) : (this.margin || Margin.simetric(0)));
+        this.withMargin(margin || this.margin);
         return this;
     }
 
@@ -64,14 +82,11 @@ export class ViewBox {
         return this.with(new Size(this.view.width, height));
     }
 
-    withMargin(margin: Margin): ViewBox {
-        this.margin = margin;
-        this.box = this.margin.process(this.view);
-        this.x = margin.left;
-        this.y = margin.top;
-        this.x1 = this.x + this.box.width;
-        this.y1 = this.y + this.box.height;
-        return this;
+    withMX(mx: number): ViewBox {
+        return this.withMargin(this.margin.mx(mx));
+    }
+    withMY(my: number, mb?: number): ViewBox {
+        return this.withMargin(this.margin.my(my, mb));
     }
 
 }
