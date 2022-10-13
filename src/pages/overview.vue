@@ -14,7 +14,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox, BarPlot, LinePlot, Padding } from '../core/d3';
+import { Canvas, ViewBox, BarPlot, LinePlot, Padding, BarPlotRadial } from '../core/d3';
 import { PROJETO } from "../core/State";
 import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
@@ -40,16 +40,27 @@ function plotQC(wC) {
     const W = wC * 3;
     const H = 250;
 
-    const viewBox = ViewBox.fromSize(W, H, new Padding(10, 20, 20, 30));
-    const canvas = new Canvas('graphQc', viewBox, 'white');
-    canvas.rect(viewBox.getBoxX0(), viewBox.getBoxY0(), viewBox.getBoxSize().width, viewBox.getBoxSize().height, 'yellow');
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(10));
+    const canvas = new Canvas('graphQc', viewBox, '#efefef');
 
     const dataSet = projeto.qc_status
         .mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
         .mapColInt("FastQC_mqc-generalstats-fastqc-total_sequences")
+        .mapCol("FastQC_mqc-generalstats-fastqc-percent_fails", parseFloat)
         .getRows();
 
-    const boxs = viewBox.splitX(3, 10);
+    new BarPlotRadial()
+        .setX("Sample")
+        .setY("FastQC_mqc-generalstats-fastqc-total_sequences")
+        .setY3("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
+        .setY2("FastQC_mqc-generalstats-fastqc-percent_fails")
+        .setColor((d) => projeto.getFatorBySample(d.fator).cor)
+        .set_y2lab(x => parseInt(x)+'%')
+        .setCanvas(canvas, viewBox)
+        .plot(dataSet)
+
+
+    // const boxs = viewBox.splitX(3, 10);
     // canvas.rect(boxs[0].getBoxX0(), boxs[0].getBoxY0(), boxs[0].getBoxSize().width, boxs[0].getBoxSize().height, 'blue', 0, .4);
     // canvas.rect(boxs[1].getBoxX0(), boxs[1].getBoxY0(), boxs[1].getBoxSize().width, boxs[1].getBoxSize().height, 'orange', 0, .3);
     // const sy =   boxs[2].splitY(3, 20);
@@ -60,28 +71,31 @@ function plotQC(wC) {
     // canvas.rect(syb.getBoxX0(), syb.getBoxY0(), syb.getBoxSize().width, syb.getBoxSize().height, 'blue', 0, .3);
     // canvas.rect(syc.getBoxX0(), syc.getBoxY0(), syc.getBoxSize().width, syc.getBoxSize().height, 'red', 0, .3);
 
-    new BarPlot()
-        .setX("Sample")
-        .setY("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
-        .setYlim([0, 160])
-        .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-        .setCanvas(canvas, boxs[0])
-        .plot(dataSet);
+    // new BarPlot()
+    //     .setX("Sample")
+    //     .setY("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
+    //     .setYlim([0, 160])
+    //     .setColor((d) => projeto.getFatorBySample(d.fator).cor)
+    //     .setCanvas(canvas, boxs[0])
+    //     .plot(dataSet);
 
-    new BarPlot()
-        .setX("Sample")
-        .setY("FastQC_mqc-generalstats-fastqc-total_sequences")
-        .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-        .setCanvas(canvas, boxs[1])
-        .plot(dataSet);
+    // new BarPlot()
+    //     .setX("Sample")
+    //     .setY("FastQC_mqc-generalstats-fastqc-total_sequences")
+    //     .setColor((d) => projeto.getFatorBySample(d.fator).cor)
+    //     .setCanvas(canvas, boxs[1])
+    //     .plot(dataSet);
+
+    // canvas.rect(boxs[2].getBoxX0(), boxs[2].getBoxY0(), boxs[2].getBoxSize().width, boxs[2].getBoxSize().height, 'red', 0, .3);
 
 
-    new LinePlot()
-        .setX("x")
-        .setY("y")
-        .setYlim([0, 5])
-        .setCanvas(canvas,  boxs[2])
-        .plot([ {x: 1, y: 3} , {x: 2, y: 4} , {x: 3, y: 1} , ]);
+
+    // new LinePlot()
+    //     .setX("x")
+    //     .setY("y")
+    //     .setYlim([0, 5])
+    //     .setCanvas(canvas,  boxs[2])
+    //     .plot([ {x: 1, y: 3} , {x: 2, y: 4} , {x: 3, y: 1} , ]);
 
 }
 
@@ -130,7 +144,7 @@ onMounted(_ => {
 
 
                     <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
-                        <div class="mx-1 my-1 p-2 bg-sky-500" id="graphQc"></div>
+                        <div class="mx-1 my-1 p-2" id="graphQc"></div>
                         <div class="mx-1 my-1" id="graphRd"></div>
                         <div class="mx-1 my-1" id="graphMp"></div>
                     </div>

@@ -24,11 +24,12 @@ export class Canvas {
             .append("g");
     }
 
-    plotOn(canvas: Canvas, viewBox?: ViewBox): Canvas {
+    plotOn(canvas: Canvas, viewBox?: ViewBox, name?: string): Canvas {
         this.viewBox = viewBox || this.viewBox || canvas.viewBox;
         this.elID = canvas.elID;
         this.bg = canvas.bg;
-        this.svg = canvas.svg;
+        this.svg = canvas.svg.append("g");
+        name && this.svg.attr("id", name);
         return canvas;
     }
 

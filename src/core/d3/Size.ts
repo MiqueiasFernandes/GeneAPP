@@ -47,6 +47,8 @@ export class ViewBox {
     getViewSize = () => this.viewSize;
     getBoxSize = () => this.boxSize;
 
+    getBoxCenter = () => [this.getBoxSize().width / 2 + this.getBoxX0(), this.getBoxSize().height / 2 + this.getBoxY0()];
+
     getBoxX0 = () => this.viewPadding.left;
     getBoxX1 = () => this.getBoxX0() + this.boxSize.width;
 
