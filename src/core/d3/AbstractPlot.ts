@@ -10,6 +10,11 @@ export abstract class AbstractPlot extends Canvas {
         return this;
     }
 
+    setTitle(t: string) {
+        this.title = t;
+        return this;
+    }
+
     setCanvas(canvas: Canvas, viewBox?: ViewBox): AbstractPlot {
         this.plotOn(canvas, viewBox, this.title || 'plot');
         return this;

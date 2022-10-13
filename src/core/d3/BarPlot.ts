@@ -61,22 +61,40 @@ export class BarPlotRadial extends AbstractCartesianPlot {
     y_lim2: number[];
     color2 = (d) => this.color(d);
     y2lab = (x) => x;
+
     y3_var: string;
     y_lim3: number[];
     color3 = (d) => this.color(d);
 
-    set_ylim2 = (a, b) => this.y_lim2 = [a, b];
+    setColor2(fn) {
+        this.color2 = fn;
+        return this;
+    }
+    setColor3(fn) {
+        this.color3 = fn;
+        return this;
+    }
+
+    set_ylim2(a, b) {
+        this.y_lim2 = [a, b];
+        return this;
+    }
+
     setY2(y2_var: string): BarPlotRadial {
         this.y2_var = y2_var;
         return this
     }
+
     set_y2lab(y2l) {
         this.y2lab = y2l;
         return this;
     }
 
+    set_ylim3(a, b) {
+        this.y_lim3 = [a, b];
+        return this
+    }
 
-    set_ylim3 = (a, b) => this.y_lim3 = [a, b];
     setY3(y3_var: string): BarPlotRadial {
         this.y3_var = y3_var;
         return this
@@ -84,7 +102,8 @@ export class BarPlotRadial extends AbstractCartesianPlot {
 
     plot(data: any): Canvas {
 
-        this.svg.attr("transform", `translate(${this.viewBox.getBoxCenter().join(',')})`)
+        const svg = this.svg.append("g");
+        svg.attr("transform", `translate(${this.viewBox.getBoxCenter().join(',')})`)
 
         const innerRadius = Math.min(this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height) / 4;
         const outerRadius = Math.min(this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height) / 2;
@@ -104,7 +123,7 @@ export class BarPlotRadial extends AbstractCartesianPlot {
         var Y1 = d3.scaleRadial()
             .range([innerRadius, outerRadius])
             .domain([y_start1, y_end1]);
-        this.svg.append("g").attr("id", "bar_y1")
+        svg.append("g").attr("id", "bar_y1")
             .selectAll("path")
             .data(data)
             .enter()
@@ -127,7 +146,7 @@ export class BarPlotRadial extends AbstractCartesianPlot {
                 .range([innerRadius - paddinner, center_lim])
                 .domain([y_start2, y_end2]);
 
-            this.svg.append("g").attr("id", "bar_y2")
+            svg.append("g").attr("id", "bar_y2")
                 .selectAll("path")
                 .data(data)
                 .enter()
@@ -149,12 +168,12 @@ export class BarPlotRadial extends AbstractCartesianPlot {
             var Y3 = d3.scaleRadial()
                 .range([innerRadius, outerRadius])
                 .domain([y_start3, y_end3]);
-            this.svg.append("g").attr("id", "bar_y3")
+            svg.append("g").attr("id", "bar_y3")
                 .selectAll("path")
                 .data(data)
                 .enter()
                 .append("path")
-                .attr("fill", d => this.color(d))
+                .attr("fill", d => this.color3(d))
                 .attr("opacity", '.6')
                 .attr("d", d3.arc()
                     .innerRadius(innerRadius)
@@ -166,10 +185,10 @@ export class BarPlotRadial extends AbstractCartesianPlot {
                 )
         }
 
-        const fnLab = (l = d => d[this.x_var], p = -50, s='.8rem') => {
+        const fnLab = (l, p , s , c) => {
             const fnPI = d => (X(d[this.x_var]) + X.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI;
 
-            this.svg
+            svg
                 .append("g").attr("id", "labs")
                 .selectAll("g")
                 .data(data)
@@ -182,10 +201,12 @@ export class BarPlotRadial extends AbstractCartesianPlot {
                 .attr("transform", d => fnPI(d) ? "rotate(180)" : "rotate(0)")
                 .style("font-size", s)
                 .attr("alignment-baseline", "middle")
+                .style('fill', c)
         }
 
-        fnLab();
-        fnLab((d) => this.y2lab(d[this.y2_var]), -80, '.5rem');
+        fnLab(d => d[this.x_var], -50,  '.8rem', 'white');
+        fnLab((d) => this.y2lab(d[this.y2_var]), -80, '.5rem', 'gray');
+        this.text(this.viewBox.getBoxCenter()[0], this.viewBox.getBoxCenter()[1], this.title, { hc: 1, vc: 1, fs: '2rem', b: 1 })
         return this.svg;
     }
 

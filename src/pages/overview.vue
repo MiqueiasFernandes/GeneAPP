@@ -37,11 +37,11 @@ function plotQC(wC) {
     // "FastQC_mqc-generalstats-fastqc-percent_fails"
     // "FastQC_mqc-generalstats-fastqc-total_sequences"
 
-    const W = wC * 3;
+    const W = wC * 2;
     const H = 250;
 
     const viewBox = ViewBox.fromSize(W, H, Padding.simetric(10));
-    const canvas = new Canvas('graphQc', viewBox, '#efefef');
+    const canvas = new Canvas('graphQc', viewBox)//, '#efefef');
 
     const dataSet = projeto.qc_status
         .mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
@@ -49,14 +49,19 @@ function plotQC(wC) {
         .mapCol("FastQC_mqc-generalstats-fastqc-percent_fails", parseFloat)
         .getRows();
 
+    //const boxs = viewBox.splitX(2, 10);
+
     new BarPlotRadial()
         .setX("Sample")
         .setY("FastQC_mqc-generalstats-fastqc-total_sequences")
         .setY3("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
         .setY2("FastQC_mqc-generalstats-fastqc-percent_fails")
+        .set_ylim2(0, 100)
+        .setColor2(() => 'red')
         .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-        .set_y2lab(x => parseInt(x)+'%')
+        .set_y2lab(x => parseInt(x) + '%')
         .setCanvas(canvas, viewBox)
+        .setTitle('QC')
         .plot(dataSet)
 
 
@@ -119,20 +124,30 @@ onMounted(_ => {
     criar();
 })
 
+
+const cols = ['Etapa', 'Tool', 'Fator', 'Sample', 'Propriedade', 'Valor'];
+const rows = [
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+];
+
 </script>
     
 <template>
-    <div class=" bg-gray-50">
+    <div class="bg-gray-50">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-            <Tabs :names="['table', 'chart']" active="chart">
+            <Tabs :names="['table', 'chart']" active="table">
 
                 <template #table>
                     <TableIcon class="mr-2 w-5 h-5" /> Table
                 </template>
                 <template #tableContent>
-                    # Genes {{ projeto.getALLGenes().length }}
+                    <Table :cols="cols" :rows="rows"></Table>
                 </template>
 
                 <template #chart>
@@ -144,7 +159,8 @@ onMounted(_ => {
 
 
                     <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
-                        <div class="mx-1 my-1 p-2" id="graphQc"></div>
+                        <div class="mx-1 my-1 rounded-md shadow-md bg-gray-100" id="graphQc">
+                        </div>
                         <div class="mx-1 my-1" id="graphRd"></div>
                         <div class="mx-1 my-1" id="graphMp"></div>
                     </div>
