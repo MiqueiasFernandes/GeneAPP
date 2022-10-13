@@ -44,59 +44,44 @@ function plotQC(wC) {
     const canvas = new Canvas('graphQc', viewBox, 'white');
     canvas.rect(viewBox.getBoxX0(), viewBox.getBoxY0(), viewBox.getBoxSize().width, viewBox.getBoxSize().height, 'yellow');
 
-    const dataSet = projeto.qc_status.mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length").getRows();
+    const dataSet = projeto.qc_status
+        .mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
+        .mapColInt("FastQC_mqc-generalstats-fastqc-total_sequences")
+        .getRows();
 
-    //  const boxs = viewBox.cols(2, Padding.simetric(2));
-
-    // console.log(boxs);
+    const boxs = viewBox.splitX(3, 10);
+    // canvas.rect(boxs[0].getBoxX0(), boxs[0].getBoxY0(), boxs[0].getBoxSize().width, boxs[0].getBoxSize().height, 'blue', 0, .4);
+    // canvas.rect(boxs[1].getBoxX0(), boxs[1].getBoxY0(), boxs[1].getBoxSize().width, boxs[1].getBoxSize().height, 'orange', 0, .3);
+    // const sy =   boxs[2].splitY(3, 20);
+    // const sya = sy[0];
+    // const syb= sy[1];
+    // const syc = sy[2];
+    // canvas.rect(sya.getBoxX0(), sya.getBoxY0(), sya.getBoxSize().width, sya.getBoxSize().height, 'green', 0, .3);
+    // canvas.rect(syb.getBoxX0(), syb.getBoxY0(), syb.getBoxSize().width, syb.getBoxSize().height, 'blue', 0, .3);
+    // canvas.rect(syc.getBoxX0(), syc.getBoxY0(), syc.getBoxSize().width, syc.getBoxSize().height, 'red', 0, .3);
 
     new BarPlot()
         .setX("Sample")
         .setY("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
         .setYlim([0, 160])
         .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-        .setCanvas(canvas, viewBox.splitX(3)[0])
+        .setCanvas(canvas, boxs[0])
         .plot(dataSet);
 
-        new BarPlot()
+    new BarPlot()
         .setX("Sample")
         .setY("FastQC_mqc-generalstats-fastqc-total_sequences")
-        .setYlim([0, 1100000])
         .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-        .setCanvas(canvas, viewBox.splitX(3)[1])
+        .setCanvas(canvas, boxs[1])
         .plot(dataSet);
 
-    new BarPlot()
-        .setX("Sample")
-        .setY("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
-        .setYlim([0, 160])
-        .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-        .setCanvas(canvas, viewBox.splitX(3)[2])
-        .plot(dataSet);
 
-    // new BarPlot()
-    //     .setX("Sample")
-    //     .setY("Len")
-    //    // .setYlim([0, 160])
-    //    // .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-    //     .setCanvas(canvas, viewBox)
-    //     .plot(CSV.fromLines(['Sample,Len', 's1,10', 's2,20', 's3,30']).mapColInt('Len').getRows());
-
-    // new BarPlot()
-    //     .setX("Sample")
-    //     .setY("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
-    //     .setYlim([0, 160])
-    //     .setColor((d) => projeto.getFatorBySample(d.fator).cor)
-    //     .setCanvas(canvas, boxs[1])
-    //     .plot(dataSet);
-
-
-    // new LinePlot()
-    //     .setX("x")
-    //     .setY("y")
-    //     .setYlim([0, 5])
-    //     .setCanvas(canvas, viewBox.withWidth(W).withHeight(H * .9).withMX(30, W * .5))
-    //     .plot([ {x: 1, y: 3} , {x: 2, y: 4} , {x: 3, y: 1} , ]);
+    new LinePlot()
+        .setX("x")
+        .setY("y")
+        .setYlim([0, 5])
+        .setCanvas(canvas,  boxs[2])
+        .plot([ {x: 1, y: 3} , {x: 2, y: 4} , {x: 3, y: 1} , ]);
 
 }
 

@@ -55,8 +55,9 @@ export class ViewBox {
 
     withWidth = (width: number, offsetX = 0) => new ViewBox(
         new Size(this.viewSize.width, this.viewSize.height),
-        new Padding(this.viewPadding.top,
-            this.viewPadding.right - offsetX + (this.viewSize.width - width),
+        new Padding(
+            this.viewPadding.top,
+            this.viewPadding.right + this.boxSize.width - width - offsetX,
             this.viewPadding.bottom,
             this.viewPadding.left + offsetX
         )
@@ -64,21 +65,41 @@ export class ViewBox {
 
     withHeight = (height: number, offsetY = 0) => new ViewBox(
         new Size(this.viewSize.width, this.viewSize.height),
-        new Padding(this.viewPadding.top + offsetY,
+        new Padding(
+            this.viewPadding.top + offsetY,
             this.viewPadding.right,
-            this.viewPadding.bottom + (this.viewSize.height - height) - offsetY,
+            this.viewPadding.bottom + this.boxSize.height - height - offsetY,
             this.viewPadding.left
         )
     )
 
-    withPX = (p: number, l?: number) => this.withWidth(this.getBoxSize().width - p, l);
-    withMPY = (p: number, t?: number) => this.withHeight(this.getBoxSize().height - p, t);
+    addPadding = (x: number, y: number): ViewBox => new ViewBox(
+        new Size(this.viewSize.width, this.viewSize.height),
+        new Padding(
+            this.viewPadding.top + y,
+            this.viewPadding.right + x,
+            this.viewPadding.bottom,
+            this.viewPadding.left
+        )
+    )
 
-    splitX(cols: number = 2): ViewBox[] {
+    addPaddingX = (x: number): ViewBox => this.addPadding(x, 0);
+    addPaddingY = (y: number): ViewBox => this.addPadding(0, y);
+
+    splitX(cols: number = 2, padding: number = 0): ViewBox[] {
         const parts = new Array();
         const width = this.boxSize.width / cols;
         for (let c = 0; c < cols; c++) {
-            parts.push(this.withWidth(width, (c) * width))
+            parts.push(this.withWidth(width, c * width).addPaddingX(padding))
+        }
+        return parts;
+    }
+
+    splitY(rows: number = 2, padding: number = 0): ViewBox[] {
+        const parts = new Array();
+        const height = this.boxSize.height / rows;
+        for (let r = 0; r < rows; r++) {
+            parts.push(this.withHeight(height, r * height).addPaddingY(padding))
         }
         return parts;
     }
