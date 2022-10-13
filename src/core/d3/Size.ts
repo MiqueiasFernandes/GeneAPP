@@ -7,7 +7,7 @@ export class Size {
     }
 }
 
-export class Margin {
+export class Padding {
     top: number;
     right: number;
     bottom: number;
@@ -20,73 +20,67 @@ export class Margin {
         this.left = left;
     }
 
-    static simetric = (m: number): Margin => new Margin(m, m, m, m);
+    static simetric = (m: number): Padding => new Padding(m, m, m, m);
+    static zero = () => Padding.simetric(0);
 
-    process(size: Size): Size {
+    getBox(size: Size): Size {
         return new Size(
             size.width - (this.left + this.right),
             size.height - (this.top + this.bottom));
     }
-
-    mx(mx: number): Margin {
-        return new Margin(this.top, mx, this.bottom, mx);
-    }
-
-    my(my: number, mb?: number): Margin {
-        return new Margin(my, this.right, mb || my, this.left);
-    }
 }
 
 export class ViewBox {
-    private x: number;
-    private y: number;
-    private x1: number;
-    private y1: number;
-    private margin: Margin;
-    private view: Size;
-    private box: Size;
 
-    constructor(view?: Size, margin?: number) {
-        this.with(view || new Size(300, 200), Margin.simetric(margin || 0));
+    private viewSize: Size;
+    private viewPadding: Padding;
+    private boxSize: Size;
+
+    constructor(viewSize?: Size, padding?: Padding) {
+        this.viewSize = viewSize || new Size(300, 200);
+        this.viewPadding = padding || Padding.zero();
+        this.boxSize = this.viewPadding.getBox(this.viewSize);
     }
 
-    getX = () => this.x;
-    getY = () => this.y;
-    getX1 = () => this.x1;
-    getY1 = () => this.y1;
-    getMargin = () => this.margin;
-    getView = () => this.view;
-    getBox = () => this.box;
+    static fromSize = (width: number, height: number, padding?: Padding) => new ViewBox(new Size(width, height), padding);
 
-    withMargin(margin: Margin): ViewBox {
-        this.margin = margin;
-        this.box = this.margin.process(this.view);
-        this.x = margin.left;
-        this.y = margin.top;
-        this.x1 = this.x + this.box.width;
-        this.y1 = this.y + this.box.height;
-        return this;
-    }
+    getViewSize = () => this.viewSize;
+    getBoxSize = () => this.boxSize;
 
-    with(view: Size, margin?: Margin): ViewBox {
-        this.view = view;
-        this.withMargin(margin || this.margin);
-        return this;
-    }
+    getBoxX0 = () => this.viewPadding.left;
+    getBoxX1 = () => this.getBoxX0() + this.boxSize.width;
 
-    withWidth(width: number): ViewBox {
-        return this.with(new Size(width, this.view.height));
-    }
+    getBoxY0 = () => this.viewPadding.top;
+    getBoxY1 = () => this.getBoxY0() + this.boxSize.height;
 
-    withHeight(height: number): ViewBox {
-        return this.with(new Size(this.view.width, height));
-    }
+    withWidth = (width: number, offsetX = 0) => new ViewBox(
+        new Size(this.viewSize.width, this.viewSize.height),
+        new Padding(this.viewPadding.top,
+            this.viewPadding.right - offsetX + (this.viewSize.width - width),
+            this.viewPadding.bottom,
+            this.viewPadding.left + offsetX
+        )
+    )
 
-    withMX(mx: number): ViewBox {
-        return this.withMargin(this.margin.mx(mx));
-    }
-    withMY(my: number, mb?: number): ViewBox {
-        return this.withMargin(this.margin.my(my, mb));
+    withHeight = (height: number, offsetY = 0) => new ViewBox(
+        new Size(this.viewSize.width, this.viewSize.height),
+        new Padding(this.viewPadding.top + offsetY,
+            this.viewPadding.right,
+            this.viewPadding.bottom + (this.viewSize.height - height) - offsetY,
+            this.viewPadding.left
+        )
+    )
+
+    withPX = (p: number, l?: number) => this.withWidth(this.getBoxSize().width - p, l);
+    withMPY = (p: number, t?: number) => this.withHeight(this.getBoxSize().height - p, t);
+
+    splitX(cols: number = 2): ViewBox[] {
+        const parts = new Array();
+        const width = this.boxSize.width / cols;
+        for (let c = 0; c < cols; c++) {
+            parts.push(this.withWidth(width, (c) * width))
+        }
+        return parts;
     }
 
 }

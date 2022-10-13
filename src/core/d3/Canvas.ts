@@ -7,7 +7,9 @@ export class Canvas {
     bg: string;
     svg: any;
 
-    constructor(elID: string, viewBox?: ViewBox, bg?: string) {
+    constructor(elID?: string, viewBox?: ViewBox, bg?: string) {
+        if (!elID)
+            return;
         this.elID = elID;
         this.viewBox = viewBox;
         this.bg = bg || 'yellow';
@@ -17,9 +19,17 @@ export class Canvas {
             .select(`#${elID}`)
             .append("svg")
             .style("background", bg)
-            .attr("width", viewBox.getView().width)
-            .attr("height", viewBox.getView().height)
+            .attr("width", viewBox.getViewSize().width)
+            .attr("height", viewBox.getViewSize().height)
             .append("g");
+    }
+
+    plotOn(canvas: Canvas, viewBox?: ViewBox): Canvas {
+        this.viewBox = viewBox || this.viewBox || canvas.viewBox;
+        this.elID = canvas.elID;
+        this.bg = canvas.bg;
+        this.svg = canvas.svg;
+        return canvas;
     }
 
     rect(x: number, y: number, w: number, h: number, c = "black", r = 0, o = 1) {
