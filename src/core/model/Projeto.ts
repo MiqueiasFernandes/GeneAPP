@@ -29,6 +29,7 @@ export class Projeto {
     private isoformas_GFF = {};
     private das_genes: Array<AlternativeSplicing> = new Array<AlternativeSplicing>();
     private de_genes: Array<DifferentialExpression> = new Array<DifferentialExpression>();
+    private resumo: string[] = null;
 
 
     constructor(nome: string) {
@@ -40,6 +41,7 @@ export class Projeto {
     getALLIsos = (fasta: boolean = false): Isoforma[] => Object.values(fasta ? this.isoformas_FASTA : this.isoformas_GFF);
     getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
     getFatorBySample = (sp: string) => this.fatores.filter(f => f.samples.some(s => s.nome === sp))[0];
+    getResumo = (x: string) => this.resumo ? this.resumo.filter(z => z.indexOf(x)>0) : [];
 
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
@@ -101,6 +103,8 @@ export class Projeto {
         this.qc_status = this.getCSV(files, 'multiqc_general_stats.txt.csv', headers, '\t');
         this.qc_status.addCol('fator', r => r.Sample.replace(/.F$/, '').replace(/.R$/, ''));
 
+        this.resumo = this.part(files, 'resumo.txt');
+       
         const log = [
             ///Tamanho do genoma: 
             ///Quantiade de sequencias no genoma: 
@@ -111,7 +115,7 @@ export class Projeto {
             ///Genes com AS anotado: 
             ///CDS de genes com AS anotado: 
             ///Tamanho total da CDS de genes com AS:
-            /// Mapeamento no $LABEL: 
+            /// xxxxxxx  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxMapeamento no $LABEL: 
             ///tratando $SAMPLE como 
             ///Surviving' 
             ///CDS expressa em $SAMPLE: 

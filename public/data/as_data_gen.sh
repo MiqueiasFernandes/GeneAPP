@@ -452,7 +452,7 @@ mapear() {
         hisat2 -x $INDEX -U $SAMPLE.fq --no-unal -S $SAMPLE.maped.sam \
             1>$LOG_DIR/_5.$SID.$ETAPA.map.$LABEL.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.$ETAPA.map.$LABEL.$SAMPLE.err.txt
     fi
-    echo "$(date +%d/%m\ %H:%M) Mapeamento no $LABEL: $(grep 'overall' $LOG_DIR/_5.$SID.$ETAPA.map.$LABEL.$SAMPLE.err.txt)" >>$RESUMO
+    echo "$(date +%d/%m\ %H:%M) Mapeamento de $SAMPLE no $LABEL: $(grep 'overall' $LOG_DIR/_5.$SID.$ETAPA.map.$LABEL.$SAMPLE.err.txt)" >>$RESUMO
 }
 
 quantificar() {

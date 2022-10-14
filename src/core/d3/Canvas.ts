@@ -52,8 +52,8 @@ export class Canvas {
         if (estilo.serif) txt.style('font-family', 'serif')
         if (estilo.fs) txt.style('font-size', estilo.fs)
         if (estilo.r) txt.attr('transform', `rotate(${estilo.r} ${x},${y})`)
-        if (estilo.hc) txt.style('text-anchor', 'middle')
-        if (estilo.vc) txt.style("alignment-baseline", 'middle')
+        if (estilo.hco || estilo.hc) txt.style('text-anchor', estilo.hco || 'middle')
+        if (estilo.vc) txt.style("alignment-baseline", estilo.vco || 'middle')
         if (estilo.c) txt.style('fill', estilo.c)
         if (estilo.s) txt.style('stroke', estilo.s)
         return txt;
@@ -71,7 +71,7 @@ export class Canvas {
     }
 
     path(p: string, c = 'black', sw: number = 2, f = 'none') {
-        this.svg
+        return this.svg
             .append("path")
             .attr("d", p)
             .attr("fill", f)
