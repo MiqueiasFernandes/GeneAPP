@@ -108,23 +108,31 @@ function plotQC(wC) {
 function plotMp(wC) {
     const W = wC * 2;
     const H = 250;
+    const sl = ['SAMP1', 'SAMP2', 'SAMP3', 'SMP4', 'SMP5', 'SM6'];
+    const data = projeto.getResumo('Mapeamento ').map(x => x.split('Mapeamento ')[1]);
 
-    const data = projeto.getResumo('Mapeamento ');
-    const as_genes = data.filter(x => x.indexOf(' AS_GENES: ') > 0)
-    const cds = data.filter(x => x.indexOf(' CDS: ') > 0)
-    const genoma = data.filter(x => x.indexOf(' GENOMA: ') > 0)
+    const as_genes = data.filter(x => x.indexOf(' AS_GENES: ') > 0).map((x, i) => [sl[i], parseFloat(x.trim().split(' ')[2].replace('%', ''))])
+    const cds = data.filter(x => x.indexOf(' CDS: ') > 0).map((x, i) => [sl[i], parseFloat(x.trim().split(' ')[2].replace('%', ''))])
+    const genoma = data.filter(x => x.indexOf(' GENOMA: ') > 0).map((x, i) => [sl[i], parseFloat(x.trim().split(' ')[2].replace('%', ''))])
+    
+    
+
     console.log(as_genes)
     console.log(cds)
     console.log(genoma)
+
     const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
 
     new RadarPlot('graphRd', viewBox)
-        .setFill(x => { const cs = { genoma: 'red', genes: 'green', dest: 'blue', xpto: 'yellow', smp5: 'orange', smp6: 'gray' }; return cs[x] })
+        .setFill(x => { const cs = { "ASGENES": 'red', "CDS": 'green', "Genoma": 'yellow', xpto: 'yellow', smp5: 'orange', smp6: 'gray' }; return cs[x] })
         .plot({
-            genoma: { smp1: 10, smp2: 10, smp3: 10, smp4: 10, smp5: 10, smp6: 10, smp7: 10, smp8: 10, smp9: 10, smp10: 10 },
-            genes: { smp1: 20, smp2: 20, smp3: 20, smp4: 20, smp5: 20, smp6: 20, smp7: 20, smp8: 20, smp9: 20, smp10: 20 },
-            dest: { smp1: 30, smp2: 30, smp3: 30, smp4: 30, smp5: 30, smp6: 30, smp7: 30, smp8: 30, smp9: 30, smp10: 30 },
-            xpto: { smp1: 40, smp2: 40, smp3: 40, smp4: 40, smp5: 40, smp6: 40, smp7: 40, smp8: 40, smp9: 40, smp10: 40 },
+            "ASGENES": Object.fromEntries(as_genes), 
+            "CDS": Object.fromEntries(cds), 
+            "Genoma": Object.fromEntries(genoma)
+            // genoma: { smp1: 10, smp2: 10, smp3: 10, smp4: 10, smp5: 10, smp6: 10, smp7: 10, smp8: 10, smp9: 10, smp10: 10 },
+            // genes: { smp1: 20, smp2: 20, smp3: 20, smp4: 20, smp5: 20, smp6: 20, smp7: 20, smp8: 20, smp9: 20, smp10: 20 },
+            // dest: { smp1: 30, smp2: 30, smp3: 30, smp4: 30, smp5: 30, smp6: 30, smp7: 30, smp8: 30, smp9: 30, smp10: 30 },
+            // xpto: { smp1: 40, smp2: 40, smp3: 40, smp4: 40, smp5: 40, smp6: 40, smp7: 40, smp8: 40, smp9: 40, smp10: 40 },
         }, [0, 100]);
 }
 
