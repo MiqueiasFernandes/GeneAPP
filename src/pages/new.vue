@@ -57,10 +57,10 @@ function setExperimento() {
 
 
 <template>
-  <div class="w-full px-4 pt-4">
+  <div class="w-full px-4 pt-4 mb-48">
     <div class="mx-auto w-full max-w-xl rounded-2xl bg-white p-2">
 
-      <Sanfona titulo="Configurar o projeto">
+      <Sanfona titulo="Configurar o projeto" :opened="true">
         <FormRow>
           <FormCol>
             <FormInputText label="Nome do projeto" :content="projeto.nome" @update="(x) => (projeto.nome = x)" />
@@ -92,15 +92,21 @@ function setExperimento() {
         </FormRow>
       </Sanfona>
 
-      <Sanfona titulo="Carregar dados obrigatorios">
+      <Sanfona titulo="Carregar dados extras">
         <FormRow>
           <FormCol>
-            <Button color="acent" @click="setData">Experiment Files</Button>
+            <Button color="acent" @click="setData">upload orthoven</Button>
+            <Button color="acent" @click="setData">download gos agbase</Button>
+            <Button color="acent" @click="setData">upload agbase</Button>
           </FormCol>
         </FormRow>
       </Sanfona>
 
-      <Sanfona titulo="Carregar dados complementares">
+      <Sanfona titulo="Custom project">
+        criar a partir de out tabelar rmtas 3d
+        criar a partir de genoma + as genes ncbi
+        <!-- https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&id=2&rettype=gene_table&retmode=text -->
+        <!-- https://www.ncbi.nlm.nih.gov/books/NBK25499/ -->
       </Sanfona>
 
     </div>

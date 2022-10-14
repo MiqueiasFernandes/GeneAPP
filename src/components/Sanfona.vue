@@ -2,12 +2,13 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ChevronUpIcon } from '@heroicons/vue/solid'
 const props = defineProps({
-  titulo: String,
+    titulo: String,
+    opened: { default: false }
 });
 </script>
 
 <template>
-    <Disclosure as="div" class="mt-2" v-slot="{ open }">
+    <Disclosure as="div" class="mt-2" v-slot="{ open }" :defaultOpen="opened">
         <DisclosureButton
             class="flex w-full justify-between rounded-lg bg-purple-100 px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
             <span>{{titulo}}</span>

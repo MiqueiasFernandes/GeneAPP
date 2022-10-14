@@ -13,11 +13,11 @@ export class RadarPlot extends AbstractPlot {
 
         const eixos =
             [...new Set(Object.values(data).map(v => Object.keys(v)).reduce((a, b) => b.concat(a)))]
-                .map((e, i, a) => [e, Math.PI * 2 / a.length * i])
+                .map((e, i, a) => [e, Math.PI * 2 / a.length * i - Math.PI/2]) /// voltar 1/2 pi
                 .map(e => e.concat([Math.cos(e[1]), Math.sin(e[1])]))
                 .map(e => e.concat([
-                    Math.min(...vals.filter(x => x[0] === e[0]).map(x => x[1]))-10,
-                    Math.max(...vals.filter(x => x[0] === e[0]).map(x => x[1])) + 10
+                    Math.min(...vals.filter(x => x[0] === e[0]).map(x => x[1]))-1,
+                    Math.max(...vals.filter(x => x[0] === e[0]).map(x => x[1])) + 1
                 ]))
                 .map(e => e.concat([e[5]-e[4]]));
 
@@ -27,7 +27,7 @@ export class RadarPlot extends AbstractPlot {
         const centroY = this.viewBox.getBoxCenter()[1];
 
 
-        const raio = Math.min(this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height)/2;
+        const raio = Math.min(this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height)/2-10;
 
         const vars = Object.keys(data).map(k => ({ tipo: k, d: [] }));
 

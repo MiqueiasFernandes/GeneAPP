@@ -111,11 +111,11 @@ function plotMp(wC) {
 
     const viewBox = ViewBox.fromSize(W, H, Padding.simetric(10));
 
-    new RadarPlot('graphRd', viewBox, 'yellow').plot({
-        genoma: { smp1: 10, smp2: 10, smp3: 10, smp4: 10, smp5: 10 },
-        genes: { smp1: 20, smp2: 20, smp3: 20, smp4: 20, smp5: 20 },
-        dest: { smp1: 30, smp2: 5, smp3: 30, smp4: 30, smp5: 30 },
-        xpto: { smp1: 40, smp2: 0, smp3: 40, smp4: 40, smp5: 40 },
+    new RadarPlot('graphRd', viewBox).plot({
+        genoma: { smp1: 10, smp2: 10, smp3: 10, smp4: 10, smp5: 10, smp6: 10 },
+        genes: { smp1: 20, smp2: 20, smp3: 20, smp4: 20, smp5: 20, smp6: 20 },
+        dest: { smp1: 30, smp2: 5, smp3: 30, smp4: 30, smp5: 30, smp6:30 },
+        xpto: { smp1: 40, smp2: 0, smp3: 40, smp4: 40, smp5: 40,smp6:40 },
     });
 }
 
@@ -175,9 +175,8 @@ const rows = [
 
 
                     <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
-                        <div class="mx-1 my-1 rounded-md shadow-md bg-gray-100" id="graphQc">
-                        </div>
-                        <div class="mx-1 my-1" id="graphRd"></div>
+                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphQc"></div>
+                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphRd"></div>
                         <div class="mx-1 my-1" id="graphMp"></div>
                     </div>
 
