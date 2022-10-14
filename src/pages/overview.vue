@@ -14,7 +14,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox, BarPlot, LinePlot, Padding, BarPlotRadial } from '../core/d3';
+import { Canvas, ViewBox, BarPlot, RadarPlot, Padding, BarPlotRadial } from '../core/d3';
 import { PROJETO } from "../core/State";
 import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
@@ -105,12 +105,28 @@ function plotQC(wC) {
 }
 
 
+function plotMp(wC) {
+    const W = wC * 2;
+    const H = 250;
+
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(10));
+
+    new RadarPlot('graphRd', viewBox, 'yellow').plot({
+        genoma: { smp1: 10, smp2: 10, smp3: 10, smp4: 10, smp5: 10 },
+        genes: { smp1: 20, smp2: 20, smp3: 20, smp4: 20, smp5: 20 },
+        dest: { smp1: 30, smp2: 5, smp3: 30, smp4: 30, smp5: 30 },
+        xpto: { smp1: 40, smp2: 0, smp3: 40, smp4: 40, smp5: 40 },
+    });
+}
+
+
 function criar() {
     const wC = 1100 / 6;
     // plotar('graphQc', wC * 3, 250);
     plotQC(wC);
+    plotMp(wC);
 
-    plotar('graphRd', wC * 2, 250);
+    // plotar('graphRd', wC * 2, 250);
     plotar('graphMp', wC, 250);
 
     plotar('graphAs', wC, 250);
@@ -141,7 +157,7 @@ const rows = [
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-            <Tabs :names="['table', 'chart']" active="table">
+            <Tabs :names="['table', 'chart']" active="chart">
 
                 <template #table>
                     <TableIcon class="mr-2 w-5 h-5" /> Table

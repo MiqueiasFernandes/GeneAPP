@@ -59,5 +59,25 @@ export class Canvas {
         return txt;
     }
 
+    line(x1, y1, x2, y2, c = "black", sw = 2) {
+        return this.svg
+            .append("line")
+            .style("stroke", c)
+            .style("stroke-width", sw)
+            .attr("x1", x1)
+            .attr("y1", y1)
+            .attr("x2", x2)
+            .attr("y2", y2);
+    }
+
+    path(p: string, c = 'black', sw: number = 2, f = 'none') {
+        this.svg
+            .append("path")
+            .attr("d", p)
+            .attr("fill", f)
+            .attr("stroke", c)
+            .attr("stroke-width", sw);
+    }
+
 }
 
