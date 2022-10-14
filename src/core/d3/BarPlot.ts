@@ -6,9 +6,9 @@ export class BarPlot extends AbstractCartesianPlot {
 
     title: string = "BarPlot";
 
-    plot(data: any[], gap = .15): Canvas {
+    plot(data: any[], gap = .15, fnS=(a,b)=>a[1]-b[1]): Canvas {
 
-        const vars = data.map(x => x[this.x_var]).sort();
+        const vars = data.map(x => [x[this.x_var], x[this.y_var]]).sort(fnS).map(x => x[0]);
         const X = d3.scaleBand()
             .range([this.viewBox.getBoxX0(), this.viewBox.getBoxX1()])
             .domain(vars)
@@ -23,8 +23,8 @@ export class BarPlot extends AbstractCartesianPlot {
             .style("text-anchor", "end");
 
         const ylim = [0, d3.max(data.map(x => x[this.y_var]))];
-        const y_start = this.y_lim ? this.y_lim[0] : (ylim[0] - Math.log10(d3.max([1, ylim[0]])));
-        const y_end = this.y_lim ? this.y_lim[1] : (ylim[1] + Math.log10(d3.max([1, ylim[1]])));
+        const y_start = 0;
+        const y_end = this.y_lim ? this.y_lim[1] : (ylim[1] + Math.pow(10, Math.floor(Math.log10(ylim[1]))));
 
         const Y = d3.scaleLinear()
             .domain([y_start, y_end])
@@ -185,7 +185,7 @@ export class BarPlotRadial extends AbstractCartesianPlot {
                 )
         }
 
-        const fnLab = (l, p , s , c) => {
+        const fnLab = (l, p, s, c) => {
             const fnPI = d => (X(d[this.x_var]) + X.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI;
 
             svg
@@ -204,7 +204,7 @@ export class BarPlotRadial extends AbstractCartesianPlot {
                 .style('fill', c)
         }
 
-        fnLab(d => d[this.x_var], -50,  '.8rem', 'white');
+        fnLab(d => d[this.x_var], -50, '.8rem', 'white');
         fnLab((d) => this.y2lab(d[this.y2_var]), -95, '.5rem', 'gray');
         this.text(this.viewBox.getBoxCenter()[0], this.viewBox.getBoxCenter()[1], this.title, { hc: 1, vc: 1, fs: '2rem', b: 1 })
         return this.svg;

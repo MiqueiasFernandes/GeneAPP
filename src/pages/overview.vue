@@ -14,7 +14,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial } from '../core/d3';
+import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, BarPlot } from '../core/d3';
 import { PROJETO } from "../core/State";
 import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
@@ -137,6 +137,28 @@ function plotMp(wC) {
         ).concat([['A_LAB', 'rMATS'], ['B_LAB', '3DRNASeq']])));
 }
 
+function plotGs(wC) {
+    const W = wC;
+    const H = HEIGHT;
+    const viewBox = ViewBox.fromSize(W, H, new Padding(30, 10, 80, 50));
+
+    const total = parseInt(projeto.getResumo('Quantidade de genes:')[0].split(': ')[1]);
+    const cod = parseInt(projeto.getResumo('Quantidade de genes cod prot:')[0].split(': ')[1]);
+    const as = parseInt(projeto.getResumo('Genes com AS anotado:')[0].split(': ')[1]);
+    const here = parseInt(projeto.getResumo('AS genes encontrados | so rMATS')[0].split('Total : ')[1].split(' ')[0])
+
+    new BarPlot('graphAs', viewBox)
+        .setX("Obs")
+        .setY("Genes")
+        .setColor((d) => 'gray')
+        .plot([
+            { Obs: 'Total', Genes: total },
+            { Obs: 'Coding', Genes: cod },
+            { Obs: 'A.S.', Genes: as },
+            { Obs: projeto.getContrast() + ' A.S.', Genes: here },
+        ], undefined, (a,b)=>b[1]-a[1]);
+}
+
 
 function plotar(id, a, b) {
     const box = ViewBox.fromSize(a, b, Padding.simetric(5));
@@ -150,8 +172,8 @@ function criar() {
     plotQC(wC);
     plotRd(wC);
     plotMp(wC);
+    plotGs(wC);
 
-    plotar('graphAs', wC, 250);
     plotar('graphGc', wC * 5, 250);
 
     plotar('graphCv', wC * 3, 250);
@@ -203,7 +225,7 @@ const rows = [
                     </div>
 
                     <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
-                        <div class="mx-1 my-1" id="graphAs"></div>
+                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphAs"></div>
                         <div class="mx-1 my-1" id="graphGc"></div>
                     </div>
 

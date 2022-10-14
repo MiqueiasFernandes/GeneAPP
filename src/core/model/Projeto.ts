@@ -41,7 +41,8 @@ export class Projeto {
     getALLIsos = (fasta: boolean = false): Isoforma[] => Object.values(fasta ? this.isoformas_FASTA : this.isoformas_GFF);
     getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
     getFatorBySample = (sp: string) => this.fatores.filter(f => f.samples.some(s => s.nome === sp))[0];
-    getResumo = (x: string) => this.resumo ? this.resumo.filter(z => z.indexOf(x)>0) : [];
+    getResumo = (x: string) => this.resumo ? this.resumo.filter(z => z.indexOf(x)>=0) : [];
+    getContrast = () => `${this.fatores[0].nome}-${this.fatores[1].nome}`
 
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
