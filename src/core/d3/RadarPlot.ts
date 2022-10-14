@@ -1,4 +1,3 @@
-import * as d3 from "d3";
 import { AbstractPlot } from "./AbstractPlot";
 import { Canvas } from "./Canvas";
 

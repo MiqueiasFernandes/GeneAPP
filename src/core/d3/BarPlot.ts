@@ -205,7 +205,7 @@ export class BarPlotRadial extends AbstractCartesianPlot {
         }
 
         fnLab(d => d[this.x_var], -50,  '.8rem', 'white');
-        fnLab((d) => this.y2lab(d[this.y2_var]), -80, '.5rem', 'gray');
+        fnLab((d) => this.y2lab(d[this.y2_var]), -95, '.5rem', 'gray');
         this.text(this.viewBox.getBoxCenter()[0], this.viewBox.getBoxCenter()[1], this.title, { hc: 1, vc: 1, fs: '2rem', b: 1 })
         return this.svg;
     }

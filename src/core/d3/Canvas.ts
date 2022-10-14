@@ -46,6 +46,15 @@ export class Canvas {
             .attr("opacity", o);
     }
 
+    circ(x: number, y: number, r: number, c = "black") {
+        return this.svg
+            .append("circle")
+            .attr("cx", x)
+            .attr("cy", y)
+            .attr("r", r)
+            .style("fill", c);
+    }
+
     text(x: number, y: number, text: string, estilo: any = {}, svg?) {
         const txt = (svg || this.svg).append("text").attr("x", x).attr("y", y).text(text);
         if (estilo.b) txt.style('font-weight', 'bold')

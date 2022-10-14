@@ -14,20 +14,16 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox, BarPlot, RadarPlot, Padding, BarPlotRadial } from '../core/d3';
+import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial } from '../core/d3';
 import { PROJETO } from "../core/State";
 import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
 
 const projeto = PROJETO;
+const HEIGHT = 300;
 
 const cors = ['red', 'green', 'blue', 'yellow', 'pink', 'gray', 'orange', 'purple']
 var x = 0;
-
-function plotar(id, a, b) {
-    const box = ViewBox.fromSize(a, b, Padding.simetric(5));
-    new Canvas(id, box, cors[x++ % 8])
-}
 
 
 function plotQC(wC) {
@@ -38,7 +34,7 @@ function plotQC(wC) {
     // "FastQC_mqc-generalstats-fastqc-total_sequences"
 
     const W = wC * 2;
-    const H = 250;
+    const H = HEIGHT;
 
     const viewBox = ViewBox.fromSize(W, H, Padding.simetric(10));
     const canvas = new Canvas('graphQc', viewBox)//, '#efefef');
@@ -104,47 +100,56 @@ function plotQC(wC) {
 
 }
 
-
-function plotMp(wC) {
+function plotRd(wC) {
     const W = wC * 2;
-    const H = 250;
-    const sl = ['SAMP1', 'SAMP2', 'SAMP3', 'SMP4', 'SMP5', 'SM6'];
-    const data = projeto.getResumo('Mapeamento ').map(x => x.split('Mapeamento ')[1]);
+    const H = HEIGHT;
+    const data = projeto.getResumo('Mapeamento de ').map(x => x.split('Mapeamento de ')[1]);
 
-    const as_genes = data.filter(x => x.indexOf(' AS_GENES: ') > 0).map((x, i) => [sl[i], parseFloat(x.trim().split(' ')[2].replace('%', ''))])
-    const cds = data.filter(x => x.indexOf(' CDS: ') > 0).map((x, i) => [sl[i], parseFloat(x.trim().split(' ')[2].replace('%', ''))])
-    const genoma = data.filter(x => x.indexOf(' GENOMA: ') > 0).map((x, i) => [sl[i], parseFloat(x.trim().split(' ')[2].replace('%', ''))])
-    
-    
-
-    console.log(as_genes)
-    console.log(cds)
-    console.log(genoma)
+    const as_genes = data.filter(x => x.indexOf(' AS_GENES: ') > 0).map(x => [x.split(' ')[0], parseFloat(x.trim().split(' ')[3].replace('%', ''))])
+    const cds = data.filter(x => x.indexOf(' CDS: ') > 0).map(x => [x.split(' ')[0], parseFloat(x.trim().split(' ')[3].replace('%', ''))])
+    const genoma = data.filter(x => x.indexOf(' GENOMA: ') > 0).map(x => [x.split(' ')[0], parseFloat(x.trim().split(' ')[3].replace('%', ''))])
 
     const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
 
     new RadarPlot('graphRd', viewBox)
         .setFill(x => { const cs = { "ASGENES": 'red', "CDS": 'green', "Genoma": 'yellow', xpto: 'yellow', smp5: 'orange', smp6: 'gray' }; return cs[x] })
         .plot({
-            "ASGENES": Object.fromEntries(as_genes), 
-            "CDS": Object.fromEntries(cds), 
+            "ASGENES": Object.fromEntries(as_genes),
+            "CDS": Object.fromEntries(cds),
             "Genoma": Object.fromEntries(genoma)
-            // genoma: { smp1: 10, smp2: 10, smp3: 10, smp4: 10, smp5: 10, smp6: 10, smp7: 10, smp8: 10, smp9: 10, smp10: 10 },
-            // genes: { smp1: 20, smp2: 20, smp3: 20, smp4: 20, smp5: 20, smp6: 20, smp7: 20, smp8: 20, smp9: 20, smp10: 20 },
-            // dest: { smp1: 30, smp2: 30, smp3: 30, smp4: 30, smp5: 30, smp6: 30, smp7: 30, smp8: 30, smp9: 30, smp10: 30 },
-            // xpto: { smp1: 40, smp2: 40, smp3: 40, smp4: 40, smp5: 40, smp6: 40, smp7: 40, smp8: 40, smp9: 40, smp10: 40 },
         }, [0, 100]);
+}
+
+function plotMp(wC) {
+    const W = wC * 2;
+    const H = HEIGHT;
+
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
+
+    const data = projeto.getResumo('AS genes encontrados | so rMATS')[0].split('|');
+
+    new VennPlot('graphMp', viewBox)
+        .plot(Object.fromEntries(data.map((x, i) =>
+            i == 1 ? ['A', parseInt(x.split('rMATS ')[1].trim())] :
+                i == 2 ? ['B', parseInt(x.split('3DRNASEQ ')[1].trim())] :
+                    i == 3 ? ['AB', parseInt(x.split('ambos ')[1].trim())] :
+                        ['', '']
+        ).concat([['A_LAB', 'rMATS'], ['B_LAB', '3DRNASeq']])));
+}
+
+
+function plotar(id, a, b) {
+    const box = ViewBox.fromSize(a, b, Padding.simetric(5));
+    new Canvas(id, box, cors[x++ % 8])
 }
 
 
 function criar() {
-    const wC = 1100 / 6;
-    // plotar('graphQc', wC * 3, 250);
-    plotQC(wC);
-    plotMp(wC);
+    const wC = 1100 / 7;
 
-    // plotar('graphRd', wC * 2, 250);
-    plotar('graphMp', wC, 250);
+    plotQC(wC);
+    plotRd(wC);
+    plotMp(wC);
 
     plotar('graphAs', wC, 250);
     plotar('graphGc', wC * 5, 250);
@@ -194,7 +199,7 @@ const rows = [
                     <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
                         <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphQc"></div>
                         <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphRd"></div>
-                        <div class="mx-1 my-1" id="graphMp"></div>
+                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphMp"></div>
                     </div>
 
                     <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
