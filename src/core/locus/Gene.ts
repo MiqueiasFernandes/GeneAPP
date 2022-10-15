@@ -44,4 +44,6 @@ export class Gene extends Locus {
             this.bed[raw[0]].push([parseInt(raw[2]), parseInt(raw[3]), parseInt(raw[4])])
     }
 
+    getBED = () => this.bed;
+
 }

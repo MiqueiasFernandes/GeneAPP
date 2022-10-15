@@ -28,7 +28,6 @@ export class RadarPlot extends AbstractPlot {
         const centroX = this.viewBox.getBoxCenter()[0];
         const centroY = this.viewBox.getBoxCenter()[1];
 
-
         const raio_lab = Math.min(this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height) / 2;
         const raio = raio_lab - 10;
 
@@ -43,8 +42,6 @@ export class RadarPlot extends AbstractPlot {
         })
 
         vars.forEach((v, i) => this.path(' M ' + v.d.map(xy => `${xy[0]},${xy[1]} `).join(' L ') + ' Z', this.fill(v.tipo), 2, this.fill(v.tipo)).attr('opacity', '.4'))
-
-
 
         return this;
     }

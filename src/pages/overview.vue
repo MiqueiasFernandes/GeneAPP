@@ -14,7 +14,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, BarPlot, ViolinPlot } from '../core/d3';
+import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, BarPlot, ViolinPlot, AreaPlot } from '../core/d3';
 import { PROJETO } from "../core/State";
 import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
@@ -109,7 +109,7 @@ function plotRd(wC) {
     const cds = data.filter(x => x.indexOf(' CDS: ') > 0).map(x => [x.split(' ')[0], parseFloat(x.trim().split(' ')[3].replace('%', ''))])
     const genoma = data.filter(x => x.indexOf(' GENOMA: ') > 0).map(x => [x.split(' ')[0], parseFloat(x.trim().split(' ')[3].replace('%', ''))])
 
-    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(50));
 
     new RadarPlot('graphRd', viewBox)
         .setFill(x => { const cs = { "ASGENES": 'red', "CDS": 'green', "Genoma": 'yellow', xpto: 'yellow', smp5: 'orange', smp6: 'gray' }; return cs[x] })
@@ -197,6 +197,13 @@ function plotGc(wC) {
 
 }
 
+function plotCv(wC) {
+    const W = wC * 3;
+    const H = HEIGHT;
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
+    new AreaPlot('graphCv', viewBox).plot();
+}
+
 function plotar(id, a, b) {
     const box = ViewBox.fromSize(a, b, Padding.simetric(5));
     new Canvas(id, box, cors[x++ % 8])
@@ -211,8 +218,8 @@ function criar() {
     plotMp(wC);
     plotGs(wC);
     plotGc(wC);
+    plotCv(wC);
 
-    plotar('graphCv', wC * 3, 250);
     plotar('graphAn', wC * 3, 250);
 }
 
@@ -229,6 +236,11 @@ const rows = [
     { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
     { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
 ];
+
+const graficos = [
+    [{ id: 'graphCv', titulo: 'Gene read dept and coverage' }, { id: 'graphAn', titulo: 'Protein anotattion' }],
+    [{ id: 'graphQc', titulo: 'Quality Control' }, { id: 'graphRd', titulo: 'Read Mapping mRNA,CDS,Genome' }, { id: 'graphMp', titulo: 'AS Discovery' }],
+    [{ id: 'graphAs', titulo: 'Gene Set Kind' }, { id: 'graphGc', titulo: 'Genomic Structure context' }]];
 
 </script>
     
@@ -253,24 +265,15 @@ const rows = [
 
                     <Button @click="criar">plotar</Button>
 
-
-                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-8">
-                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphQc"></div>
-                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphRd"></div>
-                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphMp"></div>
+                    <div class="flex flex-wrap justify-center justify-evenly content-evenly" v-for="row in graficos">
+                        <div class="m-4 rounded-md shadow-md bg-gray-200" v-for="grafico in row">
+                            <div class="w-full flex justify-center" :id="grafico.id"></div>
+                            <div
+                                class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center ">
+                                {{grafico.titulo}}
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-8">
-                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphAs"></div>
-                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphGc"></div>
-                    </div>
-
-                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-8">
-                        <div class="mx-1 my-1" id="graphCv"></div>
-                        <div class="mx-1 my-1" id="graphAn"></div>
-                    </div>
-
-
 
                 </template>
 

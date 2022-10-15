@@ -1,4 +1,5 @@
 export * from './Size';
+export * from './AreaPlot';
 export * from './Canvas';
 export * from './BarPlot';
 export * from './LinePlot';
