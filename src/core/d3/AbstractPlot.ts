@@ -3,7 +3,7 @@ import { ViewBox } from "./Size";
 
 export abstract class AbstractPlot extends Canvas {
     title: string;
-    color = (d) => 'black';
+    color = (d?) => 'black';
 
     setColor(fn): AbstractPlot {
         this.color = fn;

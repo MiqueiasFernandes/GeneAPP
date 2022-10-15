@@ -109,7 +109,7 @@ function plotRd(wC) {
     const cds = data.filter(x => x.indexOf(' CDS: ') > 0).map(x => [x.split(' ')[0], parseFloat(x.trim().split(' ')[3].replace('%', ''))])
     const genoma = data.filter(x => x.indexOf(' GENOMA: ') > 0).map(x => [x.split(' ')[0], parseFloat(x.trim().split(' ')[3].replace('%', ''))])
 
-    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(50));
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
 
     new RadarPlot('graphRd', viewBox)
         .setFill(x => { const cs = { "ASGENES": 'red', "CDS": 'green', "Genoma": 'yellow', xpto: 'yellow', smp5: 'orange', smp6: 'gray' }; return cs[x] })
@@ -200,8 +200,30 @@ function plotGc(wC) {
 function plotCv(wC) {
     const W = wC * 3;
     const H = HEIGHT;
-    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
-    new AreaPlot('graphCv', viewBox).plot();
+    const viewBox = ViewBox.fromSize(W, H, new Padding(10, 20, 30, 60));
+
+    const covs = {};
+    projeto.fatores.forEach(fator => {
+        fator.samples.forEach(sample => {
+            const all = [];
+            for (var i = 0; i <= 100; i++) all.push(0);
+            covs[sample.nome] = all;
+        })
+    });
+
+    projeto.getALLGenes().forEach(gene => {
+        const size = gene.size;
+        Object.entries(gene.getBED()).forEach(samp_bed => {
+            const sample = samp_bed[0];
+            samp_bed[1].forEach(s_e_tpm => {
+                covs[sample][parseInt(s_e_tpm[0] * 100 / size)] += s_e_tpm[2]
+            })
+        })
+    });
+
+    new AreaPlot('graphCv', viewBox)
+        .setColor(d => projeto.getFatorBySample(d.key).cor)
+        .plot(covs, 100);
 }
 
 function plotar(id, a, b) {
@@ -240,7 +262,7 @@ const rows = [
 const graficos = [
     [{ id: 'graphCv', titulo: 'Gene read dept and coverage' }, { id: 'graphAn', titulo: 'Protein anotattion' }],
     [{ id: 'graphQc', titulo: 'Quality Control' }, { id: 'graphRd', titulo: 'Read Mapping mRNA,CDS,Genome' }, { id: 'graphMp', titulo: 'AS Discovery' }],
-    [{ id: 'graphAs', titulo: 'Gene Set Kind' }, { id: 'graphGc', titulo: 'Genomic Structure context' }]];
+    [{ id: 'graphAs', titulo: 'Gene`Set Kind' }, { id: 'graphGc', titulo: 'Genomic Structure context' }]];
 
 </script>
     

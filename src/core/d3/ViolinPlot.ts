@@ -37,7 +37,8 @@ export class ViolinPlot extends AbstractPlot {
             .append("g")
             .attr("transform", `translate(${this.viewBox.getBoxCenter()[0]},0)`)
             .append("path")
-            .style("stroke", "none")
+            .style("stroke", "aliceblue")
+            .style("stroke-width", "1.5px")
             .style("fill", this.color(null))
             .attr("d", d3.area()
                 .x0(d => xNum(-d[1]))
@@ -45,7 +46,6 @@ export class ViolinPlot extends AbstractPlot {
                 .y(d => Y(d[0]))
                 .curve(d3.curveCatmullRom)
             )
-
         this.text(this.viewBox.getBoxCenter()[0], this.viewBox.getBoxY0() - 15, this.title, { hc: 1, b: 1, fs: '.8rem' })
 
         return this;
