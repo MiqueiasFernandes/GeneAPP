@@ -11,6 +11,7 @@ export class Locus {
     nome: string;
     start: number;
     end: number;
+    size: number;
     strand: boolean;
     cromossomo: Cromossomo;
     meta: Meta = new Meta();
@@ -21,6 +22,7 @@ export class Locus {
         this.cromossomo = cromossomo;
         this.start = start;
         this.end = end;
+        this.size = end - start + 1;
         this.strand = strand;
         this.nome = nome;
     }

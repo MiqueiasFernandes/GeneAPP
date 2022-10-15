@@ -20,4 +20,6 @@ export class CDS {
         this.loci.sort((a, b) => this.isoforma.strand ? (a.start - b.start) : (b.start - a.start));
     }
 
+    getLoci = () => this.loci; 
+
 }

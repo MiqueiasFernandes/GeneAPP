@@ -14,7 +14,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, BarPlot } from '../core/d3';
+import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, BarPlot, ViolinPlot } from '../core/d3';
 import { PROJETO } from "../core/State";
 import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
@@ -150,15 +150,52 @@ function plotGs(wC) {
     new BarPlot('graphAs', viewBox)
         .setX("Obs")
         .setY("Genes")
-        .setColor((d) => 'gray')
+        .setColor(() => 'orangered')
         .plot([
             { Obs: 'Total', Genes: total },
             { Obs: 'Coding', Genes: cod },
             { Obs: 'A.S.', Genes: as },
             { Obs: projeto.getContrast() + ' A.S.', Genes: here },
-        ], undefined, (a,b)=>b[1]-a[1]);
+        ], undefined, (a, b) => b[1] - a[1]);
 }
 
+function plotGc(wC) {
+    const W = wC * 6;
+    const H = HEIGHT;
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
+    const canvas = new Canvas('graphGc', viewBox);
+    const boxes = viewBox.splitX(7);
+
+    boxes.forEach((box, i) => {
+
+        var obs = [];
+        var k = 0;
+        var smoth = 10;
+        var tick = 50;
+        var a = 1;
+        var b = null;
+        var t = 'G' + i;
+
+        i === k++ && (t = 'Gene Size') && (b = 10000) && (obs = projeto.getALLGenes().map(g => g.size));
+        i === k++ && (t = 'CDS Size') && (b = 10000) && (obs = projeto.getALLASIsos().map(i => i.getCDS().getLoci().map(l => l.size).reduce((p, c) => p + c)));
+        i === k++ && (t = 'Intronic Size') && (b = 10000) && (obs = projeto.getALLGenes().map(g => g.getIsoformas().map(i => i.getIntrons().map(i => i.size).reduce((p, c) => p + c, 0)).reduce((p, c) => p + c, 0) / g.getIsoformas().length));
+        i === k++ && (t = 'Intron Size') && (b = 3000) && (obs = projeto.getALLASIsos().map(i => i.getIntrons().map(i => i.size).join(',')).join(',').split(',').map(x => parseInt(0 + x)));
+        i === k++ && (t = 'Exon Size') && (b = 3000) && (obs = projeto.getALLASIsos().map(i => i.getExons().map(i => i.size).join(',')).join(',').split(',').map(x => parseInt(0 + x)));
+        //i === k++ && (t = 'UTR Size') && (b = 3000) && (obs = projeto.getALLASIsos().map(i => (0||i.getUTR()[0])+(0||i.getUTR()[1])).join(',').split(',').map(x => parseInt(0 + x)));
+        i === k++ && (t = 'Qtd. mRNA/Gene') && (b = 30) && (smoth = 6) && (obs = projeto.getALLGenes().map(g => g.getIsoformas().length));
+        i === k++ && (t = 'Qtd. Exons') && (b = 30) && (smoth = 6) && (obs = projeto.getALLASIsos().map(i => i.getExons().length));
+
+        ///conferir se esta calibrado
+        ///obs = ',20'.repeat(10000).slice(1).split(',').map(x => parseInt(x)).concat(obs)
+
+        new ViolinPlot()
+            .setCanvas(canvas, box.addPaddingY(20).toPadding(Padding.left(30)))
+            .setTitle(t)
+            .setColor(_ => 'mediumspringgreen')
+            .plot(obs, a, b, smoth, tick);
+    })
+
+}
 
 function plotar(id, a, b) {
     const box = ViewBox.fromSize(a, b, Padding.simetric(5));
@@ -173,8 +210,7 @@ function criar() {
     plotRd(wC);
     plotMp(wC);
     plotGs(wC);
-
-    plotar('graphGc', wC * 5, 250);
+    plotGc(wC);
 
     plotar('graphCv', wC * 3, 250);
     plotar('graphAn', wC * 3, 250);
@@ -218,18 +254,18 @@ const rows = [
                     <Button @click="criar">plotar</Button>
 
 
-                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
+                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-8">
                         <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphQc"></div>
                         <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphRd"></div>
                         <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphMp"></div>
                     </div>
 
-                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
+                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-8">
                         <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphAs"></div>
-                        <div class="mx-1 my-1" id="graphGc"></div>
+                        <div class="m-1 rounded-md shadow-md bg-gray-100" id="graphGc"></div>
                     </div>
 
-                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-2">
+                    <div class="flex flex-wrap justify-center justify-evenly content-evenly my-8">
                         <div class="mx-1 my-1" id="graphCv"></div>
                         <div class="mx-1 my-1" id="graphAn"></div>
                     </div>

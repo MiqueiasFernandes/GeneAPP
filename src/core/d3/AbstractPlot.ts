@@ -20,6 +20,12 @@ export abstract class AbstractPlot extends Canvas {
         return this;
     }
 
+    dom(obs: number[], a?, b?) {
+        const lim = [Math.min(...obs), Math.max(...obs)];
+        const marg = Math.pow(10, Math.floor(Math.log10(Math.max(lim[1], Math.abs(lim[0])))));
+        return [a || (lim[0] - marg), b || (lim[1] + marg)];
+    }
+
     abstract plot(data: any): Canvas;
 }
 

@@ -38,10 +38,11 @@ export class Projeto {
     }
 
     getALLGenes = (): Gene[] => Object.values(this.genes);
+    getALLASIsos = (): Isoforma[] => this.getALLGenes().map(g => g.getIsoformas()).reduce((p,c) => p.concat(c));
     getALLIsos = (fasta: boolean = false): Isoforma[] => Object.values(fasta ? this.isoformas_FASTA : this.isoformas_GFF);
     getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
     getFatorBySample = (sp: string) => this.fatores.filter(f => f.samples.some(s => s.nome === sp))[0];
-    getResumo = (x: string) => this.resumo ? this.resumo.filter(z => z.indexOf(x)>=0) : [];
+    getResumo = (x: string) => this.resumo ? this.resumo.filter(z => z.indexOf(x) >= 0) : [];
     getContrast = () => `${this.fatores[0].nome}-${this.fatores[1].nome}`
 
     addFator(raw: string) {
@@ -105,7 +106,7 @@ export class Projeto {
         this.qc_status.addCol('fator', r => r.Sample.replace(/.F$/, '').replace(/.R$/, ''));
 
         this.resumo = this.part(files, 'resumo.txt');
-       
+
         const log = [
             ///Tamanho do genoma: 
             ///Quantiade de sequencias no genoma: 

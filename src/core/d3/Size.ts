@@ -22,6 +22,7 @@ export class Padding {
 
     static simetric = (m: number): Padding => new Padding(m, m, m, m);
     static zero = () => Padding.simetric(0);
+    static left = (x: number) => new Padding(0, 0, 0, x);
 
     getBox(size: Size): Size {
         return new Size(
@@ -84,6 +85,15 @@ export class ViewBox {
             this.viewPadding.left
         )
     )
+
+    toPadding = (p: Padding) => new ViewBox(
+        new Size(this.viewSize.width, this.viewSize.height),
+        new Padding(
+            this.viewPadding.top + p.top,
+            this.viewPadding.right + p.right,
+            this.viewPadding.bottom + p.bottom,
+            this.viewPadding.left + p.left
+        ))
 
     addPaddingX = (x: number): ViewBox => this.addPadding(x, 0);
     addPaddingY = (y: number): ViewBox => this.addPadding(0, y);
