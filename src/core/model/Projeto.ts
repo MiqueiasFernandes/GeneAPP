@@ -38,7 +38,7 @@ export class Projeto {
     }
 
     getALLGenes = (): Gene[] => Object.values(this.genes);
-    getALLASIsos = (): Isoforma[] => this.getALLGenes().map(g => g.getIsoformas()).reduce((p,c) => p.concat(c));
+    getALLASIsos = (): Isoforma[] => this.getALLGenes().map(g => g.getIsoformas()).reduce((p, c) => p.concat(c));
     getALLIsos = (fasta: boolean = false): Isoforma[] => Object.values(fasta ? this.isoformas_FASTA : this.isoformas_GFF);
     getFator = nome => this.fatores.filter(f => f.nome === nome)[0];
     getFatorBySample = (sp: string) => this.fatores.filter(f => f.samples.some(s => s.nome === sp))[0];
@@ -374,7 +374,7 @@ export class Projeto {
     parseAnotacao(files) {
         const anotacao = this.part(files, 'anotacao.tsv').map(x => x.split('\t')).map(x => [x[0].split(',')[0], x]);
         this.getALLIsos().forEach(iso =>
-            anotacao.filter(a => a[0] === iso.meta['PTNA']).map(a => a[1]).forEach(a => iso.add_anotacao(Anotacao.fromRaw(a)))
+            anotacao.filter(a => a[0] === iso.meta['PTNA']).map(a => a[1]).forEach(a => iso.add_anotacoes(Anotacao.fromRaw2(a)))
         );
     }
 

@@ -37,7 +37,7 @@ export class RadarPlot extends AbstractPlot {
             const x = centroX + e[2] * raio
             const y = centroY + e[3] * raio
             this.line(centroX, centroY, x, y, 'lightgray');
-            this.text(centroX + e[2] * raio_lab, centroY + e[3] * raio_lab, e[0], { hc: Math.abs(x - centroX) < 10, hco: x < (centroX - 10) ? 'end' : null, fs: '.7rem' })
+            this.text(centroX + e[2] * raio_lab, centroY + e[3] * raio_lab, e[0], { hc: Math.abs(x - centroX) < 10, hco: x < (centroX - 10) ? 'end' : null, fs: '.7rem', b:1 })
             vars.forEach(v => v.d.push([centroX + e[2] * (data[v.tipo][e[0]] - e[4]) / e[6] * raio, centroY + e[3] * (data[v.tipo][e[0]] - e[4]) / e[6] * raio]))
         })
 

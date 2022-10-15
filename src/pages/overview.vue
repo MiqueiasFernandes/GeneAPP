@@ -12,19 +12,15 @@
 </route>
       
 <script setup>
-import { onMounted } from 'vue';
-import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
-import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, BarPlot, ViolinPlot, AreaPlot } from '../core/d3';
+import { onMounted, onUpdated, ref } from 'vue';
+import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
+import { CursorClickIcon } from '@heroicons/vue/outline';
+import { Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, BarPlot, BarPlotVertical, ViolinPlot, AreaPlot } from '../core/d3';
 import { PROJETO } from "../core/State";
-import { CSV } from '../core/utils/CSV';
 useHead({ title: 'Overview' });
 
 const projeto = PROJETO;
 const HEIGHT = 300;
-
-const cors = ['red', 'green', 'blue', 'yellow', 'pink', 'gray', 'orange', 'purple']
-var x = 0;
-
 
 function plotQC(wC) {
     // "Sample"
@@ -226,28 +222,72 @@ function plotCv(wC) {
         .plot(covs, 100);
 }
 
-function plotar(id, a, b) {
-    const box = ViewBox.fromSize(a, b, Padding.simetric(5));
-    new Canvas(id, box, cors[x++ % 8])
+function plotAn(wC) {
+    const W = wC * 3;
+    const H = HEIGHT;
+    const viewBox = ViewBox.fromSize(W, H, new Padding(15, 50, 30, 80));
+
+    const data = {
+        GO: { genes: [], anotacao: [] },
+        Pathways: { genes: [], anotacao: [] },
+        Interpro: { genes: [], anotacao: [] },
+        PFam: { genes: [], anotacao: [] },
+        Other: { genes: [], anotacao: [] }
+    }
+
+    projeto.getALLASIsos().forEach(iso => {
+        const g = iso.getGene().nome;
+        iso.anotacoes.forEach(a => {
+            const x = a.get('acession');
+            switch (a.key) {
+                case 'Pfam': return data.PFam.genes.push(g) && data.PFam.anotacao.push(x)
+                case 'InterPro': return data.Interpro.genes.push(g) && data.Interpro.anotacao.push(x)
+                case 'GO': return data.GO.genes.push(g) && data.GO.anotacao.push(x)
+                case 'Pathway': return data.Pathways.genes.push(g) && data.Pathways.anotacao.push(x)
+                case 'Other': return data.Other.genes.push(g) && data.Other.anotacao.push(x)
+            }
+        })
+    })
+
+    const canvas = new BarPlotVertical('graphAn', viewBox)
+        .setX('tipo')
+        .setY('genes')
+        .setY2('anotacao')
+        .setColor(_ => '#66f5f7')
+        .setColor2(_ => '#d0ff00')
+        .hidleAx()
+        .plot([
+            { tipo: 'GO', genes: [...new Set(data.GO.genes)].length, anotacao: [...new Set(data.GO.anotacao)].length },
+            { tipo: 'Pathways', genes: [...new Set(data.Pathways.genes)].length, anotacao: [...new Set(data.Pathways.anotacao)].length },
+            { tipo: 'Interpro', genes: [...new Set(data.Interpro.genes)].length, anotacao: [...new Set(data.Interpro.anotacao)].length },
+            { tipo: 'PFam', genes: [...new Set(data.PFam.genes)].length, anotacao: [...new Set(data.PFam.anotacao)].length },
+            { tipo: 'Other', genes: [...new Set(data.Other.genes)].length, anotacao: [...new Set(data.Other.anotacao)].length },
+        ])
+
+    canvas.rect(canvas.viewBox.getBoxX0(), canvas.viewBox.getBoxY1() + 10, 10, 10, '#66f5f7')
+    canvas.text(canvas.viewBox.getBoxX0() + 12, canvas.viewBox.getBoxY1() + 15, 'Qtd. genes', { fs: '.8rem', vc: 1, vco: 'central' })
+    canvas.rect(canvas.viewBox.getBoxX0() + 100, canvas.viewBox.getBoxY1() + 10, 10, 10, '#d0ff00')
+    canvas.text(canvas.viewBox.getBoxX0() + 112, canvas.viewBox.getBoxY1() + 15, 'Qtd. anotattions', { fs: '.8rem', vc: 1, vco: 'central' })
 }
 
+const show = ref(false);
 
 function criar() {
+    show.value = true;
     const wC = 1100 / 7;
-
-    plotQC(wC);
-    plotRd(wC);
-    plotMp(wC);
-    plotGs(wC);
-    plotGc(wC);
-    plotCv(wC);
-
-    plotar('graphAn', wC * 3, 250);
+    setTimeout(() => {
+        plotQC(wC);
+        plotRd(wC);
+        plotMp(wC);
+        plotGs(wC);
+        plotGc(wC);
+        plotCv(wC);
+        plotAn(wC);
+    }, 300);
 }
 
-onMounted(_ => {
-    criar();
-})
+onMounted(() => (show.value = false) || (setTimeout(() => criar(), 300)))
+onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 300)))
 
 
 const cols = ['Etapa', 'Tool', 'Fator', 'Sample', 'Propriedade', 'Valor'];
@@ -262,7 +302,9 @@ const rows = [
 const graficos = [
     [{ id: 'graphCv', titulo: 'Gene read dept and coverage' }, { id: 'graphAn', titulo: 'Protein anotattion' }],
     [{ id: 'graphQc', titulo: 'Quality Control' }, { id: 'graphRd', titulo: 'Read Mapping mRNA,CDS,Genome' }, { id: 'graphMp', titulo: 'AS Discovery' }],
-    [{ id: 'graphAs', titulo: 'Gene`Set Kind' }, { id: 'graphGc', titulo: 'Genomic Structure context' }]];
+    [{ id: 'graphAs', titulo: 'Gene`Set Kind' }, { id: 'graphGc', titulo: 'Genomic Structure context' }]
+];
+
 
 </script>
     
@@ -271,13 +313,13 @@ const graficos = [
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-            <Tabs :names="['table', 'chart']" active="chart">
+            <Tabs :names="['table', 'chart']" active="table">
 
                 <template #table>
                     <TableIcon class="mr-2 w-5 h-5" /> Table
                 </template>
                 <template #tableContent>
-                    <Table :cols="cols" :rows="rows"></Table>
+                    <Table class="m-4" :cols="cols" :rows="rows"></Table>
                 </template>
 
                 <template #chart>
@@ -285,18 +327,22 @@ const graficos = [
                 </template>
                 <template #chartContent>
 
-                    <Button @click="criar">plotar</Button>
+                    <Button class="m-4" v-if="!show" @click="criar()">
+                        <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Plot
+                    </Button>
 
-                    <div class="flex flex-wrap justify-center justify-evenly content-evenly" v-for="row in graficos">
-                        <div class="m-4 rounded-md shadow-md bg-gray-200" v-for="grafico in row">
-                            <div class="w-full flex justify-center" :id="grafico.id"></div>
-                            <div
-                                class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center ">
-                                {{grafico.titulo}}
+                    <template v-else>
+                        <div class="flex flex-wrap justify-center justify-evenly content-evenly"
+                            v-for="row in graficos">
+                            <div class="m-4 rounded-md shadow-md bg-gray-200" v-for="grafico in row">
+                                <div class="w-full flex justify-center" :id="grafico.id"></div>
+                                <div
+                                    class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center ">
+                                    {{grafico.titulo}}
+                                </div>
                             </div>
                         </div>
-                    </div>
-
+                    </template>
                 </template>
 
             </Tabs>

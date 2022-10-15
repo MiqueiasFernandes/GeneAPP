@@ -7,13 +7,13 @@ import { Locus } from "./Locus";
 import { UTR } from "./UTR";
 
 export class Isoforma extends Locus {
+ 
     private exons: Array<Exon> = new Array<Exon>();
     private introns: Array<Intron> = new Array<Intron>();
     private five_prime_utr: UTR = null;
     private three_prime_utr: UTR = null;
     private cds: CDS = null;
     private gene: Gene = null;
-    private anotacao: Array<Anotacao> = new Array<Anotacao>();
 
     addExon = (exon: Exon) => this.exons.push(exon);
     addIntron = (intron: Intron) => this.introns.push(intron);
@@ -24,6 +24,7 @@ export class Isoforma extends Locus {
     getIntrons = () => this.introns || this.update(this.gene).introns;
     getExons = () => this.exons;
     getUTR = () => [this.five_prime_utr, this.three_prime_utr];
+    getGene = () => this.gene;
 
     update(gene: Gene): Isoforma {
         this.gene = gene;

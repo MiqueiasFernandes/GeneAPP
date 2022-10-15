@@ -3,6 +3,7 @@ import { ViewBox } from "./Size";
 
 export abstract class AbstractPlot extends Canvas {
     title: string;
+    show_ax = true;
     color = (d?) => 'black';
 
     setColor(fn): AbstractPlot {
@@ -24,6 +25,11 @@ export abstract class AbstractPlot extends Canvas {
         const lim = [Math.min(...obs), Math.max(...obs)];
         const marg = Math.pow(10, Math.floor(Math.log10(Math.max(lim[1], Math.abs(lim[0])))));
         return [a || (lim[0] - marg), b || (lim[1] + marg)];
+    }
+
+    hidleAx() {
+        this.show_ax = false;
+        return this;
     }
 
     abstract plot(data: any): Canvas;

@@ -1,7 +1,7 @@
 <script setup>
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
+import { MenuIcon, XIcon } from '@heroicons/vue/outline'
 import { BeakerIcon } from '@heroicons/vue/solid'
 import { PROJETO } from "./core/State";
 
@@ -27,7 +27,9 @@ const pages = (router) => router.options.routes
         <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
           <div class="flex-shrink-0 flex items-center">
             <a href="/">
-              <BeakerIcon class="h-8 text-white" aria-hidden="true" />
+              <BeakerIcon class="h-8 text-white
+              transition ease-in-out delay-150 hover:scale-110 duration-300
+              " aria-hidden="true" />
             </a>
           </div>
 

@@ -33,6 +33,10 @@ export class Locus {
         this.anotacoes.push(anotacao);
     }
 
+    add_anotacoes(anots: Anotacao[]) {
+        this.anotacoes.push(...anots);
+    }
+
     public static fromGFF(chr: Cromossomo, raw: string[], nome: string): Locus {
         const start = parseInt(raw[3]);
         const end = parseInt(raw[4]);
