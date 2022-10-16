@@ -18,6 +18,7 @@ export class AlternativeSplicing {
 
     getEvidence = () => this.evidence;
     hasMASER = () => this.extra['MASER']
+    getGene = () => this.gene;
 }
 
 export class AS3dranseq extends AlternativeSplicing {

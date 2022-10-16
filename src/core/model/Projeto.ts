@@ -50,6 +50,9 @@ export class Projeto {
     getASgenes = () => this.as_genes;
     getALLDASgenes = () => this.allDASgenes;
     getDASGenes = () => this.das_genes;
+    getCtrl = () => this.fatores[0];
+    getTrat = () => this.fatores[1];
+    getASIsosID = () => [... new Set(this.das_genes.map(d => d.getGene().getIsoformas()).reduce((p, c) => p.concat(c), []))];
 
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);

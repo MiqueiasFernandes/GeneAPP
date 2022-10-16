@@ -30,7 +30,10 @@ const graficos = [
     [
         { id: 'graphDa', titulo: 'Gene AS 3DRnaSeq' },
         { id: 'graphDar', titulo: 'Gene AS rMATS' },
-        { id: 'graphHm', titulo: 'Heatmap Genes top TPM' },
+        { id: 'graphHm', titulo: 'Heatmap Genes top TPM' }
+    ],
+    [
+        { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
     ]
 ];
 
@@ -212,6 +215,49 @@ function plotHeatmap() {
         .plot(dtrat.filter(d => gsel.includes(d.x)))
 }
 
+function plotHeatmapIso() {
+
+    const dctrl = []
+    const dtrat = []
+    const isos = [... new Set(projeto.getASIsosID().map(i => [i.meta.MRNA, i.nome, i.gene.nome, [i.meta, i.gene.meta]]))];
+    const ctrl = projeto.getCtrl();
+    const trat = projeto.getTrat();
+    ctrl.samples.forEach(s => isos.forEach(i => dctrl.push({ gt: [i[2], i[1]], y: s.nome, tpm: s.tpm_trans[i[0]] })))
+    trat.samples.forEach(s => isos.forEach(i => dtrat.push({ gt: [i[2], i[1]], y: s.nome, tpm: s.tpm_trans[i[0]] })))
+    dctrl.map(d => d.x = d.gt.join('/'))
+    dtrat.map(d => d.x = d.gt.join('/'))
+
+    const lab_conv = Object.fromEntries(isos.map(i => [i[2] + '/' + i[1], `${i[3][1].NID}_${i[3][0].Name}`]))
+
+    const max_ctrl = dctrl.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.max(a, b), 0)
+    const min_ctrl = dctrl.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.min(a, b), dctrl[0].tpm)
+    const dif_ctrl = max_ctrl - min_ctrl;
+    dctrl.forEach(e => e.op = (e.tpm - min_ctrl) / dif_ctrl)
+
+    const max_ctrlt = dtrat.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.max(a, b), 0)
+    const min_ctrlt = dtrat.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.min(a, b), dtrat[0].tpm)
+    const dif_ctrlt = max_ctrlt - min_ctrlt;
+    dtrat.forEach(e => e.op = (e.tpm - min_ctrlt) / dif_ctrlt)
+
+    const controle_filt = dctrl.filter(g => g.op > .05)
+
+    const gns = [...new Set(controle_filt.map(d => d.gt[0]))]
+    dctrl.forEach(d => gns.includes(d.gt[0]) ? controle_filt.push(d) : null)
+
+    const viewBox = ViewBox.fromSize(W * 4, H, Padding.simetric(10));
+    const canvas = new Canvas('graphHm2', viewBox)
+    const box = viewBox.splitY()
+
+    new Heatmap()
+        .setCanvas(canvas, box[0].toPadding(new Padding(30, 10, 20, 40)))
+        .plot(controle_filt, (x) => lab_conv[x])
+
+    const gsel = [...new Set(controle_filt.map(o => o.x))]
+    new Heatmap()
+        .setCanvas(canvas, box[1].toPadding(new Padding(30, 10, 20, 40)))
+        .plot(dtrat.filter(d => gsel.includes(d.x)), (x) => lab_conv[x])
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
@@ -221,6 +267,7 @@ function criar() {
         plotBar();
         plotScater();
         plotHeatmap();
+        plotHeatmapIso();
     }, 300);
 }
 

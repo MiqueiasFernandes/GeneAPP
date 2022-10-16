@@ -7,3 +7,4 @@ export * from './ScatterPlot';
 export * from './RadarPlot';
 export * from './VennPlot';
 export * from './ViolinPlot';
+export * from './HeatmapPlot';
