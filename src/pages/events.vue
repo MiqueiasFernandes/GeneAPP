@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas, GraphPlot } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -22,6 +22,10 @@ const projeto = PROJETO;
 
 const show = ref(false);
 const graficos = [
+    [
+        { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
+        { id: 'graphLk', titulo: 'Gene relatoions' },
+    ],
     [
         { id: 'graphBar', titulo: 'AS Discovery' },
         { id: 'graphScr', titulo: 'AS Impact' },
@@ -32,9 +36,6 @@ const graficos = [
         { id: 'graphDar', titulo: 'Gene AS rMATS' },
         { id: 'graphHm', titulo: 'Heatmap Genes top TPM' }
     ],
-    [
-        { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
-    ]
 ];
 
 const W = 1100 / 7;
@@ -199,7 +200,7 @@ function plotHeatmap() {
     dtrat.forEach(e => e.op = (e.tpm - min_ctrlt) / dif_ctrlt)
 
 
-    const viewBox = ViewBox.fromSize(W * 4, H, Padding.simetric(10));
+    const viewBox = ViewBox.fromSize(W * 4, H, Padding.simetric(20));
     const canvas = new Canvas('graphHm', viewBox)
     const box = viewBox.splitY()
 
@@ -243,19 +244,44 @@ function plotHeatmapIso() {
 
     const gns = [...new Set(controle_filt.map(d => d.gt[0]))]
     dctrl.forEach(d => gns.includes(d.gt[0]) ? controle_filt.push(d) : null)
-
-    const viewBox = ViewBox.fromSize(W * 4, H, Padding.simetric(10));
-    const canvas = new Canvas('graphHm2', viewBox)
-    const box = viewBox.splitY()
-
-    new Heatmap()
-        .setCanvas(canvas, box[0].toPadding(new Padding(30, 10, 20, 40)))
-        .plot(controle_filt, (x) => lab_conv[x])
-
     const gsel = [...new Set(controle_filt.map(o => o.x))]
+
+
+    const viewBox = ViewBox.fromSize(W * 2.8, H * 2, Padding.simetric(5));
+    const canvas = new Canvas('graphHm2', viewBox)
+    const box = viewBox.splitX()
+
+    const dt1 = controle_filt;
+    const dt2 = dtrat.filter(d => gsel.includes(d.x));
+    const pd = new Padding(30, 20, 0, 120)
     new Heatmap()
-        .setCanvas(canvas, box[1].toPadding(new Padding(30, 10, 20, 40)))
-        .plot(dtrat.filter(d => gsel.includes(d.x)), (x) => lab_conv[x])
+        .setCanvas(canvas, box[0].toPadding(pd))
+        .plot(dt1, (x) => lab_conv[x], true)
+
+    new Heatmap()
+        .setCanvas(canvas, box[1].toPadding(pd))
+        .plot(dt2, (x) => lab_conv[x], true)
+}
+
+function plotLk() {
+
+    ///relacao - cromossomo
+    ///relacao - anotacao
+    ///relacao - nome aaaaX
+    ///relacao - proximidade
+
+    const nodes = [... new Set(projeto.getDASGenes().map(g => g.gene))];
+    nodes.forEach(n => n.group = 'agene')
+    const links = []
+    nodes.forEach(g => links.push({ source: g.cromossomo.nome, target: g.nome }))
+    projeto.cromossomos.forEach(c => nodes.push({ nome: c.nome, group: 'zcromossomo' }))
+
+    const data = {
+        nodes: nodes.map(g => ({ id: g.nome, group: g.group })), links
+    }
+
+    new GraphPlot('graphLk', ViewBox.fromSize(W * 4, H * 2))
+        .plot(data);
 }
 
 function criar() {
@@ -268,6 +294,7 @@ function criar() {
         plotScater();
         plotHeatmap();
         plotHeatmapIso();
+        plotLk();
     }, 300);
 }
 

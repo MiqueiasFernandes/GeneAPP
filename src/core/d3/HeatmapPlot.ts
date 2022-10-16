@@ -4,14 +4,14 @@ import { Canvas } from "./Canvas";
 
 export class Heatmap extends AbstractCartesianPlot {
 
-    plot(data, lab_Conv = (x) => x): Canvas {
+    plot(data, lab_Conv = (x) => x, invert = false): Canvas {
+
+        data = data.map(d => invert ? { x: d.y, y: d.x, op: d.op } : d)
 
         const C = d3.interpolatePlasma
-        // this.rect(this.viewBox.getBoxX0(), this.viewBox.getBoxY0(),
-        //     this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height, 'white')
 
         const xs = [...new Set(data.map(d => d.x))].sort()
-        const ys = [...new Set(data.map(d => d.y))]
+        const ys = [...new Set(data.map(d => d.y))].sort()
 
         const X = d3.scaleBand()
             .domain(xs)
@@ -24,8 +24,10 @@ export class Heatmap extends AbstractCartesianPlot {
         this.show_ax && this.svg
             .append("g")
             .attr("transform", `translate(${this.viewBox.getBoxX0()},${this.viewBox.getBoxY0()})`)
-            .call(d3.axisLeft(Y));
-
+            .call(d3.axisLeft(Y))
+            .selectAll("text")
+            .style('font-size', '.5rem')
+            .text(k => invert ? lab_Conv(k) : k);
 
         this.svg
             .append("g")
@@ -42,10 +44,12 @@ export class Heatmap extends AbstractCartesianPlot {
 
         this.show_ax && this.svg
             .append("g")
-            .attr("transform", `translate(${this.viewBox.getBoxX0()},${this.viewBox.getBoxY1()})`)
-            .call(d3.axisBottom(X))
+            .attr("transform", `translate(${this.viewBox.getBoxX0()},${this.viewBox.getBoxY0()})`)
+            .call(d3.axisTop(X))
             .selectAll("text")
-            .text(k => lab_Conv(k))
+            .attr("transform", invert ? '' : "translate(20,-15)rotate(-45)")
+            .style('font-size', invert ? '' : '.5rem')
+            .text(k => invert ? k : lab_Conv(k))
             ;
 
 

@@ -8,3 +8,4 @@ export * from './RadarPlot';
 export * from './VennPlot';
 export * from './ViolinPlot';
 export * from './HeatmapPlot';
+export * from './GraphPlot';
