@@ -23,6 +23,9 @@ export class Padding {
     static simetric = (m: number): Padding => new Padding(m, m, m, m);
     static zero = () => Padding.simetric(0);
     static left = (x: number) => new Padding(0, 0, 0, x);
+    toLeft = (x: number) => new Padding(this.top, this.right, this.bottom, this.left + x)
+    toTop = (y: number) => new Padding(this.top + y, this.right, this.bottom, this.left)
+    toBottom = (y: number) => new Padding(this.top, this.right, this.bottom + y, this.left)
 
     getBox(size: Size): Size {
         return new Size(

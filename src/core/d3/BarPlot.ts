@@ -215,6 +215,13 @@ export class BarPlotVertical extends BarPlot {
         return this;
     }
 
+    legend(ly1: { c: string, t: string }, ly2?: { c: string, t: string }) {
+        this.rect(this.viewBox.getBoxX0(), this.viewBox.getBoxY1() + 10, 10, 10, ly1.c)
+        this.text(this.viewBox.getBoxX0() + 12, this.viewBox.getBoxY1() + 15, ly1.t, { fs: '.8rem', vc: 1, vco: 'central' })
+        ly2 && this.rect(this.viewBox.getBoxX0() + 100, this.viewBox.getBoxY1() + 10, 10, 10, ly2.c)
+        ly2 && this.text(this.viewBox.getBoxX0() + 112, this.viewBox.getBoxY1() + 15, ly2.t, { fs: '.8rem', vc: 1, vco: 'central' })
+    }
+
 }
 
 export class BarPlotRadial extends BarPlot {

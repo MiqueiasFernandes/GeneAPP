@@ -1,4 +1,3 @@
-import { Fator } from "./Fator";
 import { Gene } from "../locus/Gene";
 
 export class AlternativeSplicing {
@@ -18,6 +17,7 @@ export class AlternativeSplicing {
     }
 
     getEvidence = () => this.evidence;
+    hasMASER = () => this.extra['MASER']
 }
 
 export class AS3dranseq extends AlternativeSplicing {

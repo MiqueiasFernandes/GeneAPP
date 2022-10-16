@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -26,11 +26,15 @@ const graficos = [
         { id: 'graphDe', titulo: 'Gene differential expression' },
         { id: 'graphDa', titulo: 'Gene AS 3DRnaSeq' },
         { id: 'graphDar', titulo: 'Gene AS rMATS' },
+    ],
+    [
+        { id: 'graphBar', titulo: 'AS Discovery' },
     ]
 ];
 
 const W = 1100 / 7;
 const H = 300;
+const as_genes = projeto.getASgenes();
 
 function plotDE() {
     const as_genes = projeto.getASgenes();
@@ -48,8 +52,6 @@ function plotDE() {
         .hidleAx()
         .plot(data)
 }
-
-const as_genes = projeto.getASgenes();
 
 function plotDA() {
     const data = projeto.getALLDASgenes()
@@ -85,12 +87,77 @@ function plotDAr() {
         .plot(dx)
 }
 
+function plotBar() {
+
+    const filter = (evid, fdr) => projeto.getDASGenes().filter(x => x.evidence === evid && x.qvalue <= fdr)
+    const genes_count = (x) => [...new Set(x.map(x => x.gene.nome))].length
+
+    const rmats = filter('rMATS', .05);
+    const threeD = filter('3DRNASeq', .05)
+    const maser = rmats.filter(x => !x.hasMASER())
+    const a3ss = rmats.filter(x => x.tipo === 'A3SS')
+    const a5ss = rmats.filter(x => x.tipo === 'A5SS')
+    const ri = rmats.filter(x => x.tipo === 'RI')
+    const se = rmats.filter(x => x.tipo === 'SE')
+
+    const data = [
+        {
+            tipo: 'rMATS',
+            eventos: rmats.length,
+            genes: genes_count(rmats),
+        },
+        {
+            tipo: '3DRNAseq',
+            eventos: threeD.length,
+            genes: genes_count(threeD),
+        },
+        {
+            tipo: 'MASER',
+            eventos: maser.length,
+            genes: genes_count(maser),
+        },
+        {
+            tipo: 'RI',
+            eventos: ri.length,
+            genes: genes_count(ri)
+        },
+        {
+            tipo: 'SE',
+            eventos: se.length,
+            genes: genes_count(se)
+        },
+        {
+            tipo: 'A3SS',
+            eventos: a3ss.length,
+            genes: genes_count(a3ss)
+        },
+        {
+            tipo: 'A5SS',
+            eventos: a5ss.length,
+            genes: genes_count(a5ss)
+        }
+    ]
+
+    const ordem = ['rMATS', '3DRNAseq', 'MASER', 'SE', 'RI', 'A5SS', 'A3SS']
+
+    new BarPlotVertical('graphBar', ViewBox.fromSize(W * 2, H, Padding.simetric(10).toLeft(60).toBottom(20)))
+        .setX('tipo')
+        .setY('eventos')
+        .setY2('genes')
+        .setColor(_ => '#66f5f7')
+        .setColor2(_ => '#d0ff00')
+        .hidleAx()
+        .plot(data)
+        .legend({ t: 'Qtd. events', c: '#66f5f7' }, { t: 'Qtd. genes', c: '#d0ff00' })
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
         plotDE();
         plotDA();
         plotDAr();
+        plotBar();
     }, 300);
 }
 

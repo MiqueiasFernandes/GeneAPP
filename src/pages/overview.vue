@@ -249,25 +249,24 @@ function plotAn(wC) {
         })
     })
 
-    const canvas = new BarPlotVertical('graphAn', viewBox)
+    const datax = [
+        { tipo: 'GO', genes: [...new Set(data.GO.genes)].length, anotacao: [...new Set(data.GO.anotacao)].length },
+        { tipo: 'Pathways', genes: [...new Set(data.Pathways.genes)].length, anotacao: [...new Set(data.Pathways.anotacao)].length },
+        { tipo: 'Interpro', genes: [...new Set(data.Interpro.genes)].length, anotacao: [...new Set(data.Interpro.anotacao)].length },
+        { tipo: 'PFam', genes: [...new Set(data.PFam.genes)].length, anotacao: [...new Set(data.PFam.anotacao)].length },
+        { tipo: 'Other', genes: [...new Set(data.Other.genes)].length, anotacao: [...new Set(data.Other.anotacao)].length },
+    ];
+
+    new BarPlotVertical('graphAn', viewBox)
         .setX('tipo')
         .setY('genes')
         .setY2('anotacao')
         .setColor(_ => '#66f5f7')
         .setColor2(_ => '#d0ff00')
         .hidleAx()
-        .plot([
-            { tipo: 'GO', genes: [...new Set(data.GO.genes)].length, anotacao: [...new Set(data.GO.anotacao)].length },
-            { tipo: 'Pathways', genes: [...new Set(data.Pathways.genes)].length, anotacao: [...new Set(data.Pathways.anotacao)].length },
-            { tipo: 'Interpro', genes: [...new Set(data.Interpro.genes)].length, anotacao: [...new Set(data.Interpro.anotacao)].length },
-            { tipo: 'PFam', genes: [...new Set(data.PFam.genes)].length, anotacao: [...new Set(data.PFam.anotacao)].length },
-            { tipo: 'Other', genes: [...new Set(data.Other.genes)].length, anotacao: [...new Set(data.Other.anotacao)].length },
-        ])
+        .plot(datax)
+        .legend({ t: 'Qtd. genes', c: '#66f5f7' }, { t: 'Qtd. anotattions', c: '#d0ff00' })
 
-    canvas.rect(canvas.viewBox.getBoxX0(), canvas.viewBox.getBoxY1() + 10, 10, 10, '#66f5f7')
-    canvas.text(canvas.viewBox.getBoxX0() + 12, canvas.viewBox.getBoxY1() + 15, 'Qtd. genes', { fs: '.8rem', vc: 1, vco: 'central' })
-    canvas.rect(canvas.viewBox.getBoxX0() + 100, canvas.viewBox.getBoxY1() + 10, 10, 10, '#d0ff00')
-    canvas.text(canvas.viewBox.getBoxX0() + 112, canvas.viewBox.getBoxY1() + 15, 'Qtd. anotattions', { fs: '.8rem', vc: 1, vco: 'central' })
 }
 
 const show = ref(false);
@@ -343,7 +342,7 @@ const graficos = [
                             </div>
                         </div>
                     </template>
-                    
+
                 </template>
 
             </Tabs>
