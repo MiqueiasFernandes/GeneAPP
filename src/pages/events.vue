@@ -29,6 +29,7 @@ const graficos = [
     ],
     [
         { id: 'graphBar', titulo: 'AS Discovery' },
+        { id: 'graphScr', titulo: 'AS Impact' },
     ]
 ];
 
@@ -137,9 +138,6 @@ function plotBar() {
             genes: genes_count(a5ss)
         }
     ]
-
-    const ordem = ['rMATS', '3DRNAseq', 'MASER', 'SE', 'RI', 'A5SS', 'A3SS']
-
     new BarPlotVertical('graphBar', ViewBox.fromSize(W * 2, H, Padding.simetric(10).toLeft(60).toBottom(20)))
         .setX('tipo')
         .setY('eventos')
@@ -151,6 +149,30 @@ function plotBar() {
         .legend({ t: 'Qtd. events', c: '#66f5f7' }, { t: 'Qtd. genes', c: '#d0ff00' })
 }
 
+function plotScater() {
+
+    const dx = projeto.getDASGenes()
+        .filter(x => x.evidence === 'rMATS' && x.qvalue < 1 && x.qvalue > 0);
+
+    const maxsRI = dx.filter(x => x.tipo === 'RI').map(d => d.extra['IMPACT']).reduce((a, b) => Math.max(a, b), 0);
+    const maxsSE = dx.filter(x => x.tipo === 'SE').map(d => d.extra['IMPACT']).reduce((a, b) => Math.max(a, b), 0);
+    const maxsASS = dx.filter(x => x.tipo.startsWith('A')).map(d => d.extra['IMPACT']).reduce((a, b) => Math.max(a, b), 0);
+
+    const data = dx.map(x => [x.dps, x.qvalue, -Math.log10(x.qvalue), x.extra['IMPACT'], x.tipo]).map(
+        x => new
+            Point(x[0], x[2])
+            .setSize(x[3] / (x[4] === 'RI' ? maxsRI : x[4] === 'SE' ? maxsSE : maxsASS) * 5)
+            .setColor(x[1] <= .05 ? 'black' : x[1] > .9 ? 'gray' : 'orange')
+            .setForm(x[4] === 'RI' ? 'x' : x[4] === 'SE' ? 'w' : 'o')
+    )
+
+    new ScatterPlot('graphScr', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+        .setYlim([0, 5])
+        .setXlim([-.8, .8])
+        .hidleAx()
+        .plot(data)
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
@@ -158,6 +180,7 @@ function criar() {
         plotDA();
         plotDAr();
         plotBar();
+        plotScater();
     }, 300);
 }
 
