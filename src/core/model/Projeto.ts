@@ -30,6 +30,8 @@ export class Projeto {
     private das_genes: Array<AlternativeSplicing> = new Array<AlternativeSplicing>();
     private de_genes: Array<DifferentialExpression> = new Array<DifferentialExpression>();
     private resumo: string[] = null;
+    private allDEgenes;
+    private allDASgenes;
 
 
     constructor(nome: string) {
@@ -44,7 +46,10 @@ export class Projeto {
     getFatorBySample = (sp: string) => this.fatores.filter(f => f.samples.some(s => s.nome === sp))[0];
     getResumo = (x: string) => this.resumo ? this.resumo.filter(z => z.indexOf(x) >= 0) : [];
     getContrast = () => `${this.fatores[0].nome}-${this.fatores[1].nome}`
-    getDE = () => this.de_genes;
+    getDE = () => this.allDEgenes;
+    getASgenes = () => this.as_genes;
+    getALLDASgenes = () => this.allDASgenes;
+    getDASGenes = () => this.das_genes;
 
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
@@ -387,6 +392,14 @@ export class Projeto {
 
         const fnSTR = x => x.trim().replaceAll('"', '');
         const fnFloat = x => parseFloat(x);
+
+        this.allDEgenes = this
+            .getCSV(files, 'DE gene testing statistics.csv', headers)
+            .getRows({ "target": fnSTR, 'adj.pval': fnFloat, 'log2FC': fnFloat });
+
+        this.allDASgenes = this
+            .getCSV(files, 'DAS genes testing statistics.csv', headers)
+            .getRows({ "target": fnSTR, 'adj.pval': fnFloat, 'maxdeltaPS': fnFloat });
 
         const Significant_DAS_genes = this
             .getCSV(files, 'Significant DAS genes list and statistics.csv', headers)

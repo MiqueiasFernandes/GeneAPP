@@ -18,17 +18,23 @@ export class Point {
         this.size = 2
         this.categoria = '?'
     }
+
+    setColor(c) {
+        this.color = c;
+        return this;
+    }
+    setSize(s) {
+        this.size = s;
+        return this;
+    }
 }
 
 export class ScatterPlot extends AbstractCartesianPlot {
 
     plot(data: Point[]): Canvas {
 
-        this.rect(this.viewBox.getBoxX0(), this.viewBox.getBoxY0(),
-            this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height, 'white')
-
         const X = d3.scaleLinear()
-            .domain(d3.extent(data.map(d => d.x)))
+            .domain(this.x_lim || d3.extent(data.map(d => d.x)))
             .range([0, this.viewBox.getBoxSize().width]);
 
         this.svg
@@ -37,7 +43,7 @@ export class ScatterPlot extends AbstractCartesianPlot {
             .call(d3.axisBottom(X));
 
         const Y = d3.scaleLinear()
-            .domain(d3.extent(data.map(d => d.y)))
+            .domain(this.y_lim || d3.extent(data.map(d => d.y)))
             .range([this.viewBox.getBoxSize().height, 0]);
 
         this.svg

@@ -40,6 +40,7 @@ export abstract class AbstractCartesianPlot extends AbstractPlot {
     x_var: string;
     y_var: string;
     y_lim: number[];
+    x_lim: number[];
 
     setX(x_var: string): AbstractCartesianPlot {
         this.x_var = x_var;
@@ -51,6 +52,10 @@ export abstract class AbstractCartesianPlot extends AbstractPlot {
         return this;
     }
 
+    setXlim(x_lim: number[]): AbstractCartesianPlot {
+        this.x_lim = x_lim;
+        return this;
+    }
     setYlim(y_lim: number[]): AbstractCartesianPlot {
         this.y_lim = y_lim;
         return this;
