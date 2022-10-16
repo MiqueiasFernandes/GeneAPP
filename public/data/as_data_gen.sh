@@ -2279,6 +2279,7 @@ finalizar() {
         to3d/transcript_gene_ma* to3d/experimental_design.csv \
         to3d/result/Sig*gene*.csv \
         to3d/result/TPM*.csv \
+        to3d/result/D*ene*estin*tatistics.csv to3d/result/RNAse*nfo.csv\
         multiqc_data/multiqc_general_stats.txt \
         $TMP_DIR/gene2mrna2cds2ptn.csv $TMP_DIR/all_as_isoforms.txt \
         $RESUMO geneapp_data

@@ -343,6 +343,7 @@ const graficos = [
                             </div>
                         </div>
                     </template>
+                    
                 </template>
 
             </Tabs>

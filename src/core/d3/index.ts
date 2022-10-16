@@ -3,6 +3,7 @@ export * from './AreaPlot';
 export * from './Canvas';
 export * from './BarPlot';
 export * from './LinePlot';
+export * from './ScatterPlot';
 export * from './RadarPlot';
 export * from './VennPlot';
 export * from './ViolinPlot';
