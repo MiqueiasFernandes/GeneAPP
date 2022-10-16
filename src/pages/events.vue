@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -23,13 +23,14 @@ const projeto = PROJETO;
 const show = ref(false);
 const graficos = [
     [
-        { id: 'graphDe', titulo: 'Gene differential expression' },
-        { id: 'graphDa', titulo: 'Gene AS 3DRnaSeq' },
-        { id: 'graphDar', titulo: 'Gene AS rMATS' },
-    ],
-    [
         { id: 'graphBar', titulo: 'AS Discovery' },
         { id: 'graphScr', titulo: 'AS Impact' },
+        { id: 'graphDe', titulo: 'Gene differential expression' },
+    ],
+    [
+        { id: 'graphDa', titulo: 'Gene AS 3DRnaSeq' },
+        { id: 'graphDar', titulo: 'Gene AS rMATS' },
+        { id: 'graphHm', titulo: 'Heatmap Genes top TPM' },
     ]
 ];
 
@@ -64,7 +65,7 @@ function plotDA() {
             .setSize(de[3] ? 2 : 1)
         );
 
-    new ScatterPlot('graphDa', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+    new ScatterPlot('graphDa', ViewBox.fromSize(W * 1.5, H, new Padding(30, 30, 30, 40)))
         .setYlim([0, 5])
         .setXlim([-.8, .8])
         .hidleAx()
@@ -81,7 +82,7 @@ function plotDAr() {
                 .setForm(x[4] === 'RI' ? 'x' : x[4] === 'SE' ? 'w' : 'o')
         )
 
-    new ScatterPlot('graphDar', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+    new ScatterPlot('graphDar', ViewBox.fromSize(W * 1.5, H, new Padding(30, 30, 30, 40)))
         .setYlim([0, 5])
         .setXlim([-.8, .8])
         .hidleAx()
@@ -173,6 +174,44 @@ function plotScater() {
         .plot(data)
 }
 
+function plotHeatmap() {
+
+    const dctrl = []
+    const dtrat = []
+    const genes = [...new Set(projeto.getDASGenes().map(g => g.gene.meta.NID))];
+
+    const ctrl = projeto.getCtrl();
+    const trat = projeto.getTrat();
+    ctrl.samples.forEach(s => genes.forEach(g => dctrl.push({ x: g, y: s.nome, tpm: s.tpm_genes[g] })))
+    trat.samples.forEach(s => genes.forEach(g => dtrat.push({ x: g, y: s.nome, tpm: s.tpm_genes[g] })))
+
+    const max_ctrl = dctrl.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.max(a, b), 0)
+    const min_ctrl = dctrl.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.min(a, b), dctrl[0].tpm)
+    const dif_ctrl = max_ctrl - min_ctrl;
+    dctrl.forEach(e => e.op = (e.tpm - min_ctrl) / dif_ctrl)
+
+    const max_ctrlt = dtrat.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.max(a, b), 0)
+    const min_ctrlt = dtrat.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.min(a, b), dtrat[0].tpm)
+    const dif_ctrlt = max_ctrlt - min_ctrlt;
+    dtrat.forEach(e => e.op = (e.tpm - min_ctrlt) / dif_ctrlt)
+
+
+    const viewBox = ViewBox.fromSize(W * 4, H, Padding.simetric(10));
+    const canvas = new Canvas('graphHm', viewBox)
+    const box = viewBox.splitY()
+
+    const controle_filt = dctrl.filter(g => g.op > .03)
+
+    new Heatmap()
+        .setCanvas(canvas, box[0].toPadding(new Padding(30, 10, 20, 40)))
+        .plot(controle_filt)
+
+    const gsel = [...new Set(controle_filt.map(o => o.x))]
+    new Heatmap()
+        .setCanvas(canvas, box[1].toPadding(new Padding(30, 10, 20, 40)))
+        .plot(dtrat.filter(d => gsel.includes(d.x)))
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
@@ -181,6 +220,7 @@ function criar() {
         plotDAr();
         plotBar();
         plotScater();
+        plotHeatmap();
     }, 300);
 }
 
