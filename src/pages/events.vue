@@ -24,7 +24,7 @@ const show = ref(false);
 const graficos = [
     [
         { id: 'graphDe', titulo: 'Gene differential expression' },
-        { id: 'graphDa', titulo: 'Gene Alternative Splicing' },
+        { id: 'graphDa', titulo: 'Gene AS 3DRnaSeq' },
         { id: 'graphDar', titulo: 'Gene AS rMATS' },
     ]
 ];
@@ -45,38 +45,44 @@ function plotDE() {
     new ScatterPlot('graphDe', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
         .setYlim([0, 5])
         .setXlim([-5, 5])
+        .hidleAx()
         .plot(data)
 }
 
 const as_genes = projeto.getASgenes();
 
 function plotDA() {
-    const data = projeto.getALLDASgenes().map(de =>
-        [de.maxdeltaPS, -Math.log10(de['adj.pval']), de['adj.pval'], as_genes.includes(de['target'])]
-    ).map(de => new
-        Point(de[0], de[1])
-        .setColor(de[3] ? 'red' : de[2] <= .05 ? 'black' : 'orange')
-        .setSize(de[3] ? 2 : 1)
-    );
+    const data = projeto.getALLDASgenes()
+        .filter(de => de['adj.pval'] > 0 && de['adj.pval'] < 1)
+        .map(de => [de.maxdeltaPS, -Math.log10(de['adj.pval']), de['adj.pval'], as_genes.includes(de['target'])]
+        ).map(de => new
+            Point(de[0], de[1])
+            .setColor(de[3] ? 'red' : de[2] <= .05 ? 'black' : 'orange')
+            .setSize(de[3] ? 2 : 1)
+        );
 
     new ScatterPlot('graphDa', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+        .setYlim([0, 5])
+        .setXlim([-.8, .8])
+        .hidleAx()
         .plot(data)
 }
 
 function plotDAr() {
-
     const dx = projeto.getDASGenes()
-    .filter(x => x.evidence === 'rMATS')
-    .map(x => [as_genes.includes(x.gene.meta.ID), x.qvalue, x.dps,  -Math.log10(1+x.qvalue), x.tipo]).map(
-        x => new
-            Point(x[2], x[3])
-            .setColor(x[0] ? 'red' : x[1] <= .05 ? 'black' : 'orange')
-        .setSize(x[3] === 'RI' ? 2 : 1)
-    )
+        .filter(x => x.evidence === 'rMATS' && x.qvalue < 1 && x.qvalue > 0)
+        .map(x => [as_genes.includes(x.gene.meta.NID), x.qvalue, x.dps, -Math.log10(x.qvalue), x.tipo]).map(
+            x => new
+                Point(x[2], x[3])
+                .setColor(x[1] <= .05 ? 'black' : x[1] > .9 ? 'gray' : 'orange')
+                .setForm(x[4] === 'RI' ? 'x' : x[4] === 'SE' ? 'w' : 'o')
+        )
 
     new ScatterPlot('graphDar', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+        .setYlim([0, 5])
+        .setXlim([-.8, .8])
+        .hidleAx()
         .plot(dx)
-
 }
 
 function criar() {
