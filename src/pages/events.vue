@@ -228,7 +228,7 @@ function plotHeatmapIso() {
     dctrl.map(d => d.x = d.gt.join('/'))
     dtrat.map(d => d.x = d.gt.join('/'))
 
-    const lab_conv = Object.fromEntries(isos.map(i => [i[2] + '/' + i[1], `${i[3][1].NID}_${i[3][0].Name}`]))
+    const lab_conv = Object.fromEntries(isos.map(i => [i[2] + '/' + i[1], `${i[3][1].NID} ${i[3][0].Name}`]))
 
     const max_ctrl = dctrl.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.max(a, b), 0)
     const min_ctrl = dctrl.map(x => x.tpm && (x.tpm + 1) > x.tpm ? x.tpm : 0).reduce((a, b) => Math.min(a, b), dctrl[0].tpm)
@@ -265,16 +265,38 @@ function plotHeatmapIso() {
 
 function plotLk() {
 
-    ///relacao - cromossomo
-    ///relacao - anotacao
-    ///relacao - nome aaaaX
-    ///relacao - proximidade
+    ///relacao - cromossomo - ok
+    ///relacao - proximidade - ok - 30k(T.A.D.)
+    ///relacao - anotacao - ok
+
+    const _MAX_DIST_ = 30000
+    const _ANOT_ = ['Pfam', 'GO']
 
     const nodes = [... new Set(projeto.getDASGenes().map(g => g.gene))];
-    nodes.forEach(n => n.group = 'agene')
+    nodes.forEach(n => n.group = 'a-gene')
+
     const links = []
+
+    nodes.forEach((n1, i) => {
+        nodes.forEach((n2, j) => {
+            if (j <= i) return;
+            if (n1.cromossomo === n2.cromossomo) {
+                const dist = Math.max(n1.start, n2.start, n1.end, n2.end) - Math.min(n1.start, n2.start, n1.end, n2.end);
+                if (dist < _MAX_DIST_)
+                    return links.push({ source: n1.nome, target: n2.nome, w: (_MAX_DIST_ - dist) / _MAX_DIST_ * 5 })
+            }
+            const a1 = n1.getAnots(_ANOT_)
+            if (a1.length < 1) return
+            const a2 = n2.getAnots(_ANOT_)
+            if (a2.length < 1) return
+            const b = a1.filter(a => a2.includes(a))
+            if (b.length < 1) return
+            links.push({ source: n1.nome, target: n2.nome, w: b.length + 1 })
+        })
+    })
+
     nodes.forEach(g => links.push({ source: g.cromossomo.nome, target: g.nome }))
-    projeto.cromossomos.forEach(c => nodes.push({ nome: c.nome, group: 'zcromossomo' }))
+    projeto.cromossomos.forEach(c => nodes.push({ nome: c.nome, group: 'z-cromossomo' }))
 
     const data = {
         nodes: nodes.map(g => ({ id: g.nome, group: g.group })), links
@@ -298,8 +320,8 @@ function criar() {
     }, 300);
 }
 
-onMounted(() => (show.value = false) || (setTimeout(() => criar(), 300)))
-onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 300)))
+onMounted(() => (show.value = false) || (setTimeout(() => criar(), 100)))
+onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
 
 </script>
         

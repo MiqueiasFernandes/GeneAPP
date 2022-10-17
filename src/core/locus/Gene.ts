@@ -9,6 +9,7 @@ export class Gene extends Locus {
     private bed = {};
     private as_events = new Array<AlternativeSplicing>();
     private dexp: DifferentialExpression = null;
+    private anots;
 
 
     getAS = () => this.as_events;
@@ -45,5 +46,7 @@ export class Gene extends Locus {
     }
 
     getBED = () => this.bed;
+
+    getAnots = (t?) => this.anots || (this.anots = [... new Set(this.isoformas.map(i => i.getAnotsAcession(t)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?'))
 
 }

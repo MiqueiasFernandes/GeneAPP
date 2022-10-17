@@ -1,7 +1,7 @@
 import { Locus } from "../locus/Locus";
 
 export class Anotacao {
-    private key: string;
+    key: string;
     private value: string;
     private link: string;
     private locus: Locus;
@@ -14,6 +14,7 @@ export class Anotacao {
     }
 
     get = (k) => this.anotations[k];
+
 
     public setLocus(locus: Locus) {
         this.locus = locus;

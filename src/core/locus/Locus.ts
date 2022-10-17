@@ -49,5 +49,7 @@ export class Locus {
         return locus;
     }
 
+    getAnotsAcession = (t?) => this.anotacoes.filter(x => !t || (x.key === t[0] || x.key === t[1])).map(a => a.get('acession') || '?')
+
 
 }

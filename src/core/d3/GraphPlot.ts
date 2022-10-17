@@ -20,19 +20,19 @@ export class GraphPlot extends AbstractCartesianPlot {
             nodes: data.nodes,
             links: data.links
         }
-
-        this.ForceGraph(graph, {
+        const args = {
             nodeId: d => d.id,
             nodeGroup: d => d.group,
-            nodeTitle: d => `${d.id} (${d.group})`,
+            nodeTitle: d => `${d.id}`,
             width,
             height,
-            nodeGroups: [...new Set(data.nodes.map(d => d.group))],
-            invalidation: new Promise((rs, rj) => setTimeout(rs, 3000)) // a promise to stop the simulation when the cell is re-run
-        })
+            linkStrokeWidth: (d) => d.w || .5,
+            nodeGroups: [...new Set(data.nodes.map(d => d.group))]
+        };
+
+        this.ForceGraph(graph, args)
         return this;
     }
-
 
     // Copyright 2021 Observable, Inc.
     // Released under the ISC license.
@@ -43,26 +43,24 @@ export class GraphPlot extends AbstractCartesianPlot {
         links // an iterable of link objects (typically [{source, target}, …])
     }, {
         nodeId = d => d.id, // given d in nodes, returns a unique identifier (string)
-        nodeGroup, // given d in nodes, returns an (ordinal) value for color
-        nodeGroups, // an array of ordinal values representing the node groups
-        nodeTitle, // given d in nodes, a title string
+        nodeGroup = undefined, // given d in nodes, returns an (ordinal) value for color
+        nodeGroups = undefined, // an array of ordinal values representing the node groups
+        nodeTitle = undefined, // given d in nodes, a title string
         nodeFill = "currentColor", // node stroke fill (if not using a group color encoding)
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 1.5, // node stroke width, in pixels
         nodeStrokeOpacity = 1, // node stroke opacity
         nodeRadius = 5, // node radius, in pixels
-        nodeStrength,
+        nodeStrength = undefined,
         linkSource = ({ source }) => source, // given d in links, returns a node identifier string
         linkTarget = ({ target }) => target, // given d in links, returns a node identifier string
         linkStroke = "#999", // link stroke color
         linkStrokeOpacity = 0.6, // link stroke opacity
         linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
         linkStrokeLinecap = "round", // link stroke linecap
-        linkStrength,
+        linkStrength = undefined,
         colors = d3.schemeTableau10, // an array of color strings, for the node groups
-        width, // outer width, in pixels
-        height, // outer height, in pixels
-        invalidation // when this promise resolves, stop the simulation
+        invalidation = undefined // when this promise resolves, stop the simulation
     } = {}) {
         // Compute values.
         const N = d3.map(nodes, nodeId).map(intern);
@@ -92,7 +90,7 @@ export class GraphPlot extends AbstractCartesianPlot {
         const simulation = d3.forceSimulation(nodes)
             .force("link", forceLink)
             .force("charge", forceNode)
-            .force("center",  d3.forceCenter())
+            .force("center", d3.forceCenter())
             .force("x", d3.forceX())
             .force("y", d3.forceY())
             .on("tick", ticked);
@@ -121,17 +119,6 @@ export class GraphPlot extends AbstractCartesianPlot {
 
         if (G) node.attr("fill", ({ index: i }) => color(G[i]));
         if (T) node.append("title").text(({ index: i }) => T[i]);
-
-        // Handle invalidation.
-        if (invalidation != null) invalidation.then(() => simulation.stop());
-
-        setTimeout(() => {
-            // d3.forceSimulation(nodes)
-            //     .force("link", forceLink)
-            //     .force("charge", forceNode)
-            //     .force("x", this.viewBox.getBoxCenter()[0])
-            //     .force("y", this.viewBox.getBoxCenter()[1])
-        }, 3000);
 
         function intern(value) {
             return value !== null && typeof value === "object" ? value.valueOf() : value;
@@ -173,6 +160,6 @@ export class GraphPlot extends AbstractCartesianPlot {
                 .on("end", dragended);
         }
 
-        return Object.assign(svg.node(), { scales: { color } });
+       // return Object.assign(svg.node(), { scales: { color } });
     }
 }
