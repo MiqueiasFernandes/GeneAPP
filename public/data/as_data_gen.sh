@@ -27,6 +27,7 @@ export RMATS="https://github.com/Xinglab/rmats-turbo/releases/download/v4.1.2/rm
 export API='https://www.ebi.ac.uk/Tools/services/rest/iprscan5/'
 export EMAIL=teste@teste.com
 export TIMEOUT=60
+export MODE="JCEC"
 
 log() {
     local tipo=$([ $5 ] || echo "INFO")$5
@@ -2273,7 +2274,23 @@ finalizar() {
         " | cut -c9-) \
         1>$LOG_DIR/_7.3.1_gerar_GFFMIN.log.txt 2>$LOG_DIR/_7.3.1_gerarGFFMIN.err.txt
 
-    cp \
+    python3 <(printf "
+        from Bio import SeqIO
+        import os
+        ri = 'rmats_out/RI.MATS.$MODE.txt'
+        raw = [[x[0]]+x[3:7] for x in 
+            [l.strip().split('\t') for l in open(ri).readlines() if '\t' in l][1:]]
+        seqs = SeqIO.to_dict(SeqIO.parse('genoma.fa', 'fasta'))
+        tmp = [(id,seqs[seq[3:]].seq[int(start):int(end)], strand) for id,seq,strand,start,end in raw]
+        res = [(id,(seq if strand == '+' else seq.reverse_complement())) for id,seq,strand in tmp]
+        final = [[id, len(seq)]+[seq[i:].translate().find('*') for i in [2,3,4]] for id, seq in res]
+        open('ri_psc.csv', 'w').writelines([f'{l[0]},{l[1]},{l[2]},{l[3]},{l[4]}{os.linesep}' 
+                                    for l in [['id','len','f1','f2','f3']]+final])
+        print('introns extraidos', len(final)) 
+        " | cut -c9-) \
+        1>$LOG_DIR/_7.3.1_gerar_GFFMIN.log.txt 2>$LOG_DIR/_7.3.1_gerarGFFMIN.err.txt
+
+    cp  ri_psc.csv  \
         geneapp/anotacao.tsv geneapp/cov_all.bed \
         rmats_out/*.MATS.JCEC.txt rmats_out/sign_ev* \
         to3d/transcript_gene_ma* to3d/experimental_design.csv \
