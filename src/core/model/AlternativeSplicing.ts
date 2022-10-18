@@ -38,13 +38,15 @@ export class ASrmats extends AlternativeSplicing {
                 //ri riExonStart_0base	riExonEnd
                 var ria = parseInt(raw['riExonStart_0base'])
                 var rib = parseInt(raw['riExonEnd'])
-                this.extra['IMPACT'] = Math.max(ria, rib) - Math.min(ria, rib)
+                this.extra['AS_SITE_START'] = Math.min(ria, rib)
+                this.extra['AS_SITE_END'] = Math.max(ria, rib)
                 break;
             case 'SE':
                 //se  exonStart_0base	exonEnd
                 var sea = parseInt(raw['exonStart_0base'])
                 var seb = parseInt(raw['exonEnd'])
-                this.extra['IMPACT'] = Math.max(sea, seb) - Math.min(sea, seb)
+                this.extra['AS_SITE_START'] = Math.min(sea, seb)
+                this.extra['AS_SITE_END'] = Math.max(sea, seb)
                 break;
             default:
                 //a3ss   longExonStart_0base	longExonEnd	shortES	shortEE
@@ -53,8 +55,23 @@ export class ASrmats extends AlternativeSplicing {
                 var b = parseInt(raw['longExonEnd'])
                 var c = parseInt(raw['shortES'])
                 var d = parseInt(raw['shortEE'])
-                this.extra['IMPACT'] = (Math.max(a, b) - Math.min(a, b)) + (Math.max(c, d) - Math.min(c, d))
+                this.extra['AS_INI_DIF'] = a !== c
+                this.extra['AS_END_DIF'] = b !== d
+                this.extra['AS_INI_DIF'] && this.extra['AS_END_DIF'] && console.warn('Evento AS duplicado ' + raw)
+                this.extra['AS_SITE_START'] = this.extra['AS_INI_DIF'] ? Math.min(a, c) : a
+                this.extra['AS_SITE_END'] = this.extra['AS_END_DIF'] ? Math.max(b, d) : b
+                this.extra['AS_PB'] = this.extra['AS_INI_DIF'] ? Math.max(a, c) : Math.min(b, d)
                 break;
         }
+        this.extra['IMPACT'] = 1 + this.extra['AS_SITE_END'] - this.extra['AS_SITE_START']
     }
+
+    coords = null;
+
+    getASsite = (genoma?) => genoma ?
+        [this.extra['AS_SITE_START'], this.extra['AS_SITE_END']] :
+        (this.coords ? this.coords : (this.coords = [Math.min(this.extra['AS_SITE_START'], this.extra['AS_SITE_END']) - this.getGene().start,
+        Math.max(this.extra['AS_SITE_START'], this.extra['AS_SITE_END']) - this.getGene().start]))
+
+    getASpb = (genoma?) => this.extra['AS_PB'] - (genoma ? 0 : this.getGene().start)
 }

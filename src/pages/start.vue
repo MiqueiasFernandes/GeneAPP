@@ -180,7 +180,7 @@ useHead({ title: 'Get started on GeneAPP' })
       <template #titulo>3. Screening AS Data from multiple approach</template>
       <template #subtitulo>Como usar o GeneAPP?</template>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <ButtonLink :href="'/data/GeneAPP_test_data.zip'" :icon="false">
+        <ButtonLink :href="'https://1drv.ms/u/s!AjOYiVKI0SsQtIkmHdZdB_CPX3coIA?e=nGgsiz'" :icon="false">
           <FolderDownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
           Download data Sample
         </ButtonLink>

@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas, GraphPlot } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -22,6 +22,9 @@ const projeto = PROJETO;
 
 const show = ref(false);
 const graficos = [
+    [
+        { id: 'graphCov', titulo: 'AS Reads Coverage' },
+    ],
     [
         { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
         { id: 'graphLk', titulo: 'Gene relatoions' },
@@ -306,6 +309,89 @@ function plotLk() {
         .plot(data);
 }
 
+function plotCov() {
+
+    const viewBox = ViewBox.fromSize(W * 3, H, Padding.simetric(20).toLeft(20));
+    const canvas = new Canvas('graphCov', viewBox)
+    const box = viewBox.splitY()
+
+    const raw = projeto.getDASGenes()
+        .filter(x => x.evidence === 'rMATS' && x.qvalue < 1 && x.qvalue > 0)
+        .filter(e => e.tipo === "RI" || e.tipo === "SE")
+        .map(evt => [evt, evt.getGene().getBED(evt.getASsite())])
+        .filter(evt => Math.min(...Object.values(evt[1]).map(s => s.length)) > 200);
+
+    const data = {}
+
+    projeto.fatores.forEach(fator => {
+        const cor = fator.cor
+        fator.samples.forEach(sample => {
+            raw.forEach(r => {
+                const evt = r[0]
+                const bed = r[1][sample.nome]
+                const size = evt.extra['IMPACT']
+                const id = evt.extra['ID']
+                const tipo = evt.tipo
+                const comeco = evt.getASsite()[0]
+                data[id] = []
+                bed.forEach(b => {
+                    const x1 = (b[0] - comeco) / size * 100
+                    const y = Math.log2(1 + b[2])
+                    data[id].push({ x: x1, y, cor, tipo })
+                })
+            })
+        })
+    })
+
+    new LinesPlot()
+        .setX('x')
+        .setY('y')
+        .setCanvas(canvas, box[0].addPaddingY(30))
+        .plot(data)
+
+    canvas.text(box[0].getBoxCenter()[0], box[0].getBoxY0() , 'RI and SE', { hc: 1, b: 1 })
+
+    const m = 150
+
+    const raw2 = projeto.getDASGenes()
+        .filter(x => x.evidence === 'rMATS' && x.qvalue < 1 && x.qvalue > 0)
+        .filter(e => e.tipo === "A3SS" || e.tipo === "A5SS")
+        .map(evt => [evt, evt.getGene().getBED([evt.getASpb() - m, evt.getASpb() + m])])
+        .filter(evt => Math.min(...Object.values(evt[1]).map(s => s.length)) > 50);
+
+    const data2 = {}
+
+    projeto.fatores.forEach(fator => {
+        const cor = fator.cor
+        fator.samples.forEach(sample => {
+            raw2.forEach(r => {
+                const evt = r[0]
+                const bed = r[1][sample.nome]
+                const size = m * 2
+                const id = evt.extra['ID']
+                const tipo = evt.tipo
+                const comeco = bed.map(x => x[0]).reduce((p, c) => p ? Math.min(p, c) : c)
+                data2[id] = []
+                bed.forEach(b => {
+                    const x1 = (b[0] - comeco) / size * 100
+                    const y = Math.log2(1 + b[2])
+                    data2[id].push({ x: x1 - 50, y, cor, tipo })
+
+                })
+            })
+        })
+    })
+
+    new LinesPlot()
+        .setX('x')
+        .setY('y')
+        .setCanvas(canvas, box[1].addPaddingY(30))
+        .plot(data2)
+
+    canvas.text(box[1].getBoxCenter()[0], box[1].getBoxY0() + 40, 'A3SS and A5SS', { hc: 1, b: 1 })
+
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
@@ -317,6 +403,7 @@ function criar() {
         plotHeatmap();
         plotHeatmapIso();
         plotLk();
+        plotCov();
     }, 300);
 }
 

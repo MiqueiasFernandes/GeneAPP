@@ -45,7 +45,9 @@ export class Gene extends Locus {
             this.bed[raw[0]].push([parseInt(raw[2]), parseInt(raw[3]), parseInt(raw[4])])
     }
 
-    getBED = () => this.bed;
+    getBED = (site?: number[]) => site ? Object.fromEntries(Object.entries(this.bed).map(x => [x[0],
+    x[1].filter(b => b[0] >= site[0] && b[1] <= site[1])
+    ])) : this.bed;
 
     getAnots = (t?) => this.anots || (this.anots = [... new Set(this.isoformas.map(i => i.getAnotsAcession(t)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?'))
 
