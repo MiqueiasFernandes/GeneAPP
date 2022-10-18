@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -24,6 +24,7 @@ const show = ref(false);
 const graficos = [
     [
         { id: 'graphCov', titulo: 'AS Reads Coverage' },
+        { id: 'graphVen', titulo: 'DE x DAS' },
     ],
     [
         { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
@@ -349,7 +350,7 @@ function plotCov() {
         .setCanvas(canvas, box[0].addPaddingY(30))
         .plot(data)
 
-    canvas.text(box[0].getBoxCenter()[0], box[0].getBoxY0() , 'RI and SE', { hc: 1, b: 1 })
+    canvas.text(box[0].getBoxCenter()[0], box[0].getBoxY0() + 10, 'RI and SE', { hc: 1, b: 1 })
 
     const m = 150
 
@@ -392,6 +393,21 @@ function plotCov() {
 
 }
 
+function plotVen() {
+
+    const das = [...new Set(projeto.getDASGenes().map(x => x.getGene().nome))];
+    const des = [...new Set(projeto.getDEGenes().map(x => x.getGene().nome))];
+
+    new VennPlot('graphVen', ViewBox.fromSize(W * 3, H, Padding.simetric(50)))
+        .plot({
+            'A': des.filter(d => !das.includes(d)).length,
+            'B': das.filter(d => !des.includes(d)).length,
+            'AB': das.filter(d => des.includes(d)).length,
+            'A_LAB': 'DE',
+            'B_LAB': 'DAS'
+        });
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
@@ -404,6 +420,7 @@ function criar() {
         plotHeatmapIso();
         plotLk();
         plotCov();
+        plotVen()
     }, 300);
 }
 

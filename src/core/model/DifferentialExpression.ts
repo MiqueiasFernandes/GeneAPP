@@ -11,4 +11,6 @@ export class DifferentialExpression {
         this.qvalue = qvalue;
         gene.setDE(this);
     }
+
+    getGene = () => this.gene;
 }
