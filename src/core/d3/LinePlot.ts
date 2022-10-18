@@ -74,7 +74,7 @@ export class LinesPlot extends LinePlot {
         Object.entries(data).forEach(e => {
             const k = e[0]
             const dt = e[1]
-const cor = d3.interpolateCool(Math.random())
+            const cor = d3.interpolateCool(Math.random())
             const sorted_data = dt.map(x => [x[this.x_var], x[this.y_var]]).sort((a, b) => a[0] - b[0]);
             const lim = sorted_data.length - 1
             sorted_data.forEach((d, i) => {
@@ -88,10 +88,10 @@ const cor = d3.interpolateCool(Math.random())
                     .attr("stroke", cor)
                     .datum([[x0, y0], [x1, y1]])
                     .attr("stroke-width", 2)
-                    .attr("d", 
-                    d3.line().curve(d3.curveCatmullRom)
-                        .x((d) => X(d[0]))
-                        .y((d) => Y(d[1]))
+                    .attr("d",
+                        d3.line().curve(d3.curveCatmullRom)
+                            .x((d) => X(d[0]))
+                            .y((d) => Y(d[1]))
                     )
             })
 

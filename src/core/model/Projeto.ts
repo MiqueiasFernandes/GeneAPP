@@ -32,6 +32,7 @@ export class Projeto {
     private resumo: string[] = null;
     private allDEgenes;
     private allDASgenes;
+    Significant_DE_genes;
 
 
     constructor(nome: string) {
@@ -409,7 +410,7 @@ export class Projeto {
             .getCSV(files, 'Significant DAS genes list and statistics.csv', headers)
             .getRows({ "target": fnSTR, 'adj.pval': fnFloat, 'maxdeltaPS': fnFloat });
 
-        const Significant_DE_genes = this.getCSV(files, 'Significant DE genes list and statistics.csv', headers)
+        this.Significant_DE_genes = this.getCSV(files, 'Significant DE genes list and statistics.csv', headers)
             .getRows({ "target": fnSTR, 'adj.pval': fnFloat, 'log2FC': fnFloat });
 
         Significant_DAS_genes
@@ -417,7 +418,7 @@ export class Projeto {
                 new AS3dranseq(this.genes[das["target"]], das)
             ));
 
-        Significant_DE_genes
+        this.Significant_DE_genes
             .forEach(de => this.genes[de["target"]] && this.de_genes.push(
                 new DifferentialExpression(this.genes[de["target"]], de['log2FC'], de['adj.pval'])
             ));

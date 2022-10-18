@@ -31,7 +31,7 @@ export class BarPlot extends AbstractCartesianPlot {
         return this;
     }
 
-    plot(data: any[], gap = .15, fnS = (a, b) => a[1] - b[1], inverter = false): Canvas {
+    plot(data: any[], gap = .15, fnS = (a, b) => a[1] - b[1]): Canvas {
 
         const vars = data.map(x => [x[this.x_var], x[this.y_var]]).sort(fnS).map(x => x[0]);
         const X = d3.scaleBand()
@@ -55,7 +55,7 @@ export class BarPlot extends AbstractCartesianPlot {
             .domain([y_start, y_end])
             .range([this.viewBox.getBoxY1(), this.viewBox.getBoxY0()]);
 
-        this.svg
+        this.show_ax && this.svg
             .append("g")
             .attr("transform", `translate(${this.viewBox.getBoxX0()},0)`)
             .call(d3.axisLeft(Y));
@@ -79,8 +79,6 @@ export class BarPlot extends AbstractCartesianPlot {
         const ylim2 = [0, this.dom(data.map(x => x[this.y2_var]), this.y_lim2 ? this.y_lim2[0] : null, this.y_lim2 ? this.y_lim2[1] : null)[1]];
         const y_start2 = ylim2[0];
         const y_end2 = ylim2[1];
-
-        console.log(ylim2, y_start2, y_end2)
 
         const Y2 = d3.scaleLinear()
             .domain([y_start2, y_end2])
@@ -107,11 +105,18 @@ export class BarPlot extends AbstractCartesianPlot {
         return this;
     }
 
+    legend(ly1: { c: string, t: string }, ly2?: { c: string, t: string }, pt = 0) {
+        this.rect(this.viewBox.getBoxX0(), this.viewBox.getBoxY1() + 10 + pt, 10, 10, ly1.c)
+        this.text(this.viewBox.getBoxX0() + 12, this.viewBox.getBoxY1() + 15 + pt, ly1.t, { fs: '.8rem', vc: 1, vco: 'central' })
+        ly2 && this.rect(this.viewBox.getBoxX0() + 100, this.viewBox.getBoxY1() + 10 + pt, 10, 10, ly2.c)
+        ly2 && this.text(this.viewBox.getBoxX0() + 112, this.viewBox.getBoxY1() + 15 + pt, ly2.t, { fs: '.8rem', vc: 1, vco: 'central' })
+    }
+
 }
 
 export class BarPlotVertical extends BarPlot {
 
-    plot(data: any[], gap = .15, fnS = (a, b) => a[1] - b[1], inverter = false): Canvas {
+    plot(data: any[], gap = .15, fnS = (a, b) => a[1] - b[1]): Canvas {
 
         const vars = data.map(x => [x[this.x_var], x[this.y_var]]).sort(fnS).map(x => x[0]);
         const Y = d3.scaleBand()
@@ -213,13 +218,6 @@ export class BarPlotVertical extends BarPlot {
 
 
         return this;
-    }
-
-    legend(ly1: { c: string, t: string }, ly2?: { c: string, t: string }) {
-        this.rect(this.viewBox.getBoxX0(), this.viewBox.getBoxY1() + 10, 10, 10, ly1.c)
-        this.text(this.viewBox.getBoxX0() + 12, this.viewBox.getBoxY1() + 15, ly1.t, { fs: '.8rem', vc: 1, vco: 'central' })
-        ly2 && this.rect(this.viewBox.getBoxX0() + 100, this.viewBox.getBoxY1() + 10, 10, 10, ly2.c)
-        ly2 && this.text(this.viewBox.getBoxX0() + 112, this.viewBox.getBoxY1() + 15, ly2.t, { fs: '.8rem', vc: 1, vco: 'central' })
     }
 
 }

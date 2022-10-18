@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -23,8 +23,12 @@ const projeto = PROJETO;
 const show = ref(false);
 const graficos = [
     [
+        { id: 'graphTop', titulo: 'TOP 10 DAS Genes' },
+    ],
+    [
+        { id: 'graphDea', titulo: 'DE x DAS' },
         { id: 'graphCov', titulo: 'AS Reads Coverage' },
-        { id: 'graphVen', titulo: 'DE x DAS' },
+        { id: 'graphScr', titulo: 'AS Impact' },
     ],
     [
         { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
@@ -32,7 +36,7 @@ const graficos = [
     ],
     [
         { id: 'graphBar', titulo: 'AS Discovery' },
-        { id: 'graphScr', titulo: 'AS Impact' },
+        { id: 'graphVen', titulo: 'Venn DE x DAS' },
         { id: 'graphDe', titulo: 'Gene differential expression' },
     ],
     [
@@ -395,10 +399,9 @@ function plotCov() {
 
 function plotVen() {
 
-    const das = [...new Set(projeto.getDASGenes().map(x => x.getGene().nome))];
-    const des = [...new Set(projeto.getDEGenes().map(x => x.getGene().nome))];
-
-    new VennPlot('graphVen', ViewBox.fromSize(W * 3, H, Padding.simetric(50)))
+    const das = [...new Set(projeto.getDASGenes().map(x => x.getGene().meta.NID))];
+    const des = [...new Set(projeto.Significant_DE_genes.map(x => x['target']))];
+    new VennPlot('graphVen', ViewBox.fromSize(W * 2, H, Padding.simetric(50)))
         .plot({
             'A': des.filter(d => !das.includes(d)).length,
             'B': das.filter(d => !des.includes(d)).length,
@@ -406,6 +409,86 @@ function plotVen() {
             'A_LAB': 'DE',
             'B_LAB': 'DAS'
         });
+}
+
+function plotDEA() {
+
+    const dataDA = projeto.getDASGenes()
+        .filter(x => x.evidence === 'rMATS' && x.qvalue < 1 && x.qvalue > 0)
+        .map(x => [x.dps, x.qvalue, x.getGene().meta.NID])
+        .reduce((p, c) => {
+            const gene = c[2];
+            if (p[gene]) {
+                if (Math.abs(c[0]) > Math.abs(p[gene][0])) {
+                    p[gene].dps = c[0]
+                    p[gene].qvalue = c[1]
+                }
+            } else {
+                p[gene] = { dps: c[0], qvalue: c[1] }
+            }
+            return p;
+        }, {});
+
+    projeto
+        .getDE().map(de => [de.log2FC, de['target']])
+        .forEach(gde => dataDA[gde[1]] && (dataDA[gde[1]].log2fc = gde[0]));
+
+    const data = Object.values(dataDA).filter(x => !!x.log2fc).map(d =>
+        new Point(d.dps, d.log2fc).setSize(-Math.log10(d.qvalue) * .5)
+    )
+
+    new ScatterPlot('graphDea', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+        .setYlim([-2, 2])
+        .setXlim([-.8, .8])
+        .plot(data)
+}
+
+
+function plotTop() {
+
+    const evts = projeto.getDASGenes()
+        .filter(x => x.qvalue <= .05)
+        .map(x => ({ isrmats: x.evidence === 'rMATS', tipo: x.tipo, absdpsi: Math.abs(x.dps), pos: x.dps >= 0, gene: x.gene.meta.NID }))
+        .sort((b, a) => a.absdpsi - b.absdpsi)
+
+    const threeD = evts.filter(x => !x.isrmats)
+    const rmats = evts.filter(x => x.isrmats)
+    const a3ss = rmats.filter(x => x.tipo === 'A3SS');
+    const a5ss = rmats.filter(x => x.tipo === 'A5SS');
+    const ri = rmats.filter(x => x.tipo === 'RI');
+    const se = rmats.filter(x => x.tipo === 'SE');
+
+    const viewBox = ViewBox.fromSize(W * 4, H, new Padding(50, 10, 100, 50))
+    const canvas = new Canvas('graphTop', viewBox)
+    const boxes = viewBox.splitX(5)
+    const top = dt => dt.slice(0, 10)
+    const sort = (b, a) => a[1] - b[1]
+
+    boxes.forEach((box, i) => {
+
+        const bars = new BarPlot()
+            .setX('gene')
+            .setY('absdpsi')
+            .setYlim([0, 1])
+            .setColor(d => d.pos ? '#66f5f7' : '#d0ff00')
+            .setCanvas(canvas, box.addPaddingX(10))
+        i > 0 && bars.hidleAx()
+
+        i === 0 && bars.plot(top(threeD), .1, sort)
+        i === 1 && bars.plot(top(a3ss), .1, sort)
+        i === 2 && bars.plot(top(a5ss), .1, sort)
+        i === 3 && bars.plot(top(ri), .1, sort)
+        i === 4 && bars.plot(top(se), .1, sort)
+
+        i === 0 && canvas.text(box.getBoxCenter()[0], box.getBoxY0() - 10, '3DRNASeq', { hc: 1, b: 1 })
+        i === 1 && canvas.text(box.getBoxCenter()[0], box.getBoxY0() - 10, 'A3SS', { hc: 1, b: 1 })
+        i === 2 && canvas.text(box.getBoxCenter()[0], box.getBoxY0() - 10, 'A5SS', { hc: 1, b: 1 })
+        i === 3 && canvas.text(box.getBoxCenter()[0], box.getBoxY0() - 10, 'RI', { hc: 1, b: 1 })
+        i === 4 && canvas.text(box.getBoxCenter()[0], box.getBoxY0() - 10, 'SE', { hc: 1, b: 1 })
+
+        i === 0 && bars.legend({ t: 'Δ PSI > 0', c: '#66f5f7' }, { t: 'Δ PSI < 0', c: '#d0ff00' }, 60)
+    })
+
 }
 
 function criar() {
@@ -420,7 +503,9 @@ function criar() {
         plotHeatmapIso();
         plotLk();
         plotCov();
-        plotVen()
+        plotVen();
+        plotDEA();
+        plotTop();
     }, 300);
 }
 
