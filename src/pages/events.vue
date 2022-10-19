@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -23,6 +23,7 @@ const projeto = PROJETO;
 const show = ref(false);
 const graficos = [
     [
+        { id: 'graphPie', titulo: 'Premature Terminator Codons on RI events' },
         { id: 'graphTop', titulo: 'TOP 10 DAS Genes' },
     ],
     [
@@ -491,6 +492,28 @@ function plotTop() {
 
 }
 
+function plotPTC() {
+    const ptc = projeto.getPTC().map(x => [x.f1 >= 0, x.f2 >= 0, x.f3 >= 0, x.f1 / x.len, x.f2 / x.len, x.f3 / x.len]);
+
+    const em3phase = ptc.filter(x => x[0] + x[1] + x[2] === 3).length
+    const em2pahse = ptc.filter(x => x[0] + x[1] + x[2] === 2).length
+    const em1phase = ptc.filter(x => x[0] + x[1] + x[2] === 1).length
+    const em0phase = ptc.filter(x => x[0] + x[1] + x[2] === 0).length
+    const inicio = ptc.filter(x => x[3] < .4 || x[4] < .4 || x[5] < .4).length
+    const fim = ptc.filter(x => x[3] > .7 || x[4] > .7 || x[5] > .7).length
+    const meio = ptc.filter(x => (x[3] <= .8 && x[3] >= 3) || (x[4] <= .8 && x[4] >= 3) || (x[5] <= .8 && x[5] >= 3)).length
+
+    //console.log(em3phase, em2pahse, em1phase, em0phase)
+
+    const viewBox = ViewBox.fromSize(W * 2.5, H, Padding.simetric(20))
+    const canvas = new Canvas('graphPie', viewBox)
+    const boxes = viewBox.splitX(2, 20)
+
+    new PiePlot().setCanvas(canvas, boxes[0]).plot({ em3phase, em2pahse, em1phase, em0phase })
+    new PiePlot().setCanvas(canvas, boxes[1]).plot({ inicio, meio, fim })
+
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
@@ -506,6 +529,7 @@ function criar() {
         plotVen();
         plotDEA();
         plotTop();
+        plotPTC();
     }, 300);
 }
 

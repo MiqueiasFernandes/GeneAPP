@@ -41,7 +41,7 @@ export class BarPlot extends AbstractCartesianPlot {
 
         this.svg
             .append('g')
-            .attr("transform", `translate(0,${this.viewBox.getBoxY1()})`)
+            .attr("transform", `translate(0,${this.viewBox.getBoxY1()+2})`)
             .call(d3.axisBottom(X))
             .selectAll("text")
             .attr("transform", "translate(-10,0)rotate(-45)")
@@ -72,7 +72,8 @@ export class BarPlot extends AbstractCartesianPlot {
             .attr("y", d => Y(d[this.y_var]))
             .attr("width", X.bandwidth() / (this.y2_var ? 2 : 1))
             .attr("height", d => this.viewBox.getBoxSize().height - (Y(d[this.y_var]) - this.viewBox.getBoxY0()))
-            .attr("fill", this.color);
+            .attr("fill", this.color)
+            .attr('stroke', 'lavenderblush');
 
         if (!this.y2_var) return this;
 

@@ -33,6 +33,7 @@ export class Projeto {
     private allDEgenes;
     private allDASgenes;
     Significant_DE_genes;
+    private ptc: CSV;
 
 
     constructor(nome: string) {
@@ -55,7 +56,7 @@ export class Projeto {
     getCtrl = () => this.fatores[0];
     getTrat = () => this.fatores[1];
     getASIsosID = () => [... new Set(this.das_genes.map(d => d.getGene().getIsoformas()).reduce((p, c) => p.concat(c), []))];
-
+    getPTC = () => this.ptc ? this.ptc.getRows() : [];
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
         fator.is_control = this.fatores.length < 1;
@@ -430,6 +431,8 @@ export class Projeto {
 
         const fnSTR = x => x.trim().replaceAll('"', '');
         const fnFloat = x => parseFloat(x);
+
+        this.ptc = this.getCSV(files, 'ri_psc.csv', headers).mapColInt('len').mapColInt('f1').mapColInt('f2').mapColInt('f3')
 
         const mats_a3ss_sig = this.getCSV(files, 'sign_events_A3SS.tsv.csv', headers, '\t').get_col('ID');
         const mats_a5ss_sig = this.getCSV(files, 'sign_events_A5SS.tsv.csv', headers, '\t').get_col('ID');

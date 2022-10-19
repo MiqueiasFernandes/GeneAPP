@@ -2288,7 +2288,7 @@ finalizar() {
                                     for l in [['id','len','f1','f2','f3']]+final])
         print('introns extraidos', len(final)) 
         " | cut -c9-) \
-        1>$LOG_DIR/_7.3.1_gerar_GFFMIN.log.txt 2>$LOG_DIR/_7.3.1_gerarGFFMIN.err.txt
+        1>$LOG_DIR/_7.3.1_gerar_PTC.log.txt 2>$LOG_DIR/_7.3.1_gerarPTC.err.txt
 
     cp  ri_psc.csv  \
         geneapp/anotacao.tsv geneapp/cov_all.bed \

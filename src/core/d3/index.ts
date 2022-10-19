@@ -9,3 +9,4 @@ export * from './VennPlot';
 export * from './ViolinPlot';
 export * from './HeatmapPlot';
 export * from './GraphPlot';
+export * from './PiePlot';
