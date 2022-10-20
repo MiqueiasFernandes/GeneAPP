@@ -14,7 +14,7 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot } from '../core/d3'
+import { Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot, WordCloudPlot } from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -23,13 +23,9 @@ const projeto = PROJETO;
 const show = ref(false);
 const graficos = [
     [
-        { id: 'graphPie', titulo: 'Premature Terminator Codons on RI events' },
-        { id: 'graphTop', titulo: 'TOP 10 DAS Genes' },
-    ],
-    [
-        { id: 'graphDea', titulo: 'DE x DAS' },
-        { id: 'graphCov', titulo: 'AS Reads Coverage' },
-        { id: 'graphScr', titulo: 'AS Impact' },
+        { id: 'graphDar', titulo: 'Gene AS rMATS' },
+        { id: 'graphDa', titulo: 'Gene AS 3DRnaSeq' },
+        { id: 'graphWc', titulo: 'WordCloud Anotation' },
     ],
     [
         { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
@@ -37,14 +33,23 @@ const graficos = [
     ],
     [
         { id: 'graphBar', titulo: 'AS Discovery' },
-        { id: 'graphVen', titulo: 'Venn DE x DAS' },
-        { id: 'graphDe', titulo: 'Gene differential expression' },
+        { id: 'graphPie', titulo: 'Premature Terminator Codons on RI events' },
+        { id: 'graphScr', titulo: 'AS Impact' },
     ],
     [
-        { id: 'graphDa', titulo: 'Gene AS 3DRnaSeq' },
-        { id: 'graphDar', titulo: 'Gene AS rMATS' },
+        { id: 'graphDe', titulo: 'Gene differential expression' },
+        { id: 'graphTop', titulo: 'TOP 10 DAS Genes' },
+    ],
+    [
         { id: 'graphHm', titulo: 'Heatmap Genes top TPM' }
     ],
+    [
+        { id: 'graphDea', titulo: 'DE x DAS' },
+        { id: 'graphVen', titulo: 'Venn DE x DAS' },
+        { id: 'graphCov', titulo: 'AS Reads Coverage' }
+    ],
+
+
 ];
 
 const W = 1100 / 7;
@@ -431,11 +436,16 @@ function plotDEA() {
         }, {});
 
     projeto
-        .getDE().map(de => [de.log2FC, de['target']])
-        .forEach(gde => dataDA[gde[1]] && (dataDA[gde[1]].log2fc = gde[0]));
+        .getDE().map(de => [de.log2FC, de['target'], parseFloat(de['adj.pval'])])
+        .forEach(gde => {
+            if (dataDA[gde[1]]) {
+                dataDA[gde[1]].log2fc = gde[0]
+                dataDA[gde[1]].qvalue2 = gde[2]
+            }
+        });
 
     const data = Object.values(dataDA).filter(x => !!x.log2fc).map(d =>
-        new Point(d.dps, d.log2fc).setSize(-Math.log10(d.qvalue) * .5)
+        new Point(d.dps, d.log2fc).setSize(-Math.log10(d.qvalue) * .5).interpolate(-Math.log10(d.qvalue2) / 3)
     )
 
     new ScatterPlot('graphDea', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
@@ -443,7 +453,6 @@ function plotDEA() {
         .setXlim([-.8, .8])
         .plot(data)
 }
-
 
 function plotTop() {
 
@@ -459,7 +468,7 @@ function plotTop() {
     const ri = rmats.filter(x => x.tipo === 'RI');
     const se = rmats.filter(x => x.tipo === 'SE');
 
-    const viewBox = ViewBox.fromSize(W * 4, H, new Padding(50, 10, 100, 50))
+    const viewBox = ViewBox.fromSize(W * 5, H, new Padding(50, 10, 100, 50))
     const canvas = new Canvas('graphTop', viewBox)
     const boxes = viewBox.splitX(5)
     const top = dt => dt.slice(0, 10)
@@ -496,21 +505,43 @@ function plotPTC() {
     const ptc = projeto.getPTC().map(x => [x.f1 >= 0, x.f2 >= 0, x.f3 >= 0, x.f1 / x.len, x.f2 / x.len, x.f3 / x.len]);
 
     const em3phase = ptc.filter(x => x[0] + x[1] + x[2] === 3).length
-    const em2pahse = ptc.filter(x => x[0] + x[1] + x[2] === 2).length
+    const em2phase = ptc.filter(x => x[0] + x[1] + x[2] === 2).length
     const em1phase = ptc.filter(x => x[0] + x[1] + x[2] === 1).length
     const em0phase = ptc.filter(x => x[0] + x[1] + x[2] === 0).length
-    const inicio = ptc.filter(x => x[3] < .4 || x[4] < .4 || x[5] < .4).length
-    const fim = ptc.filter(x => x[3] > .7 || x[4] > .7 || x[5] > .7).length
-    const meio = ptc.filter(x => (x[3] <= .8 && x[3] >= 3) || (x[4] <= .8 && x[4] >= 3) || (x[5] <= .8 && x[5] >= 3)).length
 
-    //console.log(em3phase, em2pahse, em1phase, em0phase)
+    const inicio = ptc.filter(x => (x[0] && (x[3] < .1)) || (x[1] && (x[4] < .1)) || (x[2] && (x[5] < .1))).length
+    const fim = ptc.filter(x => (x[0] && (x[3] > .7)) || (x[1] && (x[4] > .7)) || (x[2] && (x[5] > .7))).length
+    const meio = ptc.length - inicio - fim;
 
     const viewBox = ViewBox.fromSize(W * 2.5, H, Padding.simetric(20))
     const canvas = new Canvas('graphPie', viewBox)
     const boxes = viewBox.splitX(2, 20)
 
-    new PiePlot().setCanvas(canvas, boxes[0]).plot({ em3phase, em2pahse, em1phase, em0phase })
-    new PiePlot().setCanvas(canvas, boxes[1]).plot({ inicio, meio, fim })
+    const data1 = {
+        'PTC in all reading phases': em3phase,
+        'PTC in two reading phases': em2phase,
+        'PTC in some reading phases': em1phase,
+        'PTC is not in reading phases': em0phase
+    }
+    const data2 = {
+        'PTC found at begin retained intron': inicio,
+        'PTC found at middle of retained intron': meio,
+        'PTC found at end of retained intron': fim,
+    }
+
+    new PiePlot().setCanvas(canvas, boxes[0]).plot(data1)
+    new PiePlot().setCanvas(canvas, boxes[1]).plot(data2)
+
+}
+
+function wordCloud() {
+
+    var words = []
+    projeto.getALLASIsos().map(i => i.getAnotsText('InterPro').forEach(a => words = words.concat(a.split(' '))))
+    projeto.getALLASIsos().map(i => i.getAnotsText('Pfam').forEach(a => words = words.concat(a.split(' '))))
+
+    new WordCloudPlot('graphWc', ViewBox.fromSize(W * 3, H, Padding.simetric(20)))
+        .plot(words)
 
 }
 
@@ -530,6 +561,7 @@ function criar() {
         plotDEA();
         plotTop();
         plotPTC();
+        wordCloud();
     }, 300);
 }
 

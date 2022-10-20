@@ -26,6 +26,9 @@ export class Point {
         this.color = c;
         return this;
     }
+
+    interpolate = (x) => this.setColor(d3.interpolatePlasma(x));
+
     setSize(s) {
         this.size = s;
         return this;

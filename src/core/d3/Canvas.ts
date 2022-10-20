@@ -59,6 +59,7 @@ export class Canvas {
         const txt = (svg || this.svg).append("text").attr("x", x).attr("y", y).text(text);
         if (estilo.b) txt.style('font-weight', 'bold')
         if (estilo.serif) txt.style('font-family', 'serif')
+        if (estilo.mono) txt.style('font-family', 'monospace')
         if (estilo.fs) txt.style('font-size', estilo.fs)
         if (estilo.r) txt.attr('transform', `rotate(${estilo.r} ${x},${y})`)
         if (estilo.hco || estilo.hc) txt.style('text-anchor', estilo.hco || 'middle')
