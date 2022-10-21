@@ -87,7 +87,7 @@ export class Anotacao {
 
         const anotacoes = [Anotacao.fromRaw(raw)];
 
-        interpro && anotacoes.push(new Anotacao('InterPro', interpro, { acession: interpro, text: raw[12] }))
+        interpro && anotacoes.push(new Anotacao('InterPro', interpro, { acession: interpro, text: raw[12], start, stop }))
         tool === 'Pfam' && anotacoes.push(new Anotacao('Pfam', accession, { acession: accession, text: anotacao, start, stop }))
         tool !== 'Pfam' && anotacoes.push(new Anotacao('Other', accession, { acession: accession, text: anotacao, start, stop, raw }))
         gos && gos.length > 3 && gos.split('|').map(go => go.trim()).forEach(go => {

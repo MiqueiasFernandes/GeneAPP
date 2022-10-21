@@ -59,6 +59,8 @@ export class ViewBox {
     getBoxY0 = () => this.viewPadding.top;
     getBoxY1 = () => this.getBoxY0() + this.boxSize.height;
 
+    getPadding = () => this.viewPadding;
+
     withWidth = (width: number, offsetX = 0) => new ViewBox(
         new Size(this.viewSize.width, this.viewSize.height),
         new Padding(

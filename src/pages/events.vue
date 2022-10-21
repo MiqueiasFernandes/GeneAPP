@@ -14,7 +14,10 @@
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
-import { Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical, Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot, WordCloudPlot } from '../core/d3'
+import {
+    Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical,
+    Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot, WordCloudPlot, TreePlot
+} from '../core/d3'
 import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
@@ -37,16 +40,17 @@ const graficos = [
         { id: 'graphScr', titulo: 'AS Impact' },
     ],
     [
+        { id: 'graphDea', titulo: 'DE x DAS' },
+        { id: 'graphTr', titulo: 'InterPro domain presence' },
+        { id: 'graphCov', titulo: 'AS Reads Coverage' }
+    ],
+    [
         { id: 'graphDe', titulo: 'Gene differential expression' },
         { id: 'graphTop', titulo: 'TOP 10 DAS Genes' },
     ],
     [
-        { id: 'graphHm', titulo: 'Heatmap Genes top TPM' }
-    ],
-    [
-        { id: 'graphDea', titulo: 'DE x DAS' },
-        { id: 'graphVen', titulo: 'Venn DE x DAS' },
-        { id: 'graphCov', titulo: 'AS Reads Coverage' }
+        { id: 'graphHm', titulo: 'Heatmap Genes top TPM' },
+        { id: 'graphVen', titulo: 'Venn DE x DAS' }
     ],
 
 
@@ -407,7 +411,7 @@ function plotVen() {
 
     const das = [...new Set(projeto.getDASGenes().map(x => x.getGene().meta.NID))];
     const des = [...new Set(projeto.Significant_DE_genes.map(x => x['target']))];
-    new VennPlot('graphVen', ViewBox.fromSize(W * 2, H, Padding.simetric(50)))
+    new VennPlot('graphVen', ViewBox.fromSize(W * 2.5, H, Padding.simetric(50)))
         .plot({
             'A': des.filter(d => !das.includes(d)).length,
             'B': das.filter(d => !des.includes(d)).length,
@@ -545,6 +549,22 @@ function wordCloud() {
 
 }
 
+function plotTr() {
+
+    const pfam = Object.entries([...new Set(projeto
+        .getALLASIsos().map(
+            i => i.getAnots('InterPro').map(p => `${i.nome};${p.value};${p.anotations.stop - p.anotations.start}`)
+        ).reduce((p, c) => p.concat(c)))].map(x => x.split(';')).map(x => [x[1], parseInt(x[2])])
+        .reduce((p, c) => { p[c[0]] ? (p[c[0]] += c[1]) : (p[c[0]] = c[1]); return p }, {}))
+        .filter(x => x && x[0].startsWith('IPR'))
+        .map(x => ({ path: x[0], value: x[1], link: `https://www.ebi.ac.uk/interpro/entry/InterPro/${x[0]}/` }))
+
+    new TreePlot('graphTr', ViewBox.fromSize(W * 2, H, Padding.simetric(0)))
+        .plot(pfam);
+
+
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
@@ -562,6 +582,7 @@ function criar() {
         plotTop();
         plotPTC();
         wordCloud();
+        plotTr();
     }, 300);
 }
 

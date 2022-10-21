@@ -11,3 +11,4 @@ export * from './HeatmapPlot';
 export * from './GraphPlot';
 export * from './PiePlot';
 export * from './WordCloudPlot';
+export * from './TreePlot';
