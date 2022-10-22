@@ -28,6 +28,7 @@ export API='https://www.ebi.ac.uk/Tools/services/rest/iprscan5/'
 export EMAIL=teste@teste.com
 export TIMEOUT=60
 export MODE="JCEC"
+export SERVER="https://www.genome.jp/tools-bin/ete"
 
 log() {
     local tipo=$([ $5 ] || echo "INFO")$5
@@ -2224,6 +2225,60 @@ anotar() {
     echo "$(date +%d/%m\ %H:%M) terminou anotacao" >>$RESUMO
 }
 
+filogenia() {
+    cd $TMP_DIR
+    local A_SEQ=$TMP_DIR/das_genes.fna
+    local A_FILO=$TMP_DIR/geneapp/filogenia.txt
+    local J_FILO=$TMP_DIR/geneapp/job_filogenia.txt
+
+    python3 <(printf "
+        from Bio import SeqIO
+        gene_seqs = SeqIO.parse('$TMP_DIR/gene_seqs.fa' , 'fasta')
+        gene_as = set([l.strip() for l in open('$TMP_DIR/geneapp/all_as_genes.txt') if len(l) > 2])
+        SeqIO.write([x for x in gene_seqs if x.id in gene_as], '$A_SEQ', 'fasta')
+    " | cut -c9-) 1>$LOG_DIR/_6.4.0_ext_genes.log.txt 2>$LOG_DIR/_6.4.0_ext_genes.err.txt
+
+    if [ -f $J_FILO ]; then
+        JOB=$(head -1 $J_FILO | tr -d :alphanum:)
+        echo "$(date +%d/%m\ %H:%M) recuperando filogenia em $JOB" >>$RESUMO
+    else
+        echo "gerando job" 1>>$LOG_DIR/_6.5.1_filogeny.log.txt
+        SEQ=${2:-"nucleotide"}              #  protein
+        workflow1=${3:-"mafft_default"}     #  mafft_einsi   mafft_linsi mafft_ginsi  clustalo_default  muscle_default
+        workflow2=${4:-"-none"}             # -trimal001 -trimal01 -trimal02 -trimal05  -trimal_gappyout
+        workflow3=${5:-"-none"}             # -prottest_default  -pmodeltest_full_ultrafast  -pmodeltest_full_fast  -pmodeltest_full_slow  -pmodeltest_soft_ultrafast  -pmodeltest_soft_fast -pmodeltest_soft_slow
+        workflow4=${6:-"-fasttree_default"} # -bionj_default  -fasttree_default  -fasttree_full  -phyml_default  -phyml_default_bootstrap  -raxml_default  -raxml_default_bootstrap
+
+        DATA="upload_file=@$A_SEQ" #DATA="sequence=`cat $FILE`"
+
+        JOB=$(curl -s \
+            -F "seqtype=$SEQ" \
+            -F "seqformat=unaligned" \
+            -F "$DATA" \
+            -F "workflow1=$workflow1" \
+            -F "workflow2=$workflow2" \
+            -F "workflow3=$workflow3" \
+            -F "workflow4=$workflow4" \
+            -F "workflow=$workflow1$workflow2$workflow3$workflow4" $SERVER | grep -m1 'ete?id=' | cut -d= -f2 | cut -d\" -f1)
+
+        echo $JOB >$J_FILO
+        echo "$(date +%d/%m\ %H:%M) rodando filogenia em $JOB" >>$RESUMO
+    fi
+
+    if (($(echo $JOB | awk '{print length}') > 10)); then
+        while (($(curl -s $SERVER'?id='$JOB | grep -c "Your job is still running") > 0)); do
+            echo aguardando ... 1>>$LOG_DIR/_6.5.1_filogeny.log.txt
+            sleep $TIMEOUT
+        done
+        echo terminou 1>>$LOG_DIR/_6.5.1_filogeny.log.txt
+        curl -s $SERVER'?id='$JOB | grep -m1 midpoint_data | cut -d\" -f2 >$A_FILO
+    else
+        echo "job $JOB falhou" 2>>$LOG_DIR/_6.5.1_filogeny.err.txt
+    fi
+    echo "filogenia terminou $JOB" 1>>$LOG_DIR/_6.5.1_filogeny.log.txt
+    echo "$(date +%d/%m\ %H:%M) terminou filogenia" >>$RESUMO
+}
+
 analisar() {
 
     cd $TMP_DIR && rodar_rmats && rodar_3drnaseq
@@ -2240,6 +2295,7 @@ analisar() {
 
     gerar_bed_cobertura &
     anotar &
+    filogenia &
     wait
 
 }
@@ -2290,14 +2346,13 @@ finalizar() {
         " | cut -c9-) \
         1>$LOG_DIR/_7.3.1_gerar_PTC.log.txt 2>$LOG_DIR/_7.3.1_gerarPTC.err.txt
 
-    cp  ri_psc.csv  \
+    cp ri_psc.csv geneapp/filogenia.txt \
         geneapp/anotacao.tsv geneapp/cov_all.bed \
         rmats_out/*.MATS.JCEC.txt rmats_out/sign_ev* \
         to3d/transcript_gene_ma* to3d/experimental_design.csv \
         to3d/result/Sig*gene*.csv \
         to3d/result/TPM*.csv \
-        to3d/result/D*ene*estin*tatistics.csv to3d/result/RNAse*nfo.csv\
-        multiqc_data/multiqc_general_stats.txt \
+        to3d/result/D*ene*estin*tatistics.csv to3d/result/RNAse*nfo.csv multiqc_data/multiqc_general_stats.txt \
         $TMP_DIR/gene2mrna2cds2ptn.csv $TMP_DIR/all_as_isoforms.txt \
         $RESUMO geneapp_data
 
