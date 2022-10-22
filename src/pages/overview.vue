@@ -16,7 +16,7 @@ import { onMounted, onUpdated, ref } from 'vue';
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
 import {
-    Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial,
+    Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, FunilPlot,
     BarPlot, BarPlotVertical, ViolinPlot, AreaPlot, UpsetPlot, DendogramPlot
 } from '../core/d3';
 import { PROJETO } from "../core/State";
@@ -98,26 +98,23 @@ function plotMp(wC) {
         ).concat([['A_LAB', 'rMATS'], ['B_LAB', '3DRNASeq']])));
 }
 
-function plotGs(wC) {
-    const W = wC;
+function plotGs(wC, texp) {
+    const W = wC * 3;
     const H = HEIGHT;
-    const viewBox = ViewBox.fromSize(W, H, new Padding(30, 10, 80, 50));
+    const viewBox = ViewBox.fromSize(W, H, Padding.simetric(10));
 
     const total = parseInt(projeto.getResumo('Quantidade de genes:')[0].split(': ')[1]);
     const cod = parseInt(projeto.getResumo('Quantidade de genes cod prot:')[0].split(': ')[1]);
     const as = parseInt(projeto.getResumo('Genes com AS anotado:')[0].split(': ')[1]);
     const here = parseInt(projeto.getResumo('AS genes encontrados | so rMATS')[0].split('Total : ')[1].split(' ')[0])
 
-    new BarPlot('graphAs', viewBox)
-        .setX("Obs")
-        .setY("Genes")
-        .setColor(() => 'orangered')
-        .plot([
-            { Obs: 'Total', Genes: total },
-            { Obs: 'Coding', Genes: cod },
-            { Obs: 'A.S.', Genes: as },
-            { Obs: projeto.getContrast() + ' A.S.', Genes: here },
-        ], undefined, (a, b) => b[1] - a[1]);
+    new FunilPlot('graphAs', viewBox).plot([
+        { step: 1, name: 'Total Gene repertory', value: total },
+        { step: 2, name: 'Protein Coding', value: cod },
+        { step: 3, name: 'A.S. annotated', value: as },
+        { step: 4, name: 'Expressed', value: texp },
+        { step: 5, name: 'D.A.S', value: here },
+    ]);
 }
 
 function plotGc(wC) {
@@ -159,7 +156,7 @@ function plotGc(wC) {
 }
 
 function plotCv(wC) {
-    const W = wC * 3;
+    const W = wC * 4;
     const H = HEIGHT;
     const viewBox = ViewBox.fromSize(W, H, new Padding(10, 20, 30, 60));
 
@@ -188,7 +185,7 @@ function plotCv(wC) {
 }
 
 function plotAn(wC) {
-    const W = wC * 3;
+    const W = wC * 2.5;
     const H = HEIGHT;
     const viewBox = ViewBox.fromSize(W, H, new Padding(15, 50, 30, 80));
 
@@ -235,7 +232,7 @@ function plotAn(wC) {
 }
 
 function plotEx(wC) {
-    const W = wC * 2;
+    const W = wC * 3;
     const H = HEIGHT;
     const viewBox = ViewBox.fromSize(W, H, new Padding(10, 10, 50, 60));
 
@@ -254,7 +251,7 @@ function plotEx(wC) {
         'b': exp[projeto.fatores[1].nome].length
     }
 
-    data['ab'] = [... new Set(exp[projeto.fatores[0].nome].concat(exp[projeto.fatores[1].nome]))].length
+    const texp = data['ab'] = [... new Set(exp[projeto.fatores[0].nome].concat(exp[projeto.fatores[1].nome]))].length
 
     data[''] = parseInt(projeto.getResumo('Genes com AS anotado:').map(x => x.split(':')[1])[0].trim());
 
@@ -263,6 +260,8 @@ function plotEx(wC) {
             'a': projeto.fatores[0].nome,
             'b': projeto.fatores[1].nome
         }, Object.fromEntries(projeto.fatores.map(f => [f.nome, f.cor])))
+
+    return texp
 }
 
 function plotFilo(wC) {
@@ -285,11 +284,11 @@ function criar() {
         plotQC(wC);
         plotRd(wC);
         plotMp(wC);
-        plotGs(wC);
         plotGc(wC);
         plotCv(wC);
         plotAn(wC);
-        plotEx(wC);
+        const texp = plotEx(wC);
+        plotGs(wC, texp);
         plotFilo(wC);
     }, 300);
 }
@@ -297,20 +296,10 @@ function criar() {
 onMounted(() => (show.value = false) || (setTimeout(() => criar(), 300)))
 onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 300)))
 
-
-const cols = ['Etapa', 'Tool', 'Fator', 'Sample', 'Propriedade', 'Valor'];
-const rows = [
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-];
-
 const graficos = [
     [
         { id: 'graphUp', titulo: 'Gene expression' },
-        { id: 'graphFi', titulo: 'AS Gene phtlogeni' }
+        { id: 'graphAs', titulo: 'Gene Funnil' }
     ],
     [
         { id: 'graphCv', titulo: 'Gene read dept and coverage' },
@@ -322,10 +311,22 @@ const graficos = [
         { id: 'graphMp', titulo: 'AS Discovery' }
     ],
     [
-        { id: 'graphAs', titulo: 'Gene`Set Kind' },
+        { id: 'graphFi', titulo: 'AS Gene phtlogeni' }
+    ],
+    [
         { id: 'graphGc', titulo: 'Genomic Structure context' }
     ]
 ];
+
+const cols = ['Etapa', 'Tool', 'Fator', 'Sample', 'Propriedade', 'Valor'];
+const rows = [
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
+];
+
 
 
 </script>

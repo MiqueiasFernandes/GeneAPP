@@ -11,8 +11,6 @@ export class DendogramPlot extends AbstractCartesianPlot {
         const svg = this.svg.append('g')
             .attr("transform", `translate(${this.viewBox.getBoxCenter().join()})`)
 
-        console.log(innerRadius, outerRadius)
-
         var root = d3.hierarchy(data, d => d.branchset).sum(d => d.branchset ? 0 : 1)
             .sort((a, b) => (a.value - b.value) || d3.ascending(a.data.length, b.data.length));
 
@@ -38,7 +36,7 @@ export class DendogramPlot extends AbstractCartesianPlot {
                 + "L" + endRadius * c1 + "," + endRadius * s1;
         }
 
-        const linkExtension = svg.append("g")
+        svg.append("g")
             .attr("fill", "none")
             .attr("stroke", "#000")
             .attr("stroke-opacity", 0.25)
@@ -50,7 +48,7 @@ export class DendogramPlot extends AbstractCartesianPlot {
 
         const linkConstant = d => linkStep(d.source.x, d.source.y, d.target.x, d.target.y);
 
-        const link = svg.append("g")
+        svg.append("g")
             .attr("fill", "none")
             .attr("stroke", "#000")
             .selectAll("path")
@@ -69,49 +67,6 @@ export class DendogramPlot extends AbstractCartesianPlot {
             .attr("text-anchor", d => d.x < 180 ? "start" : "end")
             .style('font-size', '.4rem')
             .text(d => d.data.name.replace(/_/g, " "))
-
-
-        // console.log(data)
-
-        // // Create the cluster layout:
-        // var cluster = d3.cluster()
-        //     .size([this.viewBox.getBoxSize().width, this.viewBox.getBoxSize().height]);
-
-        // // Give the data to this cluster layout:
-        // var root = d3.hierarchy(data, d => d.branchset);
-
-
-        // console.log(root)
-
-        // cluster(root);
-
-
-        // this.svg.selectAll('path')
-        //     .data(root.descendants().slice(1))
-        //     .enter()
-        //     .append('path')
-        //     .attr("d", function (d) {
-        //         return "M" + d.y + "," + d.x
-        //             + "C" + (d.parent.y + 50) + "," + d.x
-        //             + " " + (d.parent.y + 150) + "," + d.parent.x // 50 and 150 are coordinates of inflexion, play with it to change links shape
-        //             + " " + d.parent.y + "," + d.parent.x;
-        //     })
-        //     .style("fill", 'none')
-        //     .attr("stroke", '#ccc')
-
-        // this.svg.selectAll("g")
-        //     .data(root.descendants())
-        //     .enter()
-        //     .append("g")
-        //     .attr("transform", function (d) {
-        //         return "translate(" + d.y + "," + d.x + ")"
-        //     })
-        //     .append("circle")
-        //     .attr("r", 7)
-        //     .style("fill", "#69b3a2")
-        //     .attr("stroke", "black")
-        //     .style("stroke-width", 2)
-
 
         return this;
     }

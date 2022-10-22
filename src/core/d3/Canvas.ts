@@ -63,7 +63,7 @@ export class Canvas {
         if (estilo.fs) txt.style('font-size', estilo.fs)
         if (estilo.r) txt.attr('transform', `rotate(${estilo.r} ${x},${y})`)
         if (estilo.hco || estilo.hc) txt.style('text-anchor', estilo.hco || 'middle')
-        if (estilo.vc) txt.style("alignment-baseline", estilo.vco || 'middle')
+        if (estilo.vc) txt.style("alignment-baseline", estilo.vco || 'central')
         if (estilo.c) txt.style('fill', estilo.c)
         if (estilo.s) txt.style('stroke', estilo.s)
         return txt;
