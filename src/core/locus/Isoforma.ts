@@ -7,7 +7,7 @@ import { Locus } from "./Locus";
 import { UTR } from "./UTR";
 
 export class Isoforma extends Locus {
- 
+
     private exons: Array<Exon> = new Array<Exon>();
     private introns: Array<Intron> = new Array<Intron>();
     private five_prime_utr: UTR = null;
@@ -38,5 +38,75 @@ export class Isoforma extends Locus {
                 i => new Intron(this.cromossomo, parseInt(i[0]) + 1, parseInt(i[1]) - 1, this.strand, 'Intron')
             );
         return this;
+    }
+
+    // mRNA transcript variant 2 NM_001347423.2, 37 exons,  total annotated spliced exon length: 4659
+    // protein isoform a precursor NP_001334352.2 (CCDS44827.1), 36 coding  exons,  annotated AA length: 1474
+
+    // Exon table for  mRNA  NM_001347423.2 and protein NP_001334352.2
+    // Genomic Interval Exon		Genomic Interval Coding		Gene Interval Exon		Gene Interval Coding		Exon Length	Coding Length	Intron Length
+    // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // 9116229-9116128		1-102		102		261
+    // 9115866-9115764		9115849-9115764		364-466		381-466		103		86		2220
+    // 9113543-9113360		9113543-9113360		2687-2870		2687-2870		184		184		823
+    // 91125
+    static fromTable(raw, gene: Gene) {
+        raw = raw.filter(x => x.length > 5)
+        if (!raw[0].startsWith('mRNA ')) return
+        var exs = false
+        var nome = null
+        var h = null
+        var exc = -1
+        var ccol = -1
+        const etb = []
+        const ctb = []
+        raw.forEach((l, i) => {
+            if (i > 0) {
+                if (l.startsWith('protein isoform')) {
+                    return
+                }
+                if (l.startsWith('Exon table for')) {
+                    nome = l.split('mRNA')[1].trimStart().split(' ')[0]
+                    return
+                }
+                if (l.startsWith('------------------------------------------------------------')) {
+                    exs = true
+                    h = raw[i - 1].split('\t')
+                    exc = h.indexOf('Genomic Interval Exon')
+                    ccol = h.indexOf('Genomic Interval Coding')
+                    return
+                }
+                if (exs && exc >= 0 && ccol > 0) {
+                    const ec = l.split('\t');
+                    const e = ec[exc].split('-').map(x => parseInt(x))
+                    const eini = Math.min(...e)
+                    const eend = Math.max(...e)
+                    etb.push([eini, eend])
+                    if (ec[ccol].length > 2) {
+                        const c = ec[ccol].split('-').map(x => parseInt(x))
+                        const cini = Math.min(...c)
+                        const cend = Math.max(...c)
+                        if (cini >= eini && cend <= eend) {
+                            ctb.push([cini, cend])
+                        } else {
+                            console.warn('Linha invalida: ', l)
+                        }
+                    }
+                }
+            }
+        })
+
+        const mrna = new Isoforma(
+            gene.cromossomo,
+            Math.min(...etb.map(x => x[0])),
+            Math.max(...etb.map(x => x[1])),
+            gene.strand,
+            nome);
+
+
+        etb.forEach((e, i) => mrna.addExon(new Exon(gene.cromossomo, e[0], e[1], gene.strand, `Exon${i}`)))
+        ctb.forEach((c, i) => mrna.setCDS(new Locus(gene.cromossomo, c[0], c[1], gene.strand, `CDS${i}`)))
+        mrna.update(gene);
+        return mrna;
     }
 }

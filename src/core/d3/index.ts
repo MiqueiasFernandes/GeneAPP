@@ -15,3 +15,4 @@ export * from './TreePlot';
 export * from './UpsetPlot';
 export * from './DendogramPlot';
 export * from './FunilPlot';
+export * from './GenePlot';
