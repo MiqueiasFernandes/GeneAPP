@@ -34,6 +34,7 @@ export class Projeto {
     private allDASgenes;
     Significant_DE_genes;
     private ptc: CSV;
+    private filogenia;
 
 
     constructor(nome: string) {
@@ -57,6 +58,7 @@ export class Projeto {
     getTrat = () => this.fatores[1];
     getASIsosID = () => [... new Set(this.das_genes.map(d => d.getGene().getIsoformas()).reduce((p, c) => p.concat(c), []))];
     getPTC = () => this.ptc ? this.ptc.getRows() : [];
+    getFilogenia = () => this.filogenia;
     addFator(raw: string) {
         const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
         fator.is_control = this.fatores.length < 1;
@@ -106,6 +108,11 @@ export class Projeto {
         return CSV.fromLines(lines.filter(l => l !== header), s, header ? header.split(s) : []);
     }
 
+
+    // https://github.com/jasondavies/newick.js
+    parseNewick(a) { for (var e = [], r = {}, s = a.split(/\s*(;|\(|\)|,|:)\s*/), t = 0; t < s.length; t++) { var n = s[t]; switch (n) { case "(": var c = {}; r['branchset'] = [c], e.push(r), r = c; break; case ",": var c = {}; e[e.length - 1].branchset.push(c), r = c; break; case ")": r = e.pop(); break; case ":": break; default: var h = s[t - 1]; ")" == h || "(" == h || "," == h ? r['name'] = n : ":" == h && (r['length'] = parseFloat(n)) } } return r }
+
+
     parse_dados_basicos(metadata, files, headers): string {
 
         metadata.filter(x => x[0] === "map").map(x => x[1]).forEach(x => this.addFator(x));
@@ -118,6 +125,10 @@ export class Projeto {
         this.qc_status.addCol('fator', r => r.Sample.replace(/.F$/, '').replace(/.R$/, ''));
 
         this.resumo = this.part(files, 'resumo.txt');
+
+
+        const fdata = this.part(files, 'filogenia.txt');
+        this.filogenia = fdata.length > 0 && fdata[0].length > 10 ? this.parseNewick(fdata[0]) : null;
 
         const log = [
             ///Tamanho do genoma: 
