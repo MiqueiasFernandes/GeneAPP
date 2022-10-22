@@ -2228,8 +2228,13 @@ anotar() {
 filogenia() {
     cd $TMP_DIR
     local A_SEQ=$TMP_DIR/das_genes.fna
-    local A_FILO=$TMP_DIR/geneapp/filogenia.txt
+    local A_FILO=$OUT_DIR/filogenia.txt
     local J_FILO=$TMP_DIR/geneapp/job_filogenia.txt
+
+    if [ -f $A_FILO ]; then
+        echo "$(date +%d/%m\ %H:%M) recuperando filogenia de $A_FILO" >>$RESUMO
+        return
+    fi
 
     python3 <(printf "
         from Bio import SeqIO
@@ -2346,7 +2351,7 @@ finalizar() {
         " | cut -c9-) \
         1>$LOG_DIR/_7.3.1_gerar_PTC.log.txt 2>$LOG_DIR/_7.3.1_gerarPTC.err.txt
 
-    cp ri_psc.csv geneapp/filogenia.txt \
+    cp ri_psc.csv $OUT_DIR/filogenia.txt \
         geneapp/anotacao.tsv geneapp/cov_all.bed \
         rmats_out/*.MATS.JCEC.txt rmats_out/sign_ev* \
         to3d/transcript_gene_ma* to3d/experimental_design.csv \
