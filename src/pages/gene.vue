@@ -13,7 +13,7 @@
 import { useRoute } from 'vue-router'
 import axios from 'axios';
 import { onMounted } from 'vue';
-import { GenePlot } from '../core/d3';
+import { GenePlot, Padding, ViewBox } from '../core/d3';
 import { Gene } from '../core/model';
 useHead({ title: 'Gene View' });
 
@@ -28,8 +28,9 @@ function carregar() {
         axios.get(url)
             .then(res => {
                 status.value = 'gene carregado!'
-                const data = Gene.fromNCBI(res.data.split('\n'))
-                console.log(data)
+                const gene = Gene.fromNCBI(res.data.split('\n'))
+                const vb = ViewBox.fromSize(800, (gene.getIsoformas().length + 1) * 50, Padding.simetric(5).center())
+                new GenePlot('plot', vb, 'lightgray').plot(gene)
             })
             .catch(e => status.value = 'erro ao carregar ' + url)
     }
@@ -41,6 +42,10 @@ onMounted(carregar)
 </script>
             
 <template>
-
-    {{status}}
+    <div class="flex flex-wrap justify-center p-4">
+        <div v-if="status !== 'gene carregado!'">
+            {{status}}
+        </div>
+        <div id="plot"></div>
+    </div>
 </template>

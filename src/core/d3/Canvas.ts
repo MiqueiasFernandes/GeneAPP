@@ -1,11 +1,58 @@
 import * as d3 from "d3";
 import { ViewBox } from "./Size";
 
+export class Fill {
+    nome: string
+    id: string
+    cor: string
+    cor2: string
+    constructor(nome, cor) {
+        this.nome = nome
+        this.cor = cor
+        this.id = `def${nome}`
+    }
+
+    setGradient(cor2: string, defs, r = 95) {
+        this.cor2 = cor2
+        var lg = defs
+            .append("linearGradient")
+            .attr("id", this.id) //id of the gradient
+            .attr("x2", r + "%")
+            .attr("x1", "0%")
+            .attr("y2", r + "%")
+            .attr("y1", "0%"); //since its a vertical linear gradient
+        lg.append("stop")
+            .attr("offset", "0%")
+            .style("stop-color", this.cor) //end in red
+            .style("stop-opacity", 1);
+
+        lg.append("stop")
+            .attr("offset", "100%")
+            .style("stop-color", this.cor2) //start in blue
+            .style("stop-opacity", 1);
+        return this;
+    }
+
+    static getGradient(cor, defs, c2 = 'black', r = 95) {
+        switch (cor) {
+            case "blue": c2 = "purple"; break;
+            case "green": c2 = "yellow"; break;
+            case "red": c2 = "orange"; break;
+            case "orange": c2 = "purple"; break;
+            case "yellow": c2 = "mediumpurple"; break;
+        }
+        return new Fill('G' + cor, cor).setGradient(c2, defs, r);
+    }
+
+}
+
 export class Canvas {
     viewBox: ViewBox;
     elID: string;
     bg: string;
     svg: any;
+    defs: any;
+    fiils: Array<Fill> = new Array<Fill>();
 
     constructor(elID?: string, viewBox?: ViewBox, bg?: string) {
         if (!elID)
@@ -22,6 +69,7 @@ export class Canvas {
             .attr("width", viewBox.getViewSize().width)
             .attr("height", viewBox.getViewSize().height)
             .append("g");
+        this.defs = this.svg.append("defs");
     }
 
     plotOn(canvas: Canvas, viewBox?: ViewBox, name?: string): Canvas {
@@ -87,6 +135,29 @@ export class Canvas {
             .attr("fill", f)
             .attr("stroke", c)
             .attr("stroke-width", sw);
+    }
+
+    wave(x, y, width, c = "black", w = 3, s = .1) {
+
+        const sobra = (width % (s * 100)) / 2;
+        const inteiros = (width - sobra) / (s * 100);
+        const path = `q ${s * 25},${s * 50} ${s * 50},0 t ${s * 50},0 `.repeat(inteiros);
+
+        return this.svg.append("path")
+            .attr("d", `M ${x},${y + s * 50} c 0,0 ${sobra / 2},-${sobra * .8} ${sobra},0 ${path} c 0,0 ${sobra / 2},${sobra * .8} ${sobra},0`)
+            .attr("stroke", c)
+            .attr("fill", "none")
+            .attr("stroke-width", w)
+            .attr('stroke-linecap', "round")
+
+    }
+
+    fillGradient(item, cor, cor2?) {
+        var fill = this.fiils.some(x => x.id === `G${cor}`) ? this.fiils.filter(x => x.id === `G${cor}`)[0] : null
+        if (!fill) {
+            this.fiils.push(fill = Fill.getGradient(cor, this.defs, cor2))
+        }
+        item.attr("fill", `url(#${fill.id})`)
     }
 
 }

@@ -26,6 +26,11 @@ export class Padding {
     toLeft = (x: number) => new Padding(this.top, this.right, this.bottom, this.left + x)
     toTop = (y: number) => new Padding(this.top + y, this.right, this.bottom, this.left)
     toBottom = (y: number) => new Padding(this.top, this.right, this.bottom + y, this.left)
+    center = (): Padding => new Padding(
+        (this.top + this.bottom) / 2,
+        (this.right + this.left) / 2,
+        (this.top + this.bottom) / 2,
+        (this.right + this.left) / 2);
 
     getBox(size: Size): Size {
         return new Size(
@@ -91,6 +96,11 @@ export class ViewBox {
         )
     )
 
+    center = () =>
+        new ViewBox(
+            new Size(this.viewSize.width, this.viewSize.height),
+            this.viewPadding.center()
+        )
     toPadding = (p: Padding) => new ViewBox(
         new Size(this.viewSize.width, this.viewSize.height),
         new Padding(

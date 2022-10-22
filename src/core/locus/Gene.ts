@@ -11,7 +11,6 @@ export class Gene extends Locus {
     private dexp: DifferentialExpression = null;
     private anots;
 
-
     getAS = () => this.as_events;
 
     addAS(as: AlternativeSplicing) {
@@ -37,6 +36,7 @@ export class Gene extends Locus {
     }
 
     getIsoformas = () => this.isoformas;
+    isAS = () => this.isoformas.length > 1;
 
     setBED(raw: string[]) {
         if (!this.bed[raw[0]])
@@ -75,7 +75,7 @@ export class Gene extends Locus {
                 nome = l
                 return
             }
-            if (i > 1 && !ref && l.startsWith('Reference ')) {
+            if (i > 1 && !ref && l.length > 3) {
                 ref = l
                 return
             }
