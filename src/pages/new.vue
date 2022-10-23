@@ -15,6 +15,7 @@
 import { ColorSwatchIcon } from '@heroicons/vue/solid';
 import { Arquivo } from '../core/utils/Arquivo';
 import { PROJETO } from "../core/State";
+import { onBeforeMount } from 'vue';
 
 useHead({ title: 'New Project' });
 
@@ -52,6 +53,8 @@ function setExperimento() {
     files => files.sort((a, b) => a.name.localeCompare(b.name))[0]
   );
 }
+
+onBeforeMount(() => projeto.reset())
 
 </script>
 

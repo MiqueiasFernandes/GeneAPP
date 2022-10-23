@@ -31,6 +31,7 @@ function carregar() {
                 status.value = 'gene carregado!'
                 const gene = Gene.fromNCBI(res.data.split('\n'))
                 PROJETO.nome = gene.nome;
+                route.meta.description = "Gene View " + query.id;
                 const vb = ViewBox.fromSize(800, (gene.getIsoformas().length + 1) * 50, Padding.simetric(5).center())
                 new GenePlot('plot', vb).plot(gene)
             })

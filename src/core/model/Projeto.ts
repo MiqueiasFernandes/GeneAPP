@@ -42,6 +42,7 @@ export class Projeto {
         this.fatores = new Array<Fator>();
     }
 
+    reset = () => this.nome = 'My AS Experiment'
     getALLGenes = (): Gene[] => Object.values(this.genes);
     getALLASIsos = (): Isoforma[] => this.getALLGenes().map(g => g.getIsoformas()).reduce((p, c) => p.concat(c));
     getALLIsos = (fasta: boolean = false): Isoforma[] => Object.values(fasta ? this.isoformas_FASTA : this.isoformas_GFF);

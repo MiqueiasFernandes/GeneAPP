@@ -53,6 +53,9 @@ export class GenePlot extends AbstractCartesianPlot {
 
     plot(gene: Gene): Canvas {
 
+        if (!gene) return
+        console.log(gene)
+
         const viewBox = this.viewBox.addPadding(5, 5).center();
         const GH = 40
         const boxGene = viewBox.withHeight(GH)
