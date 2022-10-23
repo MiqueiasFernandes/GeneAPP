@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { Exon, Gene, Intron, Isoforma, Locus } from "../model";
+import { CDS, Exon, Gene, Intron, Isoforma, Locus } from "../model";
 import { AbstractCartesianPlot } from "./AbstractPlot";
 import { Canvas } from "./Canvas";
 import { ViewBox } from "./Size";
@@ -12,20 +12,38 @@ export class GenePlot extends AbstractCartesianPlot {
             .attr('stroke', 'black')
             .attr('stroke-width', '2px')
         rct.append("title").text(exon.nome)
+        this.fillGradient(rct, 'green')
+    }
+
+    plotCDS(cds: Locus, viewBox: ViewBox, R) {
+        const [X, W, Y, _, H] = this.getPoints(cds, R, viewBox).concat([11]);
+        const rct = this.rect(X, Y + 1, W, H + 2, 'blue', 5)
+            .attr('stroke', 'black')
+            .attr('stroke-width', '2px')
+        rct.append("title").text(cds.nome)
         this.fillGradient(rct, 'blue')
+    }
+
+    plotDomain(locus: Locus, viewBox: ViewBox, R) {
+        const [X, W, Y, _, H] = this.getPoints(locus, R, viewBox).concat([11]);
+        const rct = this.rect(X, Y + 1, W, H + 2, 'blue', 5)
+        rct.append("title").text(locus.nome)
+        this.fillPattern(rct, 'cyan')
     }
 
     plotIntron(intron: Intron, viewBox: ViewBox, R) {
         const [X, W, Y, _, H] = this.getPoints(intron, R, viewBox).concat([15]);
-        this.wave(X, viewBox.getBoxCenter()[1] - H / 1.3, W, 'black', 4).append("title").text(intron.nome)
+        this.wave(X, Y + 3, W, 'black', 4).append("title").text(intron.nome)
     }
 
     plotIsoform(isoform: Isoforma, viewBox: ViewBox, R) {
         const [X, W, Y, H] = this.getPoints(isoform, R, viewBox);
         this.text(X, Y + 5, isoform.nome, { vc: 1, fs: '.6rem', b: 1 })
 
-        isoform.getExons().forEach(e => this.plotExon(e, viewBox.addPaddingY(20), R))
         isoform.getIntrons().forEach(i => this.plotIntron(i, viewBox.addPaddingY(20), R))
+        isoform.getExons().forEach(e => this.plotExon(e, viewBox.addPaddingY(20), R))
+        isoform.getCDS().getLoci().forEach(cds => this.plotCDS(cds, viewBox.addPaddingY(20), R))
+        isoform.getAnots().forEach(a => a.toLoci(isoform).forEach(l => this.plotDomain(l, viewBox.addPaddingY(20), R)))
     }
 
     getX0 = (l: Locus, R) => R(l.strand ? l.start : l.end)
@@ -53,9 +71,22 @@ export class GenePlot extends AbstractCartesianPlot {
             .selectAll("text")
             .attr('font-size', '.5rem');
 
+        const regua = this.line({ v: 30, y1: boxGene.getBoxY0() + 10, y2: viewBox.getBoxY1() + 5, c: "gray", x1: null, x2: null, h: null });
+
+        const ctext = this.text(0, boxGene.getBoxY1() + 5, '').attr('font-size', '.5rem')
 
         this.text(boxGene.getBoxX0(), boxGene.getBoxY0() + GH * .7, gene.nome, { vc: 1, fs: '.8rem', b: 1 })
-        const boxes = viewBox.addPaddingY(GH).splitY(gene.getIsoformas().length)
+        this.rect(boxGene.getBoxX0() - 2, boxGene.getBoxY0() + GH * .4, boxGene.getBoxSize().width + 4, 5)
+            .on('mousemove', coord => {
+                regua &&
+                    regua.attr("x1", coord.offsetX) &&
+                    regua.attr("x2", coord.offsetX) &&
+                    ctext.attr("transform",
+                        `translate(${coord.offsetX + (coord.offsetX > boxGene.getBoxSize().width / 2 ? -5 : 5)},0)`)
+                        .text(coord.offsetX)
+                        .style('text-anchor', coord.offsetX > boxGene.getBoxSize().width / 2 ? 'end' : 'start')
+            })
+        const boxes = viewBox.addPaddingY(GH + 10).splitY(gene.getIsoformas().length)
         gene.getIsoformas().forEach((iso, i) => this.plotIsoform(iso, boxes[i], R))
 
         return

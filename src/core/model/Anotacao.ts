@@ -14,6 +14,7 @@ export class Anotacao {
     }
 
     get = (k) => this.anotations[k];
+    toLoci = (locus: Locus): Locus[] => [];
 
 
     public setLocus(locus: Locus) {

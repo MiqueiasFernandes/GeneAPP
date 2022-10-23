@@ -33,6 +33,20 @@ export class Fill {
         return this;
     }
 
+    setPattern(defs, c = "black", w = 1) {
+        defs.append("pattern")
+            .attr("id", this.id)
+            .attr("patternUnits", "userSpaceOnUse")
+            .attr("width", 4)
+            .attr("height", 4)
+            .append("path")
+            .attr("d", "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2")
+            .attr("stroke", c)
+            .attr("stroke-width", w);
+        return this;
+    }
+
+
     static getGradient(cor, defs, c2 = 'black', r = 95) {
         switch (cor) {
             case "blue": c2 = "purple"; break;
@@ -42,6 +56,10 @@ export class Fill {
             case "yellow": c2 = "mediumpurple"; break;
         }
         return new Fill('G' + cor, cor).setGradient(c2, defs, r);
+    }
+
+    static getPattern(defs, cor?, r?) {
+        return new Fill('P' + cor, cor).setPattern(defs, cor, r);
     }
 
 }
@@ -117,7 +135,11 @@ export class Canvas {
         return txt;
     }
 
-    line(x1, y1, x2, y2, c = "black", sw = 2) {
+    line({ c = "black", sw = 2, x1, y1, x2, y2, v, h }) {
+        x1 = v ? v : x1;
+        x2 = v ? v : x2;
+        y1 = h ? h : y1;
+        y2 = h ? h : y2;
         return this.svg
             .append("line")
             .style("stroke", c)
@@ -153,9 +175,17 @@ export class Canvas {
     }
 
     fillGradient(item, cor, cor2?) {
-        var fill = this.fiils.some(x => x.id === `G${cor}`) ? this.fiils.filter(x => x.id === `G${cor}`)[0] : null
+        var fill = this.fiils.some(x => x.id === `defG${cor}`) ? this.fiils.filter(x => x.id === `defG${cor}`)[0] : null
         if (!fill) {
             this.fiils.push(fill = Fill.getGradient(cor, this.defs, cor2))
+        }
+        item.attr("fill", `url(#${fill.id})`)
+    }
+
+    fillPattern(item, cor, r?) {
+        var fill = this.fiils.some(x => x.id === `defP${cor}`) ? this.fiils.filter(x => x.id === `defP${cor}`)[0] : null
+        if (!fill) {
+            this.fiils.push(fill = Fill.getPattern(this.defs, cor, r))
         }
         item.attr("fill", `url(#${fill.id})`)
     }
