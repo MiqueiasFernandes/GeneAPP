@@ -46,7 +46,6 @@ export class Fill {
         return this;
     }
 
-
     static getGradient(cor, defs, c2 = 'black', r = 95) {
         switch (cor) {
             case "blue": c2 = "purple"; break;
@@ -77,17 +76,22 @@ export class Canvas {
             return;
         this.elID = elID;
         this.viewBox = viewBox;
-        this.bg = bg || 'yellow';
-        this.svg = d3.select(`#${elID}`).select(`svg`);
+        this.bg = bg;
+        this.reset()
+    }
+
+    reset() {
+        this.svg = d3.select(`#${this.elID}`).select(`svg`);
         !this.svg.empty() && this.svg.remove();
         this.svg = d3
-            .select(`#${elID}`)
+            .select(`#${this.elID}`)
             .append("svg")
-            .style("background", bg)
-            .attr("width", viewBox.getViewSize().width)
-            .attr("height", viewBox.getViewSize().height)
+            .style("background", this.bg)
+            .attr("width", this.viewBox.getViewSize().width)
+            .attr("height", this.viewBox.getViewSize().height)
             .append("g");
         this.defs = this.svg.append("defs");
+        this.fiils = new Array<Fill>();
     }
 
     plotOn(canvas: Canvas, viewBox?: ViewBox, name?: string): Canvas {

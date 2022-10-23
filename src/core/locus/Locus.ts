@@ -15,6 +15,7 @@ export class Locus {
     strand: boolean;
     cromossomo: Cromossomo;
     meta: Meta = new Meta();
+    sites: Locus[] = new Array<Locus>();
 
     anotacoes: Array<Anotacao> = new Array<Anotacao>();
 
@@ -36,6 +37,12 @@ export class Locus {
     add_anotacoes(anots: Anotacao[]) {
         this.anotacoes.push(...anots);
     }
+
+    addSite(locus: Locus) {
+        this.sites.push(locus)
+    }
+
+    getSites = () => this.sites;
 
     public static fromGFF(chr: Cromossomo, raw: string[], nome: string): Locus {
         const start = parseInt(raw[3]);

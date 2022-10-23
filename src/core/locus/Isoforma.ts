@@ -1,4 +1,4 @@
-import { Anotacao } from "../model/Anotacao";
+import { Anotacao } from "../model";
 import { CDS } from "./CDS";
 import { Exon } from "./Exon";
 import { Gene } from "./Gene";
@@ -55,6 +55,7 @@ export class Isoforma extends Locus {
         if (!raw[0].startsWith('mRNA ')) return
         var exs = false
         var nome = null
+        var ptna = null
         var h = null
         var exc = -1
         var ccol = -1
@@ -62,11 +63,12 @@ export class Isoforma extends Locus {
         const ctb = []
         raw.forEach((l, i) => {
             if (i > 0) {
-                if (l.startsWith('protein isoform')) {
+                if (l.startsWith('protein')) {
                     return
                 }
                 if (l.startsWith('Exon table for')) {
                     nome = l.split('mRNA')[1].trimStart().split(' ')[0]
+                    ptna = l.indexOf('and protein ') ? l.split('and protein ')[1].split(' ')[0] : null
                     return
                 }
                 if (l.startsWith('------------------------------------------------------------')) {
@@ -103,7 +105,7 @@ export class Isoforma extends Locus {
             gene.strand,
             nome);
 
-
+        ptna && mrna.add_anotacao(new Anotacao('Protein', ptna))
         etb.forEach((e, i) => mrna.addExon(new Exon(gene.cromossomo, e[0], e[1], gene.strand, `Exon${i}`)))
         ctb.forEach((c, i) => mrna.setCDS(new Locus(gene.cromossomo, c[0], c[1], gene.strand, `CDS${i}`)))
         mrna.update(gene);

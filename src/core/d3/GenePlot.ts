@@ -52,9 +52,7 @@ export class GenePlot extends AbstractCartesianPlot {
     getPoints = (l: Locus, R, v: ViewBox) => [this.getX0(l, R), this.getW(l, R), v.getBoxY0(), v.getBoxSize().height]
 
     plot(gene: Gene): Canvas {
-
         if (!gene) return
-        console.log(gene)
 
         const viewBox = this.viewBox.addPadding(5, 5).center();
         const GH = 40
@@ -74,19 +72,27 @@ export class GenePlot extends AbstractCartesianPlot {
             .selectAll("text")
             .attr('font-size', '.5rem');
 
-        const regua = this.line({ v: 30, y1: boxGene.getBoxY0() + 10, y2: viewBox.getBoxY1() + 5, c: "gray", x1: null, x2: null, h: null });
+        if (gene.isAS()) {
+            gene.getCanonic().getSites().forEach(s => {
+                const rct = this.rect(this.getX0(s, R), boxGene.getBoxY1(), this.getW(s, R), viewBox.getBoxSize().height - 40)
+                this.fillPattern(rct, 'gray')
+            })
+        }
 
+        const regua = this.line({ v: 0, y1: boxGene.getBoxY0() + 10, y2: viewBox.getBoxY1() + 5, c: "gray", x1: null, x2: null, h: null });
         const ctext = this.text(0, boxGene.getBoxY1() + 5, '').attr('font-size', '.5rem')
-
+        const RM = 2
+        const RW = boxGene.getBoxSize().width + RM * 2
+        const pbPpx = gene.size / RW
         this.text(boxGene.getBoxX0(), boxGene.getBoxY0() + GH * .7, gene.nome, { vc: 1, fs: '.8rem', b: 1 })
-        this.rect(boxGene.getBoxX0() - 2, boxGene.getBoxY0() + GH * .4, boxGene.getBoxSize().width + 4, 5)
+        this.rect(boxGene.getBoxX0() - RM, boxGene.getBoxY0() + GH * .3, RW, 8)
             .on('mousemove', coord => {
                 regua &&
                     regua.attr("x1", coord.offsetX) &&
                     regua.attr("x2", coord.offsetX) &&
                     ctext.attr("transform",
                         `translate(${coord.offsetX + (coord.offsetX > boxGene.getBoxSize().width / 2 ? -5 : 5)},0)`)
-                        .text(coord.offsetX)
+                        .text(Math.floor((gene.strand ? gene.start : gene.end) + ((coord.offsetX - 3 * RM) * pbPpx * (gene.strand ? 1 : -1))).toLocaleString())
                         .style('text-anchor', coord.offsetX > boxGene.getBoxSize().width / 2 ? 'end' : 'start')
             })
         const boxes = viewBox.addPaddingY(GH + 10).splitY(gene.getIsoformas().length)
@@ -95,8 +101,9 @@ export class GenePlot extends AbstractCartesianPlot {
         return
     }
 
-
-
-
+    invalidate(gene: Gene) {
+        this.reset()
+        this.plot(gene);
+    }
 
 }

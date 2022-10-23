@@ -1,6 +1,8 @@
 import { AlternativeSplicing } from "../model/AlternativeSplicing";
 import { Cromossomo } from "../model/Cromossomo";
 import { DifferentialExpression } from "../model/DifferentialExpression";
+import { Exon } from "./Exon";
+import { Intron } from "./Intron";
 import { Isoforma } from "./Isoforma";
 import { Locus } from "./Locus";
 
@@ -10,6 +12,7 @@ export class Gene extends Locus {
     private as_events = new Array<AlternativeSplicing>();
     private dexp: DifferentialExpression = null;
     private anots;
+    private canonic: Isoforma;
 
     getAS = () => this.as_events;
 
@@ -96,5 +99,80 @@ export class Gene extends Locus {
         const gene = new Gene(chr, start, end, ref.indexOf(' (minus strand) ') < 1, nome)
         mrnas.map(m => Isoforma.fromTable(m, gene)).forEach(i => gene.addIsoforma(i))
         return gene;
+    }
+
+
+    getCanonic() {
+        if (this.isoformas.length < 1)
+            return null
+        if (this.isoformas.length < 2)
+            return this.isoformas[0];
+        if (this.canonic)
+            return this.canonic;
+
+        const iso_start = this.isoformas.map(i => i.start).reduce((a, b) => Math.min(a, b), this.isoformas[0].start)
+        const iso_end = this.isoformas.map(i => i.end).reduce((a, b) => Math.max(a, b), this.isoformas[0].end)
+
+        // pegar todos pontos dos mRNA no gene com pontos ao lado
+        const pts = (l: Locus) => `${l.start - 1},${l.start},${l.start + 1},${l.end - 1},${l.end},${l.end + 1}`
+        const points = Object.fromEntries([... new Set(
+            this.isoformas.map(i => i.getExons().map(pts).join()).join().split(',')
+                .concat(
+                    this.isoformas.map(i => i.getIntrons().map(pts).join()).join().split(',')
+                )
+        )].map(i => parseInt(i)).filter(p => p >= iso_start && p <= iso_end).sort().map(p => [p, []]))
+
+        // anotar tipo do ponto
+        this.isoformas.forEach(i => i.getExons().forEach(e => {
+            for (let i = e.start; i <= e.end; i++)
+                points[i] && points[i].push('E')
+        }))
+
+        this.isoformas.forEach(i => i.getIntrons().forEach(i => {
+            for (let k = i.start; k <= i.end; k++)
+                points[k] && points[k].push('I')
+        }))
+
+        // anotar A.S. utr
+        const points2 = []
+        Object.keys(points).forEach(p => this.isoformas.forEach(i => parseInt(p) < i.start && points[parseInt(p)].push('A')))
+        Object.keys(points).forEach(p => this.isoformas.forEach(i => parseInt(p) > i.end && points[parseInt(p)].push('A')))
+        Object.keys(points).forEach(p => {
+            const pt = parseInt(p)
+            const I = points[pt].indexOf('I') >= 0;
+            const E = points[pt].indexOf('E') >= 0;
+            const A = (points[pt].indexOf('A') >= 0) || (I && E);
+            points2.push([pt, A ? 'A' : I ? 'I' : E ? 'E' : 'A'])
+        })
+
+        // colapsar
+        const final = []
+        var start = 0;
+        points2.sort((a, b) => a[0] - b[0]).forEach(([P, T]) => {
+            if (final.length < 1) {
+                final.push([P, T, P])
+                start = P;
+            } else {
+                if (final[0][1] === T) {
+                    final[0][2] = P
+                } else {
+                    final[0][2] = P - 1
+                    final.unshift([P, T, P])
+                }
+            }
+        })
+
+        this.canonic = new Isoforma(this.cromossomo, start, final[0][2], this.strand, "Canonic");
+        final.filter(x => x[1] === 'E').forEach((e, i) => this.canonic.addExon(new Exon(
+            this.cromossomo, e[0], e[2], this.strand, `Exon${i}`
+        )))
+        final.filter(x => x[1] === 'I').forEach((e, i) => this.canonic.addIntron(new Intron(
+            this.cromossomo, e[0], e[2], this.strand, `Intron${i}`
+        )))
+        final.filter(x => x[1] === 'A').forEach((e, i) => this.canonic.addSite(new Locus(
+            this.cromossomo, e[0], e[2], this.strand, `Alternative${i}`
+        )))
+
+        return this.canonic;
     }
 }

@@ -22,8 +22,31 @@ useHead({ title: 'About' })
           Sobre o projeto VUE SINGLE PAGE WEB APP
         </span>
       </h2>
-      <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-      </div>
+    </div>
+    <div class="mx-auto max-w-screen-xl px-4 py-12 sm:px-6">
+      <p>
+        sobre o projeto
+      </p>
+      <p>
+        citacoes
+      <ul>
+        <li>ncbi</li>
+        <li>interproscan</li>
+        <li>agbase</li>
+        <li>orthoven</li>
+        <li>rmtas</li>
+        <li>3drnaseq</li>
+      </ul>
+      </p>
+      <p>
+        links e repos
+      <ul>
+        <li>https://d3-graph-gallery.com/</li>
+        <li>https://observablehq.com/@d3/tree-of-life</li>
+        <li>https://observablehq.com/@d3/disjoint-force-directed-graph</li>
+        <li>https://raw.githubusercontent.com/mcfonseca-lab/docker/master/rmats/run_maser.R</li>
+      </ul>
+      </p>
     </div>
   </div>
 </template>
