@@ -16,6 +16,9 @@ export class Locus {
     cromossomo: Cromossomo;
     meta: Meta = new Meta();
     sites: Locus[] = new Array<Locus>();
+    fase = 0;
+    start_aa = 0;
+    end_aa = 0;
 
     anotacoes: Array<Anotacao> = new Array<Anotacao>();
 
@@ -43,6 +46,28 @@ export class Locus {
     }
 
     getSites = () => this.sites;
+
+    siteFromAA(startAA, endAA): number[] {
+        // site fora
+        if (endAA < this.start_aa || startAA > this.end_aa)
+            return [0, 0]
+        // site extende
+        if (startAA <= this.start_aa && endAA >= this.end_aa) {
+            return [this.start, this.end]
+        }
+        const aas = (1 + endAA - startAA) * 3
+        const start = this.strand ?
+            (startAA <= this.start_aa ? this.start : (this.start + (startAA - this.start_aa) * 3 - (this.fase - 1))) :
+            (startAA <= this.start_aa ? this.end : (this.end - (startAA - this.start_aa) * 3 + (this.fase - 1)));
+        // site dentro
+        return this.strand ? [
+            start,
+            Math.min(start + aas, this.end)
+        ] : [
+            Math.max(start - aas, this.start),
+            start
+        ]
+    }
 
     public static fromGFF(chr: Cromossomo, raw: string[], nome: string): Locus {
         const start = parseInt(raw[3]);

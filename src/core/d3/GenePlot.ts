@@ -28,7 +28,7 @@ export class GenePlot extends AbstractCartesianPlot {
         const [X, W, Y, _, H] = this.getPoints(locus, R, viewBox).concat([11]);
         const rct = this.rect(X, Y + 1, W, H + 2, 'blue', 5)
         rct.append("title").text(locus.nome)
-        this.fillPattern(rct, 'cyan')
+        this.fillPattern(rct, 'cyan', 2)
     }
 
     plotIntron(intron: Intron, viewBox: ViewBox, R) {
@@ -42,7 +42,7 @@ export class GenePlot extends AbstractCartesianPlot {
 
         isoform.getIntrons().forEach(i => this.plotIntron(i, viewBox.addPaddingY(20), R))
         isoform.getExons().forEach(e => this.plotExon(e, viewBox.addPaddingY(20), R))
-        isoform.getCDS().getLoci().forEach(cds => this.plotCDS(cds, viewBox.addPaddingY(20), R))
+        isoform.hasCDS() && isoform.getCDS().getLoci().forEach(cds => this.plotCDS(cds, viewBox.addPaddingY(20), R))
         isoform.getAnots().forEach(a => a.toLoci(isoform).forEach(l => this.plotDomain(l, viewBox.addPaddingY(20), R)))
     }
 

@@ -33,16 +33,16 @@ export class Fill {
         return this;
     }
 
-    setPattern(defs, c = "black", w = 1) {
+    setPattern(defs, c = "black", t = 1) {
         defs.append("pattern")
             .attr("id", this.id)
             .attr("patternUnits", "userSpaceOnUse")
             .attr("width", 4)
             .attr("height", 4)
             .append("path")
-            .attr("d", "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2")
+            .attr("d", t === 1 ? "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" : "M0,0 l5,5")
             .attr("stroke", c)
-            .attr("stroke-width", w);
+            .attr("stroke-width", 1);
         return this;
     }
 
@@ -57,8 +57,8 @@ export class Fill {
         return new Fill('G' + cor, cor).setGradient(c2, defs, r);
     }
 
-    static getPattern(defs, cor?, r?) {
-        return new Fill('P' + cor, cor).setPattern(defs, cor, r);
+    static getPattern(defs, cor?, t?) {
+        return new Fill('P' + cor, cor).setPattern(defs, cor, t);
     }
 
 }
@@ -86,6 +86,7 @@ export class Canvas {
         this.svg = d3
             .select(`#${this.elID}`)
             .append("svg")
+            .attr('id', `SVG${this.elID}`)
             .style("background", this.bg)
             .attr("width", this.viewBox.getViewSize().width)
             .attr("height", this.viewBox.getViewSize().height)
@@ -186,12 +187,19 @@ export class Canvas {
         item.attr("fill", `url(#${fill.id})`)
     }
 
-    fillPattern(item, cor, r?) {
+    fillPattern(item, cor, t?) {
         var fill = this.fiils.some(x => x.id === `defP${cor}`) ? this.fiils.filter(x => x.id === `defP${cor}`)[0] : null
         if (!fill) {
-            this.fiils.push(fill = Fill.getPattern(this.defs, cor, r))
+            this.fiils.push(fill = Fill.getPattern(this.defs, cor, t))
         }
         item.attr("fill", `url(#${fill.id})`)
+    }
+
+    download() {
+        var serializer = new XMLSerializer();
+        var xmlString = serializer.serializeToString(d3.select(`#SVG${this.elID}`).node());
+        // var imgData = 'data:image/svg+xml;base64,' + btoa(xmlString);
+        return xmlString
     }
 
 }

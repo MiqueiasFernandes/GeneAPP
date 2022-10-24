@@ -1,3 +1,4 @@
+import { Isoforma } from "../locus/Isoforma";
 import { Locus } from "../locus/Locus";
 
 export class Anotacao {
@@ -14,7 +15,14 @@ export class Anotacao {
     }
 
     get = (k) => this.anotations[k];
-    toLoci = (locus: Locus): Locus[] => [];
+    toLoci(iso: Isoforma): Locus[] {
+        const loci = [];
+        if (!this.anotations || !this.anotations['start'] || !this.anotations['stop'])
+            return loci;
+        const parts = iso.getCDS().project(this.anotations['start'], this.anotations['stop'])
+        parts.forEach(p => loci.push(new Locus(iso.cromossomo, Math.min(...p), Math.max(...p), iso.strand, 'Anotpart')))
+        return loci;
+    };
 
 
     public setLocus(locus: Locus) {
@@ -97,6 +105,6 @@ export class Anotacao {
         path && path.length > 3 && path.split('|').map(pa => pa.trim()).forEach(pa => {
             anotacoes.push(new Anotacao('Pathway', pa.split(':')[0], { acession: pa.split(':')[1] }))
         });
-        return anotacoes;
+        return anotacoes.filter(a => a.key && a.value);
     }
 }

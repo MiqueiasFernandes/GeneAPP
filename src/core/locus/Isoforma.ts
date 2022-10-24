@@ -25,6 +25,7 @@ export class Isoforma extends Locus {
     getExons = () => this.exons;
     getUTR = () => [this.five_prime_utr, this.three_prime_utr];
     getGene = () => this.gene;
+    hasCDS = () => !!this.cds;
 
     update(gene: Gene): Isoforma {
         this.gene = gene;

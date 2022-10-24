@@ -12,44 +12,59 @@
 </route>
           
 <script setup>
+import { DownloadIcon } from '@heroicons/vue/solid'
 import { onMounted } from 'vue';
 import { PROJETO } from "../core/State";
 import { GenePlot, Padding, ViewBox } from '../core/d3';
+import { Arquivo } from '../core/utils/Arquivo';
 
 useHead({ title: 'Genes' });
 
 const genes = ref([])
 const gene = ref(null)
 const idx = ref(0);
+const plotou = ref(false)
+var GENE_PLOT = null;
 
 function setGene(g) {
     const gx = gene.value = g;
     const vb = ViewBox.fromSize(800, (g.getIsoformas().length + 1) * 50, Padding.simetric(5).center())
-    new GenePlot('plotg', vb).plot(gx)
+    GENE_PLOT = new GenePlot('plotg', vb)
+    GENE_PLOT.plot(gx)
+    plotou.value = true;
 }
 
 const next = () => idx.value < genes.value.length - 1 && ++idx.value && setGene(genes.value[idx.value]);
 const prev = () => idx.value > 0 && --idx.value && setGene(genes.value[idx.value]);
 
 onMounted(() => {
-    genes.value = PROJETO.getALLGenes().filter(x => x.getAnots.length>0);
+    plotou.value = false;
+    genes.value = PROJETO.getALLGenes().filter(x => x.getAnots.length > 0);
 })
+
+function baixar() {
+    GENE_PLOT && Arquivo.download('grafico.svg', GENE_PLOT.download(), 'image/svg+xml');
+}
+
 
 </script>
         
 <template>
-    <div class="bg-gray-50  text-center">
-
-        <div class="p-2 bg-sky-50 m-4  max-w-xl rounded-2xl px-8
-            flex flex-wrap justify-center justify-evenly content-evenly drop-shadow-md">
-            <Button color="blue" @click="prev" class="mx-2">Prev</Button>
-            <Button color="blue" @click="next" class="mx-2">Next</Button>
+    <div class="p-4 bg-gray-100 grid grid-cols-1">
+        <div class="w-full flex justify-center">
+            <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md w-1/2 flex justify-evenly">
+                <Button color="blue" @click="prev" class="mx-2">Prev</Button>
+                <Button :disable="!plotou" color="blue" @click="baixar">
+                    <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
+                </Button>
+                <Button color="blue" @click="next" class="mx-2">Next</Button>
+            </div>
         </div>
 
-        <div class="min-w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center min-w-xxl">
-            <div id="plotg"></div>
+        <hr class="my-2" />
+        <div id="plotg" class="w-full flex justify-center">
+            <Imagem></Imagem>
         </div>
-
     </div>
 </template>
         
