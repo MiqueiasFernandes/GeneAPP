@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { CDS, Exon, Gene, Intron, Isoforma, Locus } from "../model";
+import { CDS, Exon, Gene, Intron, Isoforma, Locus, Projeto } from "../model";
 import { AbstractCartesianPlot } from "./AbstractPlot";
 import { Canvas } from "./Canvas";
 import { ViewBox } from "./Size";
@@ -51,7 +51,7 @@ export class GenePlot extends AbstractCartesianPlot {
     getW = (l: Locus, R) => this.getX1(l, R) - this.getX0(l, R)
     getPoints = (l: Locus, R, v: ViewBox) => [this.getX0(l, R), this.getW(l, R), v.getBoxY0(), v.getBoxSize().height]
 
-    plot(gene: Gene): Canvas {
+    plot(gene: Gene, projeto?: Projeto): Canvas {
         if (!gene) return
 
         const viewBox = this.viewBox.addPadding(5, 5).center();
@@ -79,12 +79,28 @@ export class GenePlot extends AbstractCartesianPlot {
             })
         }
 
+        const gnY = boxGene.getBoxY0() + GH * .7
+        const dm = 16
+        const ro = dm / 2
+        const ttpm = (t) => t[1] > 0 ? `(${t[1]}) TPM μ ${t[0]}` : ` ${gene.meta['NID']} ?`
+        if (projeto) {
+            const tpmC = projeto.getCtrl().getTPMgene(gene.meta['NID'])
+            const tpmT = projeto.getTrat().getTPMgene(gene.meta['NID'])
+
+            this.circ(5 + boxGene.getBoxX0(), gnY + ro / 2, ro, 'white').attr('stroke', 'black')
+            this.circ(5 + boxGene.getBoxX0(), gnY + ro / 2, ro, projeto.getCtrl().cor).attr('opacity', .5).append("title").text(ttpm(tpmC))
+
+            this.circ(8 + boxGene.getBoxX0() + dm, gnY + ro / 2, ro, 'white').attr('stroke', 'black')
+            this.circ(8 + boxGene.getBoxX0() + dm, gnY + ro / 2, ro, projeto.getTrat().cor).attr('opacity', .5).append("title").text(ttpm(tpmT))
+        }
+        this.text(boxGene.getBoxX0() + dm * 2 + 4, gnY + ro / 2, gene.nome, { vc: 1, fs: '.8rem', b: 1 })
+
+
         const regua = this.line({ v: 0, y1: boxGene.getBoxY0() + 10, y2: viewBox.getBoxY1() + 5, c: "gray", x1: null, x2: null, h: null });
         const ctext = this.text(0, boxGene.getBoxY1() + 5, '').attr('font-size', '.5rem')
         const RM = 2
         const RW = boxGene.getBoxSize().width + RM * 2
         const pbPpx = gene.size / RW
-        this.text(boxGene.getBoxX0(), boxGene.getBoxY0() + GH * .7, gene.nome, { vc: 1, fs: '.8rem', b: 1 })
         this.rect(boxGene.getBoxX0() - RM, boxGene.getBoxY0() + GH * .3, RW, 8)
             .on('mousemove', coord => {
                 regua &&

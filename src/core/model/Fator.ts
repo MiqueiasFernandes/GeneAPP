@@ -21,12 +21,13 @@ class Sample {
             .map(r => [r["@"], r[`${this.fator}.${this.nome}`]])
             .forEach(r => ((gene ? this.tpm_genes : this.tpm_trans)[r[0]] = parseFloat(r[1])));
     }
+
 }
 
 export class Fator {
     nome: String;
     samples: Array<Sample> = new Array<Sample>();
-    cor: String;
+    cor: string;
     is_control = false;
     is_case = false;
 
@@ -40,4 +41,11 @@ export class Fator {
 
     setControl = () => this.is_control = true;
     setCase = () => this.is_case = true;
+
+
+    getTPMgene(gene) {
+        const tpms = this.samples.map(s => s.tpm_genes[gene]).filter(t => t && t > 0)
+        const m = (t) => Math.round(t.reduce((a, b) => a + b, 0) / t.length)
+        return tpms.length > 0 ? [m(tpms), tpms.length] : [0, 0]
+    }
 }
