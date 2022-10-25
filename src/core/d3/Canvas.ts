@@ -197,10 +197,18 @@ export class Canvas {
     }
 
     public download() {
-        var serializer = new XMLSerializer();
-        var xmlString = serializer.serializeToString(d3.select(`#SVG${this.elID}`).node());
+        const serializer = new XMLSerializer();
+        if (serializer) {
+            const svg = d3.select(`#SVG${this.elID}`);
+            if (svg) {
+                const node = svg.node()
+                if (node) {
+                    return serializer.serializeToString(node);
+                }
+            }
+        }
         // var imgData = 'data:image/svg+xml;base64,' + btoa(xmlString);
-        return xmlString
+        return null
     }
 
 }

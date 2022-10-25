@@ -12,7 +12,8 @@
 </route>
           
 <script setup>
-import { DownloadIcon, BeakerIcon, ChatIcon } from '@heroicons/vue/solid'
+import { BeakerIcon, ChatIcon } from '@heroicons/vue/solid'
+import { CursorClickIcon, DownloadIcon } from '@heroicons/vue/outline';
 import { onMounted } from 'vue';
 import { PROJETO } from "../core/State";
 import { GenePlot, Padding, ViewBox } from '../core/d3';
@@ -32,6 +33,9 @@ function setGene(g) {
     GENE_PLOT = new GenePlot('plotg', vb)
     GENE_PLOT.plot(gx, PROJETO)
     plotou.value = true;
+    const plt = {}
+    plt[gx.nome + '.svg'] = { data: GENE_PLOT.download(), tipo: 'image/svg+xml' }
+    PROJETO.addResultados(plt)
 }
 
 function start() {
@@ -48,7 +52,7 @@ const prev = () => (idx.value > 0) && setGene(genes.value[--idx.value]);
 onMounted(start)
 
 function baixar() {
-    GENE_PLOT && Arquivo.download('grafico.svg', GENE_PLOT.download(), 'image/svg+xml');
+    GENE_PLOT && Arquivo.download(genes.value[idx.value].nome + '.svg', GENE_PLOT.download(), 'image/svg+xml');
 }
 
 </script>
@@ -58,14 +62,15 @@ function baixar() {
         <div class="w-full flex justify-center">
             <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md w-1/2 flex justify-evenly">
                 <BeakerIcon class="h-8 w-8 m-1 text-slate-500"></BeakerIcon>
-                <Button color="blue" @click="prev" class="mx-2">Prev</Button>
+                <Button color="blue" @click="prev" class="mx-2" :disable="!plotou || idx < 1">Prev</Button>
                 <Button :disable="!plotou" color="blue" @click="baixar">
                     <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
                 </Button>
                 <Button :disable="!plotou" color="blue" @click="baixar">
                     <ChatIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Anots
                 </Button>
-                <Button color="blue" @click="next" class="mx-2">Next</Button>
+                <Button color="blue" @click="next" class="mx-2"
+                    :disable="!plotou || idx > (genes.length - 2)">Next</Button>
                 <span class="bg-slate-500/75 rounded-full  text-white inline-flex items-center justify-center p-2">{{
                         idx + 1
                 }}/{{ genes.length }}</span>
@@ -73,8 +78,11 @@ function baixar() {
         </div>
 
         <hr class="my-2" />
+        <Button class="m-4 w-24" v-if="!plotou" @click="start()">
+            <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Plot
+        </Button>
         <div id="plotg" class="w-full flex justify-center">
-            <Imagem></Imagem>
+            <Imagem class="m-32"></Imagem>
         </div>
     </div>
 </template>

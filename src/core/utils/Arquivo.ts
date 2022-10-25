@@ -43,7 +43,7 @@ export class Arquivo {
         input.click();
     }
 
-    static download(filename, data, type = 'text/txt') {
+    static download(filename, data, type = 'text/txt', end = () => true) {
         const blob = new Blob([data], { type });
         if ((window.navigator as any).msSaveOrOpenBlob) {
             (window.navigator as any).msSaveBlob(blob, filename);
@@ -55,6 +55,7 @@ export class Arquivo {
             document.body.appendChild(elem);
             elem.click();
             document.body.removeChild(elem);
+            end()
         }
     }
 }

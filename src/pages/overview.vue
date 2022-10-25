@@ -13,8 +13,8 @@
       
 <script setup>
 import { onMounted, onUpdated, ref } from 'vue';
-import { TableIcon, PresentationChartLineIcon, ArrowDownIcon } from '@heroicons/vue/solid';
-import { CursorClickIcon } from '@heroicons/vue/outline';
+import { TableIcon, PresentationChartLineIcon } from '@heroicons/vue/solid';
+import { CursorClickIcon, DownloadIcon } from '@heroicons/vue/outline';
 import {
     Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, FunilPlot,
     BarPlot, BarPlotVertical, ViolinPlot, AreaPlot, UpsetPlot, DendogramPlot
@@ -288,6 +288,10 @@ function criar() {
         const texp = plotEx(wC);
         plotGs(wC, texp);
         plotFilo(wC);
+        projeto.addResultados(Object.fromEntries(Object.entries(plots).filter(([_, X]) => X.download())
+            .map(([K, V]) => [K + '.svg', {
+                data: V.download(), tipo: 'image/svg+xml'
+            }])))
     }, 300);
 }
 
@@ -325,7 +329,6 @@ const rows = [
     { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
     { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
 ];
-
 
 
 </script>
@@ -382,7 +385,7 @@ const rows = [
                                     <span class="mx-4"> {{ grafico.titulo }}</span>
                                     <button @click="plots[grafico.id].baixar(grafico.id + '.svg')"
                                         class="place-self-end bg-white dark:bg-slate-800 p-2 w-8 h-8 ring-1 ring-slate-900/5 dark:ring-slate-200/20 shadow-md rounded-full flex items-center justify-center">
-                                        <ArrowDownIcon class="w-6 h-6 text-violet-500" />
+                                        <DownloadIcon class="w-6 h-6 text-violet-500" />
                                     </button>
                                 </div>
                             </div>

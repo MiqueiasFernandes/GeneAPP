@@ -13,7 +13,7 @@
           
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
-import { CursorClickIcon, ArrowDownIcon } from '@heroicons/vue/outline';
+import { CursorClickIcon, DownloadIcon } from '@heroicons/vue/outline';
 import {
     Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical,
     Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot, WordCloudPlot, TreePlot
@@ -584,6 +584,10 @@ function criar() {
         plotPTC();
         wordCloud();
         plotTr();
+        projeto.addResultados(Object.fromEntries(Object.entries(plots).filter(([_, X]) => X.download())
+            .map(([K, V]) => [K + '.svg', {
+                data: V.download(), tipo: 'image/svg+xml'
+            }])))
     }, 300);
 }
 
@@ -597,12 +601,19 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-            <Tabs :names="['table', 'chart']" active="table">
+            <Tabs :names="['table', 'table2', 'chart']" active="table">
 
                 <template #table>
-                    <TableIcon class="mr-2 w-5 h-5" /> Table
+                    <TableIcon class="mr-2 w-5 h-5" /> AS Details
                 </template>
                 <template #tableContent>
+                    tabela
+                </template>
+
+                <template #table2>
+                    <TableIcon class="mr-2 w-5 h-5" /> Anottaion table
+                </template>
+                <template #table2Content>
                     tabela
                 </template>
 
@@ -626,7 +637,7 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                                     <span class="mx-4"> {{ grafico.titulo }}</span>
                                     <button @click="plots[grafico.id].baixar(grafico.id + '.svg')"
                                         class="place-self-end bg-white dark:bg-slate-800 p-2 w-8 h-8 ring-1 ring-slate-900/5 dark:ring-slate-200/20 shadow-md rounded-full flex items-center justify-center">
-                                        <ArrowDownIcon class="w-6 h-6 text-violet-500" />
+                                        <DownloadIcon class="w-6 h-6 text-violet-500" />
                                     </button>
                                 </div>
                             </div>

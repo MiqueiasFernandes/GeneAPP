@@ -10,6 +10,7 @@ import { UTR } from "../locus/UTR";
 import { Fator } from "./Fator";
 import { AlternativeSplicing, AS3dranseq, ASrmats } from "./AlternativeSplicing";
 import { DifferentialExpression } from "./DifferentialExpression";
+import { Arquivo } from "../utils/Arquivo";
 
 export class Projeto {
     nome: String;
@@ -35,6 +36,8 @@ export class Projeto {
     Significant_DE_genes;
     private ptc: CSV;
     private filogenia;
+    private resultados = {};
+    private baixando = false;
 
 
     constructor(nome: string) {
@@ -65,6 +68,20 @@ export class Projeto {
         fator.is_control = this.fatores.length < 1;
         fator.is_case = this.fatores.length > 0;
         this.fatores.some(f => f.nome === fator.nome) || this.fatores.push(fator);
+    }
+    addResultados(res) {
+        Object.entries(res).forEach(([K, V]) => this.resultados[K] = V)
+    }
+
+    hasResults = () => Object.keys(this.resultados).length > 0
+    download() {
+        this.baixando = true;
+        const items = Object.keys(this.resultados)
+        var tmp = null
+        const baixar = () => Arquivo.download(tmp = items.pop(), this.resultados[tmp].data, this.resultados[tmp].tipo, () => {
+            (this.baixando = items.length > 0) && setTimeout(baixar, 3000);
+        })
+        baixar();
     }
 
     setDesign(csv: CSV) {

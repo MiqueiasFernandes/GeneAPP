@@ -1,7 +1,7 @@
 <script setup>
 
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { MenuIcon, XIcon } from '@heroicons/vue/outline'
+import { MenuIcon, XIcon, DownloadIcon } from '@heroicons/vue/outline'
 import { BeakerIcon } from '@heroicons/vue/solid'
 import { PROJETO, MODALS } from "./core/State";
 
@@ -113,7 +113,12 @@ const pages = (router) => router.options.routes
         <h1 @click="counter = 0" class="text-3xl font-bold leading-tight text-gray-900">
           {{ $route.meta.description }}
         </h1>
-        <h5>{{ PROJETO.nome }}</h5>
+        <h5 class="flex content-center  items-center">{{ PROJETO.nome }}
+          <button @click="PROJETO.download()" v-if="PROJETO.hasResults()" :disabled="PROJETO.baixando"
+            class="mx-2 place-self-end bg-white dark:bg-slate-800 p-2 w-8 h-8 ring-1 ring-slate-900/5 dark:ring-slate-200/20 shadow-md rounded-full flex items-center justify-center">
+            <DownloadIcon class="w-6 h-6 text-violet-500" />
+          </button>
+        </h5>
       </div>
     </header>
     <main>
