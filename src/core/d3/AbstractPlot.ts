@@ -1,3 +1,4 @@
+import { Arquivo } from "../utils/Arquivo";
 import { Canvas } from "./Canvas";
 import { ViewBox } from "./Size";
 
@@ -30,6 +31,10 @@ export abstract class AbstractPlot extends Canvas {
     hidleAx() {
         this.show_ax = false;
         return this;
+    }
+
+    baixar(nome?: string) {
+        Arquivo.download(nome || 'grafico.svg', super.download(), 'image/svg+xml');
     }
 
     abstract plot(data: any): Canvas;

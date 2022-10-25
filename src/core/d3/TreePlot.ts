@@ -35,7 +35,7 @@ export class TreePlot extends AbstractPlot {
             .attr("stroke", 'black')
             .attr("width", d => d.x1 - d.x0)
             .attr("height", d => d.y1 - d.y0)
-            .append("title").text(d => d.data.path);
+            .append("title").text(d => d.data.lab || d.data.path);
 
         return this;
     }

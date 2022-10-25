@@ -13,7 +13,7 @@
           
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
-import { CursorClickIcon } from '@heroicons/vue/outline';
+import { CursorClickIcon, ArrowDownIcon } from '@heroicons/vue/outline';
 import {
     Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical,
     Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot, WordCloudPlot, TreePlot
@@ -22,7 +22,7 @@ import { PROJETO } from "../core/State";
 useHead({ title: 'Overview' });
 
 const projeto = PROJETO;
-
+const plots = {}
 const show = ref(false);
 const graficos = [
     [
@@ -70,7 +70,7 @@ function plotDE() {
         .setColor(de[3] ? 'red' : de[2] <= .05 ? 'black' : 'orange')
         .setSize(de[3] ? 2 : 1)
     );
-    new ScatterPlot('graphDe', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+    plots['graphDe'] = new ScatterPlot('graphDe', ViewBox.fromSize(W * 2, H, new Padding(30, 5, 30, 5)))
         .setYlim([0, 5])
         .setXlim([-5, 5])
         .hidleAx()
@@ -87,7 +87,7 @@ function plotDA() {
             .setSize(de[3] ? 2 : 1)
         );
 
-    new ScatterPlot('graphDa', ViewBox.fromSize(W * 1.5, H, new Padding(30, 30, 30, 40)))
+    plots['graphDa'] = new ScatterPlot('graphDa', ViewBox.fromSize(W * 1.5, H, new Padding(30, 30, 30, 40)))
         .setYlim([0, 5])
         .setXlim([-.8, .8])
         .hidleAx()
@@ -104,7 +104,7 @@ function plotDAr() {
                 .setForm(x[4] === 'RI' ? 'x' : x[4] === 'SE' ? 'w' : 'o')
         )
 
-    new ScatterPlot('graphDar', ViewBox.fromSize(W * 1.5, H, new Padding(30, 30, 30, 40)))
+    plots['graphDar'] = new ScatterPlot('graphDar', ViewBox.fromSize(W * 1.5, H, new Padding(30, 30, 30, 40)))
         .setYlim([0, 5])
         .setXlim([-.8, .8])
         .hidleAx()
@@ -161,7 +161,7 @@ function plotBar() {
             genes: genes_count(a5ss)
         }
     ]
-    new BarPlotVertical('graphBar', ViewBox.fromSize(W * 2, H, Padding.simetric(10).toLeft(60).toBottom(20)))
+    plots['graphBar'] = new BarPlotVertical('graphBar', ViewBox.fromSize(W * 2, H, Padding.simetric(10).toLeft(60).toBottom(20)))
         .setX('tipo')
         .setY('eventos')
         .setY2('genes')
@@ -189,7 +189,7 @@ function plotScater() {
             .setForm(x[4] === 'RI' ? 'x' : x[4] === 'SE' ? 'w' : 'o')
     )
 
-    new ScatterPlot('graphScr', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+    plots['graphScr'] = new ScatterPlot('graphScr', ViewBox.fromSize(W * 1.5, H, new Padding(30, 30, 30, 40)))
         .setYlim([0, 5])
         .setXlim([-.8, .8])
         .hidleAx()
@@ -229,7 +229,7 @@ function plotHeatmap() {
         .plot(controle_filt)
 
     const gsel = [...new Set(controle_filt.map(o => o.x))]
-    new Heatmap()
+    plots['graphHm'] = new Heatmap()
         .setCanvas(canvas, box[1].toPadding(new Padding(30, 10, 20, 40)))
         .plot(dtrat.filter(d => gsel.includes(d.x)))
 }
@@ -272,7 +272,7 @@ function plotHeatmapIso() {
     const dt1 = controle_filt;
     const dt2 = dtrat.filter(d => gsel.includes(d.x));
     const pd = new Padding(30, 20, 0, 120)
-    new Heatmap()
+    plots['graphHm2'] = new Heatmap()
         .setCanvas(canvas, box[0].toPadding(pd))
         .plot(dt1, (x) => lab_conv[x], true)
 
@@ -320,13 +320,13 @@ function plotLk() {
         nodes: nodes.map(g => ({ id: g.nome, group: g.group })), links
     }
 
-    new GraphPlot('graphLk', ViewBox.fromSize(W * 4, H * 2))
+    plots['graphLk'] = new GraphPlot('graphLk', ViewBox.fromSize(W * 4, H * 2))
         .plot(data);
 }
 
 function plotCov() {
 
-    const viewBox = ViewBox.fromSize(W * 3, H, Padding.simetric(20).toLeft(20));
+    const viewBox = ViewBox.fromSize(W * 2.5, H, Padding.simetric(20).toLeft(20));
     const canvas = new Canvas('graphCov', viewBox)
     const box = viewBox.splitY()
 
@@ -358,7 +358,7 @@ function plotCov() {
         })
     })
 
-    new LinesPlot()
+    plots['graphCov'] = new LinesPlot()
         .setX('x')
         .setY('y')
         .setCanvas(canvas, box[0].addPaddingY(30))
@@ -411,7 +411,7 @@ function plotVen() {
 
     const das = [...new Set(projeto.getDASGenes().map(x => x.getGene().meta.NID))];
     const des = [...new Set(projeto.Significant_DE_genes.map(x => x['target']))];
-    new VennPlot('graphVen', ViewBox.fromSize(W * 2.5, H, Padding.simetric(50)))
+    plots['graphVen'] = new VennPlot('graphVen', ViewBox.fromSize(W * 2.5, H, Padding.simetric(50)))
         .plot({
             'A': des.filter(d => !das.includes(d)).length,
             'B': das.filter(d => !des.includes(d)).length,
@@ -452,7 +452,7 @@ function plotDEA() {
         new Point(d.dps, d.log2fc).setSize(-Math.log10(d.qvalue) * .5).interpolate(-Math.log10(d.qvalue2) / 3)
     )
 
-    new ScatterPlot('graphDea', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
+    plots['graphDea'] = new ScatterPlot('graphDea', ViewBox.fromSize(W * 2, H, new Padding(30, 30, 30, 40)))
         .setYlim([-2, 2])
         .setXlim([-.8, .8])
         .plot(data)
@@ -472,7 +472,7 @@ function plotTop() {
     const ri = rmats.filter(x => x.tipo === 'RI');
     const se = rmats.filter(x => x.tipo === 'SE');
 
-    const viewBox = ViewBox.fromSize(W * 5, H, new Padding(50, 10, 100, 50))
+    const viewBox = ViewBox.fromSize(W * 4.5, H, new Padding(50, 10, 100, 50))
     const canvas = new Canvas('graphTop', viewBox)
     const boxes = viewBox.splitX(5)
     const top = dt => dt.slice(0, 10)
@@ -480,7 +480,7 @@ function plotTop() {
 
     boxes.forEach((box, i) => {
 
-        const bars = new BarPlot()
+        const bars = plots['graphTop'] = new BarPlot()
             .setX('gene')
             .setY('absdpsi')
             .setYlim([0, 1])
@@ -533,7 +533,7 @@ function plotPTC() {
         'PTC found at end of retained intron': fim,
     }
 
-    new PiePlot().setCanvas(canvas, boxes[0]).plot(data1)
+    plots['graphPie'] = new PiePlot().setCanvas(canvas, boxes[0]).plot(data1)
     new PiePlot().setCanvas(canvas, boxes[1]).plot(data2)
 
 }
@@ -544,7 +544,7 @@ function wordCloud() {
     projeto.getALLASIsos().map(i => i.getAnotsText('InterPro').forEach(a => words = words.concat(a.split(' '))))
     projeto.getALLASIsos().map(i => i.getAnotsText('Pfam').forEach(a => words = words.concat(a.split(' '))))
 
-    new WordCloudPlot('graphWc', ViewBox.fromSize(W * 3, H, Padding.simetric(20)))
+    plots['graphWc'] = new WordCloudPlot('graphWc', ViewBox.fromSize(W * 3, H, Padding.simetric(20)))
         .plot(words)
 
 }
@@ -553,13 +553,14 @@ function plotTr() {
 
     const pfam = Object.entries([...new Set(projeto
         .getALLASIsos().map(
-            i => i.getAnots('InterPro').map(p => `${i.nome};${p.value};${p.anotations.stop - p.anotations.start}`)
-        ).reduce((p, c) => p.concat(c)))].map(x => x.split(';')).map(x => [x[1], parseInt(x[2])])
-        .reduce((p, c) => { p[c[0]] ? (p[c[0]] += c[1]) : (p[c[0]] = c[1]); return p }, {}))
+            i => i.getAnots('InterPro').map(p => `${i.nome};${p.value};${p.anotations.stop - p.anotations.start};${p.anotations.text}`)
+        )
+        .reduce((p, c) => p.concat(c)))].map(x => x.split(';')).map(x => [x[1], parseInt(x[2]), x[3]])
+        .reduce((p, c) => { p[c[0]] ? (p[c[0]][0] += c[1]) : (p[c[0]] = [c[1], c[2]]); return p }, {}))
         .filter(x => x && x[0].startsWith('IPR'))
-        .map(x => ({ path: x[0], value: x[1], link: `https://www.ebi.ac.uk/interpro/entry/InterPro/${x[0]}/` }))
+        .map(x => ({ path: x[0], value: x[1][0], link: `https://www.ebi.ac.uk/interpro/entry/InterPro/${x[0]}/`, lab: x[1][1] }))
 
-    new TreePlot('graphTr', ViewBox.fromSize(W * 2, H, Padding.simetric(0)))
+    plots['graphTr'] = new TreePlot('graphTr', ViewBox.fromSize(W * 2.5, H, Padding.simetric(0)))
         .plot(pfam);
 
 
@@ -596,7 +597,7 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-            <Tabs :names="['table', 'chart']" active="chart">
+            <Tabs :names="['table', 'chart']" active="table">
 
                 <template #table>
                     <TableIcon class="mr-2 w-5 h-5" /> Table
@@ -617,10 +618,16 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                         <div class="flex flex-wrap justify-center justify-evenly content-evenly"
                             v-for="row in graficos">
                             <div class="m-4 rounded-md shadow-md bg-gray-200" v-for="grafico in row">
-                                <div class="w-full flex justify-center" :id="grafico.id"></div>
+                                <div class="w-full flex justify-center" :id="grafico.id">
+                                    <Imagem class="m-8"></Imagem>
+                                </div>
                                 <div
-                                    class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center ">
-                                    {{grafico.titulo}}
+                                    class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center flex  items-center justify-center">
+                                    <span class="mx-4"> {{ grafico.titulo }}</span>
+                                    <button @click="plots[grafico.id].baixar(grafico.id + '.svg')"
+                                        class="place-self-end bg-white dark:bg-slate-800 p-2 w-8 h-8 ring-1 ring-slate-900/5 dark:ring-slate-200/20 shadow-md rounded-full flex items-center justify-center">
+                                        <ArrowDownIcon class="w-6 h-6 text-violet-500" />
+                                    </button>
                                 </div>
                             </div>
                         </div>

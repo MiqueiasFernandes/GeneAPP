@@ -1,11 +1,11 @@
 import * as d3 from "d3";
 import { CDS, Exon, Gene, Intron, Isoforma, Locus, Projeto } from "../model";
-import { AbstractCartesianPlot } from "./AbstractPlot";
+import { AbstractPlot } from "./AbstractPlot";
 import { AreaPlot } from "./AreaPlot";
 import { Canvas } from "./Canvas";
 import { Padding, ViewBox } from "./Size";
 
-export class GenePlot extends AbstractCartesianPlot {
+export class GenePlot extends AbstractPlot {
 
     plotExon(exon: Exon, viewBox: ViewBox, R) {
         const [X, W, Y, _, H] = this.getPoints(exon, R, viewBox).concat([15]);

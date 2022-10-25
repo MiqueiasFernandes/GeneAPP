@@ -13,7 +13,7 @@
       
 <script setup>
 import { onMounted, onUpdated, ref } from 'vue';
-import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
+import { TableIcon, PresentationChartLineIcon, ArrowDownIcon } from '@heroicons/vue/solid';
 import { CursorClickIcon } from '@heroicons/vue/outline';
 import {
     Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, FunilPlot,
@@ -44,9 +44,7 @@ function plotQC(wC) {
         .mapCol("FastQC_mqc-generalstats-fastqc-percent_fails", parseFloat)
         .getRows();
 
-    //const boxs = viewBox.splitX(2, 10);
-
-    new BarPlotRadial()
+    plots['graphQc'] = new BarPlotRadial()
         .setX("Sample")
         .setY("FastQC_mqc-generalstats-fastqc-total_sequences")
         .setY3("FastQC_mqc-generalstats-fastqc-avg_sequence_length")
@@ -72,7 +70,7 @@ function plotRd(wC) {
 
     const viewBox = ViewBox.fromSize(W, H, Padding.simetric(20));
 
-    new RadarPlot('graphRd', viewBox)
+    plots['graphRd'] = new RadarPlot('graphRd', viewBox)
         .setFill(x => { const cs = { "ASGENES": 'red', "CDS": 'green', "Genoma": 'yellow', xpto: 'yellow', smp5: 'orange', smp6: 'gray' }; return cs[x] })
         .plot({
             "ASGENES": Object.fromEntries(as_genes),
@@ -89,7 +87,7 @@ function plotMp(wC) {
 
     const data = projeto.getResumo('AS genes encontrados | so rMATS')[0].split('|');
 
-    new VennPlot('graphMp', viewBox)
+    plots['graphMp'] = new VennPlot('graphMp', viewBox)
         .plot(Object.fromEntries(data.map((x, i) =>
             i == 1 ? ['A', parseInt(x.split('rMATS ')[1].trim())] :
                 i == 2 ? ['B', parseInt(x.split('3DRNASEQ ')[1].trim())] :
@@ -108,7 +106,7 @@ function plotGs(wC, texp) {
     const as = parseInt(projeto.getResumo('Genes com AS anotado:')[0].split(': ')[1]);
     const here = parseInt(projeto.getResumo('AS genes encontrados | so rMATS')[0].split('Total : ')[1].split(' ')[0])
 
-    new FunilPlot('graphAs', viewBox).plot([
+    plots['graphAs'] = new FunilPlot('graphAs', viewBox).plot([
         { step: 1, name: 'Total Gene repertory', value: total },
         { step: 2, name: 'Protein Coding', value: cod },
         { step: 3, name: 'A.S. annotated', value: as },
@@ -146,7 +144,7 @@ function plotGc(wC) {
         ///conferir se esta calibrado
         ///obs = ',20'.repeat(10000).slice(1).split(',').map(x => parseInt(x)).concat(obs)
 
-        new ViolinPlot()
+        plots['graphGc'] = new ViolinPlot()
             .setCanvas(canvas, box.addPaddingY(20).toPadding(Padding.left(30)))
             .setTitle(t)
             .setColor(_ => 'mediumspringgreen')
@@ -179,7 +177,7 @@ function plotCv(wC) {
         })
     });
 
-    new AreaPlot('graphCv', viewBox)
+    plots['graphCv'] = new AreaPlot('graphCv', viewBox)
         .setColor(d => projeto.getFatorBySample(d.key).cor)
         .plot(covs, 100);
 }
@@ -219,7 +217,7 @@ function plotAn(wC) {
         { tipo: 'Other', genes: [...new Set(data.Other.genes)].length, anotacao: [...new Set(data.Other.anotacao)].length },
     ];
 
-    new BarPlotVertical('graphAn', viewBox)
+    plots['graphAn'] = new BarPlotVertical('graphAn', viewBox)
         .setX('tipo')
         .setY('genes')
         .setY2('anotacao')
@@ -255,7 +253,7 @@ function plotEx(wC) {
 
     data[''] = parseInt(projeto.getResumo('Genes com AS anotado:').map(x => x.split(':')[1])[0].trim());
 
-    new UpsetPlot('graphUp', viewBox)
+    plots['graphUp'] = new UpsetPlot('graphUp', viewBox)
         .plot(data, {
             'a': projeto.fatores[0].nome,
             'b': projeto.fatores[1].nome
@@ -272,7 +270,7 @@ function plotFilo(wC) {
     const data = projeto.getFilogenia();
     if (!data) return;
 
-    new DendogramPlot('graphFi', viewBox).plot(data)
+    plots['graphFi'] = new DendogramPlot('graphFi', viewBox).plot(data)
 }
 
 const show = ref(false);
@@ -296,6 +294,7 @@ function criar() {
 onMounted(() => (show.value = false) || (setTimeout(() => criar(), 300)))
 onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 300)))
 
+const plots = {}
 const graficos = [
     [
         { id: 'graphUp', titulo: 'Gene expression' },
@@ -336,14 +335,31 @@ const rows = [
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
 
-            <Tabs :names="['table', 'chart']" active="chart">
+            <Tabs :names="['table', 'table2', 'table3', 'chart']" active="table">
 
                 <template #table>
-                    <TableIcon class="mr-2 w-5 h-5" /> Table
+                    <TableIcon class="mr-2 w-5 h-5" /> Pipeline results
                 </template>
                 <template #tableContent>
-                    <Table class="m-4" :cols="cols" :rows="rows"></Table>
+                    <Table class="my-4" :cols="cols" :rows="rows"></Table>
                 </template>
+
+                <template #table2>
+                    <TableIcon class="mr-2 w-5 h-5" /> Experimental design
+                </template>
+                <template #table2Content>
+                    <Table class="my-4" :cols="cols" :rows="rows"></Table>
+                </template>
+
+                <template #table3>
+                    <TableIcon class="mr-2 w-5 h-5" /> Gene repertory
+                </template>
+                <template #table3Content>
+                    <Table class="my-4" :cols="cols" :rows="rows"></Table>
+                </template>
+
+
+
 
                 <template #chart>
                     <PresentationChartLineIcon class="mr-2 w-5 h-5" /> Graphics
@@ -358,10 +374,16 @@ const rows = [
                         <div class="flex flex-wrap justify-center justify-evenly content-evenly"
                             v-for="row in graficos">
                             <div class="m-4 rounded-md shadow-md bg-gray-200" v-for="grafico in row">
-                                <div class="w-full flex justify-center" :id="grafico.id"></div>
+                                <div class="w-full flex justify-center" :id="grafico.id">
+                                    <Imagem class="m-8"></Imagem>
+                                </div>
                                 <div
-                                    class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center ">
-                                    {{grafico.titulo}}
+                                    class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center flex  items-center justify-center">
+                                    <span class="mx-4"> {{ grafico.titulo }}</span>
+                                    <button @click="plots[grafico.id].baixar(grafico.id + '.svg')"
+                                        class="place-self-end bg-white dark:bg-slate-800 p-2 w-8 h-8 ring-1 ring-slate-900/5 dark:ring-slate-200/20 shadow-md rounded-full flex items-center justify-center">
+                                        <ArrowDownIcon class="w-6 h-6 text-violet-500" />
+                                    </button>
                                 </div>
                             </div>
                         </div>

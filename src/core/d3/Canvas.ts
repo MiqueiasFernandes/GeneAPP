@@ -196,7 +196,7 @@ export class Canvas {
         item.attr("fill", `url(#${fill.id})`)
     }
 
-    download() {
+    public download() {
         var serializer = new XMLSerializer();
         var xmlString = serializer.serializeToString(d3.select(`#SVG${this.elID}`).node());
         // var imgData = 'data:image/svg+xml;base64,' + btoa(xmlString);

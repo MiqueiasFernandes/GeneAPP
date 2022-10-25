@@ -61,7 +61,6 @@ function setExperimento() {
     botoes: [{ text: 'OK', action: () => true, end: importar }]
   })
 
-
 }
 
 onBeforeMount(() => projeto.reset())

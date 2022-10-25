@@ -41,7 +41,7 @@ export class BarPlot extends AbstractCartesianPlot {
 
         this.svg
             .append('g')
-            .attr("transform", `translate(0,${this.viewBox.getBoxY1()+2})`)
+            .attr("transform", `translate(0,${this.viewBox.getBoxY1() + 2})`)
             .call(d3.axisBottom(X))
             .selectAll("text")
             .attr("transform", "translate(-10,0)rotate(-45)")
@@ -111,6 +111,7 @@ export class BarPlot extends AbstractCartesianPlot {
         this.text(this.viewBox.getBoxX0() + 12, this.viewBox.getBoxY1() + 15 + pt, ly1.t, { fs: '.8rem', vc: 1, vco: 'central' })
         ly2 && this.rect(this.viewBox.getBoxX0() + 100, this.viewBox.getBoxY1() + 10 + pt, 10, 10, ly2.c)
         ly2 && this.text(this.viewBox.getBoxX0() + 112, this.viewBox.getBoxY1() + 15 + pt, ly2.t, { fs: '.8rem', vc: 1, vco: 'central' })
+        return this
     }
 
 }
@@ -353,7 +354,7 @@ export class BarPlotRadial extends BarPlot {
         fnLab(d => d[this.x_var], -50, '.8rem', 'white');
         fnLab((d) => this.y2lab(d[this.y2_var]), -95, '.5rem', 'gray');
         this.text(this.viewBox.getBoxCenter()[0], this.viewBox.getBoxCenter()[1], this.title, { hc: 1, vc: 1, fs: '2rem', b: 1 })
-        return this.svg;
+        return this;
     }
 
 }
