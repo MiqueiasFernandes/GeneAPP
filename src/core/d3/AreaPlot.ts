@@ -4,6 +4,13 @@ import { Canvas } from "./Canvas";
 
 export class AreaPlot extends AbstractPlot {
 
+    contorno = 1;
+
+    stroke(s = 1) {
+        this.contorno = s;
+        return this;
+    }
+
     plot(data: any, maxx?, order = (x) => x): Canvas {
 
         const categorias = order(Object.keys(data));
@@ -28,12 +35,12 @@ export class AreaPlot extends AbstractPlot {
         const Y = d3.scaleLinear([min_y, max_y], [this.viewBox.getBoxSize().height, 0])
         //const C = d3.interpolateCool
 
-        this.svg
+        this.show_ax && this.svg
             .append("g")
             .attr("transform", `translate(${this.viewBox.getBoxX0()},${this.viewBox.getBoxY1()})`)
             .call(d3.axisBottom(X));
 
-        this.svg
+        this.show_ax && this.svg
             .append("g")
             .attr("transform", `translate(${this.viewBox.getBoxX0()},${this.viewBox.getBoxY0()})`)
             .call(d3.axisLeft(Y));
@@ -54,7 +61,7 @@ export class AreaPlot extends AbstractPlot {
             .attr("d", area)
             .attr("fill", d => this.color(d))
             .style("stroke", "lightgrey")
-            .style("stroke-width", "1px")
+            .style("stroke-width", this.contorno + "px")
 
         return this;
     }

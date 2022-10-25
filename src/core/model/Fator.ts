@@ -36,16 +36,17 @@ export class Fator {
         const dt = raw.split(',').reverse();
         this.nome = dt[0].slice(1, -1).split(".")[0];
         this.samples = dt.slice(1).map(x => new Sample(x.split('/')[0]));
-        this.cor = color || "#ff2486";
+        this.cor = color || "#0ab6ff";
     }
 
     setControl = () => this.is_control = true;
     setCase = () => this.is_case = true;
 
 
-    getTPMgene(gene) {
-        const tpms = this.samples.map(s => s.tpm_genes[gene]).filter(t => t && t > 0)
+    getTPM(id, tpG = true) {
+        const tpms = this.samples.map(s => tpG ? s.tpm_genes[id] : s.tpm_trans[id]).filter(t => t && t > 0)
         const m = (t) => Math.round(t.reduce((a, b) => a + b, 0) / t.length)
         return tpms.length > 0 ? [m(tpms), tpms.length] : [0, 0]
     }
+
 }

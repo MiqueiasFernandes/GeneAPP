@@ -61,7 +61,7 @@ export class Projeto {
     getPTC = () => this.ptc ? this.ptc.getRows() : [];
     getFilogenia = () => this.filogenia;
     addFator(raw: string) {
-        const fator = new Fator(raw, this.fatores.length > 0 ? "#0ab6ff" : null);
+        const fator = new Fator(raw, this.fatores.length > 0 ? "#ff2486" : null);
         fator.is_control = this.fatores.length < 1;
         fator.is_case = this.fatores.length > 0;
         this.fatores.some(f => f.nome === fator.nome) || this.fatores.push(fator);

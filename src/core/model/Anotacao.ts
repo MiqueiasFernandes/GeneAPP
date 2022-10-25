@@ -20,7 +20,7 @@ export class Anotacao {
         if (!this.anotations || !this.anotations['start'] || !this.anotations['stop'])
             return loci;
         const parts = iso.getCDS().project(this.anotations['start'], this.anotations['stop'])
-        parts.forEach(p => loci.push(new Locus(iso.cromossomo, Math.min(...p), Math.max(...p), iso.strand, 'Anotpart')))
+        parts.forEach(p => loci.push(new Locus(iso.cromossomo, Math.min(...p), Math.max(...p), iso.strand, this.value + ': ' + this.anotations['text'])))
         return loci;
     };
 

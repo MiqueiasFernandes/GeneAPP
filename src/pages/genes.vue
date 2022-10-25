@@ -28,7 +28,7 @@ var GENE_PLOT = null;
 
 function setGene(g) {
     const gx = gene.value = g;
-    const vb = ViewBox.fromSize(800, (g.getIsoformas().length + 1) * 50, Padding.simetric(5).center())
+    const vb = ViewBox.fromSize(800, (g.getIsoformas().length + 1) * 50 + 100, Padding.simetric(5).center())
     GENE_PLOT = new GenePlot('plotg', vb)
     GENE_PLOT.plot(gx, PROJETO)
     plotou.value = true;
@@ -42,8 +42,8 @@ function start() {
     }, 300);
 }
 
-const next = () => idx.value < genes.value.length - 1 && ++idx.value && setGene(genes.value[idx.value]);
-const prev = () => idx.value > 0 && --idx.value && setGene(genes.value[idx.value]);
+const next = () => (idx.value < (genes.value.length - 1)) && setGene(genes.value[++idx.value]);
+const prev = () => (idx.value > 0) && setGene(genes.value[--idx.value]);
 
 onMounted(start)
 

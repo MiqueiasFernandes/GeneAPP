@@ -31,6 +31,8 @@ export class Locus {
         this.nome = nome;
     }
 
+    public copy = () => new Locus(this.cromossomo, this.start, this.end, this.strand, this.nome)
+
     public getLocus = () => this;
 
     public add_anotacao(anotacao: Anotacao) {

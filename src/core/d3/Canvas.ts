@@ -137,6 +137,7 @@ export class Canvas {
         if (estilo.vc) txt.style("alignment-baseline", estilo.vco || 'central')
         if (estilo.c) txt.style('fill', estilo.c)
         if (estilo.s) txt.style('stroke', estilo.s)
+        if (estilo.o) txt.style('opacity', estilo.o)
         return txt;
     }
 
