@@ -3,7 +3,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { MenuIcon, XIcon } from '@heroicons/vue/outline'
 import { BeakerIcon } from '@heroicons/vue/solid'
-import { PROJETO } from "./core/State";
+import { PROJETO, MODALS } from "./core/State";
 
 const pages = (router) => router.options.routes
   .filter(x => parseInt(x.meta.ordem) > 0)
@@ -37,14 +37,14 @@ const pages = (router) => router.options.routes
           <div class="hidden sm:block sm:ml-6">
             <div class="flex space-x-4">
               <router-link v-for="item in pages($router)" :class="[
-              $route.meta.title === item.meta.title ? 
-              (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.fbgc) || 'bg-gray-900 text-white') : 
-              (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.hfbgc) || 'text-gray-300 hover:bg-gray-700 hover:text-white'), 
+              $route.meta.title === item.meta.title ?
+                (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.fbgc) || 'bg-gray-900 text-white') :
+                (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.hfbgc) || 'text-gray-300 hover:bg-gray-700 hover:text-white'),
               'px-3 py-2 rounded-md text-sm font-medium']"
                 :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined"
                 :to="((item.meta.rqproj) && (PROJETO.status < 1)) || ((item.meta.nqproj) && (PROJETO.status > 0)) ? '' : item.path">
                 {{
-                item.meta.title
+                    item.meta.title
                 }}</router-link>
             </div>
           </div>
@@ -129,4 +129,6 @@ const pages = (router) => router.options.routes
         para o Capitulo III da tese de doutorado submetida ao PPG Bioinformatica ICB/UFMG</span>
     </div>
   </div>
+
+  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :conteudo="modal.conteudo" :botoes="modal.botoes"></Modal>
 </template>

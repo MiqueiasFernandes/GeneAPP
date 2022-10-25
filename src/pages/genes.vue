@@ -12,7 +12,7 @@
 </route>
           
 <script setup>
-import { DownloadIcon, BeakerIcon } from '@heroicons/vue/solid'
+import { DownloadIcon, BeakerIcon, ChatIcon } from '@heroicons/vue/solid'
 import { onMounted } from 'vue';
 import { PROJETO } from "../core/State";
 import { GenePlot, Padding, ViewBox } from '../core/d3';
@@ -61,6 +61,9 @@ function baixar() {
                 <Button color="blue" @click="prev" class="mx-2">Prev</Button>
                 <Button :disable="!plotou" color="blue" @click="baixar">
                     <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
+                </Button>
+                <Button :disable="!plotou" color="blue" @click="baixar">
+                    <ChatIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Anots
                 </Button>
                 <Button color="blue" @click="next" class="mx-2">Next</Button>
                 <span class="bg-slate-500/75 rounded-full  text-white inline-flex items-center justify-center p-2">{{

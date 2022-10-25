@@ -14,7 +14,7 @@
 <script setup>
 import { ColorSwatchIcon } from '@heroicons/vue/solid';
 import { Arquivo } from '../core/utils/Arquivo';
-import { PROJETO } from "../core/State";
+import { PROJETO, MODALS } from "../core/State";
 import { onBeforeMount } from 'vue';
 
 useHead({ title: 'New Project' });
@@ -24,8 +24,7 @@ const percent = ref(-1);
 const file = ref(null);
 const raw_data = [];
 
-function setExperimento() {
-
+function importar() {
   Arquivo.importManyData(
     (raw, f, s) => {
       raw.split('\n').forEach(x => raw_data.push(x));
@@ -52,6 +51,17 @@ function setExperimento() {
     },
     files => files.sort((a, b) => a.name.localeCompare(b.name))[0]
   );
+}
+
+function setExperimento() {
+
+  MODALS.push({
+    titulo: 'Dados de amostra',
+    conteudo: 'Caso vc esteja usando dados de amostra vc precisa descompactar primeiro, e entaao carregar os 10 arquivos obtidos do arquivo comprimido.',
+    botoes: [{ text: 'OK', action: () => true, end: importar }]
+  })
+
+
 }
 
 onBeforeMount(() => projeto.reset())
@@ -88,7 +98,7 @@ onBeforeMount(() => projeto.reset())
             <Button v-if="fator.is_case"
               @click="fator.is_control = !(fator.is_case = !fator.is_case)">tratamento</Button>
 
-            <ColorSwatchIcon :style="{ color: fator.cor}" class="w-8 h-8 inline-flex rounded-full cursor-pointer border-4 border-white 
+            <ColorSwatchIcon :style="{ color: fator.cor }" class="w-8 h-8 inline-flex rounded-full cursor-pointer border-4 border-white 
               focus:outline-none focus:shadow-outline" @click="fator.show_cor = !fator.show_cor" />
             <input type="color" v-model="fator.cor" :hidden="!fator.show_cor">
           </FormCol>

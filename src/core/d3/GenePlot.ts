@@ -40,7 +40,7 @@ export class GenePlot extends AbstractCartesianPlot {
     plotIsoform(projeto: Projeto, isoform: Isoforma, viewBox: ViewBox, R) {
         const [X, W, Y, H] = this.getPoints(isoform, R, viewBox);
         const xt = this.plotTPM(projeto, X, Y + 5, isoform.meta['MRNA'], false, 15, 10)
-        this.text(xt + 6, Y + 7, isoform.nome, { vc: 1, fs: '.6rem', b: 1 })
+        this.text(xt + 6, Y + 7, isoform.meta['NID'] || isoform.nome, { vc: 1, fs: '.6rem', b: 1 })
 
         isoform.getIntrons().forEach(i => this.plotIntron(i, viewBox.addPaddingY(20), R))
         isoform.getExons().forEach(e => this.plotExon(e, viewBox.addPaddingY(20), R))
@@ -136,7 +136,7 @@ export class GenePlot extends AbstractCartesianPlot {
         const gnY = boxGene.getBoxY0() + GH * .7
         const xt = this.plotTPM(projeto, boxGene.getBoxX0(), gnY, gene.meta['NID'], true, 15)
         this.text(xt + 10, gnY + 4, gene.meta['NID'], { vc: 1, fs: '.8rem', b: 1 })
-        this.text(boxGene.getBoxX0() - 13, boxGene.getBoxY0() +20, gene.strand ? "5'" : "3'", { fs: '.6rem', b: 1, o: .5 })
+        this.text(boxGene.getBoxX0() - 13, boxGene.getBoxY0() + 20, gene.strand ? "5'" : "3'", { fs: '.6rem', b: 1, o: .5 })
         this.text(boxGene.getBoxX1() + 5, boxGene.getBoxY0() + 20, gene.strand ? "3'" : "5'", { fs: '.6rem', b: 1, o: .5 })
 
         const regua = this.line({ v: 0, y1: boxGene.getBoxY0() + 10, y2: viewBox.getBoxY1() + 5, c: "gray", x1: null, x2: null, h: null });
@@ -151,7 +151,7 @@ export class GenePlot extends AbstractCartesianPlot {
                     regua.attr("x2", coord.offsetX) &&
                     ctext.attr("transform",
                         `translate(${coord.offsetX + (coord.offsetX > boxGene.getBoxSize().width / 2 ? -5 : 5)},0)`)
-                        .text(Math.floor((gene.strand ? gene.start : gene.end) + ((coord.offsetX - 3 * RM -6) * pbPpx * (gene.strand ? 1 : -1))).toLocaleString())
+                        .text(Math.floor((gene.strand ? gene.start : gene.end) + ((coord.offsetX - 3 * RM - 6) * pbPpx * (gene.strand ? 1 : -1))).toLocaleString())
                         .style('text-anchor', coord.offsetX > boxGene.getBoxSize().width / 2 ? 'end' : 'start')
             })
 

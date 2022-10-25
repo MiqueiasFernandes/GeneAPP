@@ -304,6 +304,8 @@ export class Projeto {
                             if (adc[mrna.meta.ID]) {
                                 mrna.meta['MRNA'] = adc[mrna.meta.ID][0];
                                 mrna.meta['PTNA'] = adc[mrna.meta.ID][1];
+                                mrna.meta['NID'] = mrna.meta.ID
+                                this.gene_prefix > 0 && (mrna.meta['NID'] = mrna.meta.ID.replace('rna-', ''))
                                 this.isoformas_FASTA[mrna.meta['MRNA']] = mrna;
                             } else {
                                 console.warn(locus);
