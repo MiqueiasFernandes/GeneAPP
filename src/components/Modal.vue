@@ -49,7 +49,9 @@ function parseColor(color) {
                                             {{ titulo }}
                                         </DialogTitle>
                                         <div class="mt-2">
-                                            <p class="text-sm text-gray-500">{{ conteudo }}</p>
+                                            <p class="text-sm text-gray-500">
+                                                <slot />
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

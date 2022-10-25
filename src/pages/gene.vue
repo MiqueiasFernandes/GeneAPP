@@ -16,7 +16,7 @@ import axios from 'axios';
 import { onMounted } from 'vue';
 import { GenePlot, Padding, ViewBox } from '../core/d3';
 import { Anotacao, Gene } from '../core/model';
-import { PROJETO } from "../core/State";
+import { PROJETO, notificar } from "../core/State";
 import { Arquivo } from '../core/utils/Arquivo';
 useHead({ title: 'Gene View' });
 
@@ -40,7 +40,7 @@ function anotar() {
             const ipro = 'https://www.ebi.ac.uk/Tools/services/rest/iprscan5'
             axios.get(eutils.replace('@', ptn))
                 .then(res => {
-                    console.log('Proteina seq obtida da API do eutis/NCBI', ptn)
+                    notificar(`${ptn} obtida da API do eutis/NCBI`)
                     axios.postForm(
                         `${ipro}/run`, {
                         email: 'teste@teste.com',
@@ -51,7 +51,7 @@ function anotar() {
                         sequence: res.data.split('\n').slice(1).join('')
                     }).then(res => {
                         const job = res.data;
-                        console.log('Anotando pela API InterproScan5', job)
+                        notificar(`Job ${job.substring(0, 10)}... anotando pela API InterproScan5`, 'success', 60)
                         const itv = setInterval(() => {
                             axios.get(`${ipro}/status/${job}`).then(res => {
                                 if (res.data === 'FINISHED') {
@@ -76,6 +76,7 @@ function baixar() {
 
 function carregar() {
     if (query.id) {
+        notificar(`Carregando gene ${query.id} pelo NCBI`)
         const url = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&id=${query.id}&rettype=gene_table&retmode=text`;
         status.value = 'carregando gene ' + query.id
         axios.get(url)

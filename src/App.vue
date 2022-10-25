@@ -3,11 +3,12 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { MenuIcon, XIcon, DownloadIcon } from '@heroicons/vue/outline'
 import { BeakerIcon } from '@heroicons/vue/solid'
-import { PROJETO, MODALS } from "./core/State";
+import { PROJETO, MODALS, NOTIFICACOES } from "./core/State";
 
 const pages = (router) => router.options.routes
   .filter(x => parseInt(x.meta.ordem) > 0)
   .sort((a, b) => a.meta.ordem - b.meta.ordem);
+
 </script>
 
 <template>
@@ -135,5 +136,11 @@ const pages = (router) => router.options.routes
     </div>
   </div>
 
-  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :conteudo="modal.conteudo" :botoes="modal.botoes"></Modal>
+  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes">
+    {{ modal.conteudo }}
+  </Modal>
+  <Notificacao v-for="(notificacao, i) in NOTIFICACOES" :color="notificacao.color" :index="NOTIFICACOES.length - i"
+    :id="notificacao.id" :timeout="notificacao.timeout">
+    {{ notificacao.msg }}
+  </Notificacao>
 </template>
