@@ -45,7 +45,7 @@ const pages = (router) => router.options.routes
                 :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined"
                 :to="((item.meta.rqproj) && (PROJETO.status < 1)) || ((item.meta.nqproj) && (PROJETO.status > 0)) ? '' : item.path">
                 {{
-                    item.meta.title
+                item.meta.title
                 }}</router-link>
             </div>
           </div>
@@ -108,7 +108,7 @@ const pages = (router) => router.options.routes
 
   <!-- resolver pagina inicial / para start/ -->
 
-  <div class="min-h-screen">
+  <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow" v-if="$route.meta.title">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 @click="counter = 0" class="text-3xl font-bold leading-tight text-gray-900">
@@ -127,10 +127,14 @@ const pages = (router) => router.options.routes
     </main>
   </div>
 
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="bg-gray-800 fill-gray-100">
+    <path fill-opacity="1"
+      d="M0,128L34.3,154.7C68.6,181,137,235,206,234.7C274.3,235,343,181,411,186.7C480,192,549,256,617,282.7C685.7,309,754,299,823,250.7C891.4,203,960,117,1029,101.3C1097.1,85,1166,139,1234,154.7C1302.9,171,1371,149,1406,138.7L1440,128L1440,0L1405.7,0C1371.4,0,1303,0,1234,0C1165.7,0,1097,0,1029,0C960,0,891,0,823,0C754.3,0,686,0,617,0C548.6,0,480,0,411,0C342.9,0,274,0,206,0C137.1,0,69,0,34,0L0,0Z">
+    </path>
+  </svg>
 
   <div class="h-48 bg-gray-800 text-white">
-    <div
-      class=" mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8">
+    <div class=" mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8">
       <span class="text-xl font-extrabold ">Desenvolvido por <i class=" text-indigo-500 ">mikeias.net</i>
         para o Capitulo III da tese de doutorado submetida ao PPG Bioinformatica ICB/UFMG</span>
     </div>

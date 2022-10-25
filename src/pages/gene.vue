@@ -71,7 +71,7 @@ function anotar() {
 }
 
 function baixar() {
-    Arquivo.download('grafico.svg', GENE_PLOT.download(), 'image/svg+xml');
+    GENE_PLOT && Arquivo.download(GENE_PLOT.nome + '.svg', GENE_PLOT.download(), 'image/svg+xml');
 }
 
 function carregar() {

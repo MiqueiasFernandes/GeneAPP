@@ -70,8 +70,7 @@ onBeforeMount(() => projeto.reset())
 
 <template>
   <div class="w-full px-4 pt-4 mb-48">
-    <div class="mx-auto w-full max-w-xl rounded-2xl bg-white p-2">
-
+    <div class="mx-auto w-full max-w-xl rounded-2xl p-8">
       <Sanfona titulo="Configurar o projeto" :opened="true">
         <FormRow>
           <FormCol>
