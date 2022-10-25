@@ -15,7 +15,7 @@ useHead({ title: 'Get started on GeneAPP' })
   
 <template>
 
-  <div class="bg-gray-50 py-4">
+  <div class="py-4">
     <Titulo>
       <template #titulo>1. Experimental design</template>
       <template #subtitulo>Como fazer analise de DAS?</template>
@@ -79,7 +79,7 @@ useHead({ title: 'Get started on GeneAPP' })
     </div>
   </div>
 
-  <div class="bg-gray-100 py-4">
+  <div class="bg-gray-50 py-4">
     <Titulo>
       <template #titulo> 2. Gene APP Data Generation</template>
       <template #subtitulo>Como gerar dados para o GeneAPP?</template>
@@ -175,7 +175,7 @@ useHead({ title: 'Get started on GeneAPP' })
     </div>
   </div>
 
-  <div class="bg-gray-50 py-4">
+  <div class="bg-gray-100 py-4">
     <Titulo>
       <template #titulo>3. Screening AS Data from multiple approach</template>
       <template #subtitulo>Como usar o GeneAPP?</template>
@@ -200,6 +200,29 @@ useHead({ title: 'Get started on GeneAPP' })
           <li><span class="font-medium">Transcritos:</span> <span class="font-mono">teste de fonte</span></li>
           <li><span class="font-medium">Amostra:</span> <span class="font-mono">teste de fonte</span></li>
         </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gray-50 py-4">
+    <Titulo>
+      <template #titulo>4. Export and Share your results</template>
+      <template #subtitulo>Quais os proximos passos?</template>
+      <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+        <ButtonLink :href="'https://www.ncbi.nlm.nih.gov/'" :icon="false">
+          <FolderDownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+          Download Results
+        </ButtonLink>
+      </div>
+    </Titulo>
+    <div class="mx-auto max-w-screen-xl sm:px-6 lg:px-8 text-justify  lg:flex lg:items-center lg:justify-between ">
+      <div>
+        <p class="indent-3">
+          <span class=" font-extrabold">O </span>processament esse app foi desenv para encondtrar alvos apra validacao
+        </p>
+        <p class="indent-3">
+          <span class=" font-extrabold">T</span>validacao experimental, minha tese
+        </p>
       </div>
     </div>
   </div>

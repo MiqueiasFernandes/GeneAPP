@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-import { ExclamationIcon } from '@heroicons/vue/outline'
+import { ExclamationIcon, ExclamationCircleIcon } from '@heroicons/vue/outline'
 const props = defineProps({
     titulo: { default: "Atenção" },
     conteudo: { default: "Aprovar." },
@@ -10,7 +10,8 @@ const props = defineProps({
             { text: 'Sair', color: 'red', action: () => true },
             { text: 'Ficar' }
         ]
-    }
+    },
+    color: { default: 'info' }
 });
 const open = ref(true)
 
@@ -40,9 +41,17 @@ function parseColor(color) {
                             class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                                 <div class="sm:flex sm:items-start">
-                                    <div
-                                        class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                        <ExclamationIcon class="h-6 w-6 text-red-600" aria-hidden="true" />
+                                    <div v-if="color === 'danger'"
+                                        class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 sm:mx-0 sm:h-10 sm:w-10">
+                                        <ExclamationIcon class="h-6 w-6 text-rose-500" aria-hidden="true" />
+                                    </div>
+                                    <div v-if="color === 'warn'"
+                                        class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 sm:mx-0 sm:h-10 sm:w-10">
+                                        <ExclamationIcon class="h-6 w-6 text-amber-500" aria-hidden="true" />
+                                    </div>
+                                    <div v-if="color === 'info'"
+                                        class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-sky-100 sm:mx-0 sm:h-10 sm:w-10">
+                                        <ExclamationCircleIcon class="h-6 w-6 text-sky-500" aria-hidden="true" />
                                     </div>
                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                         <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">

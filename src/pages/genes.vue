@@ -15,7 +15,7 @@
 import { BeakerIcon, ChatIcon } from '@heroicons/vue/solid'
 import { CursorClickIcon, DownloadIcon } from '@heroicons/vue/outline';
 import { onMounted } from 'vue';
-import { PROJETO } from "../core/State";
+import { PROJETO, MODALS } from "../core/State";
 import { GenePlot, Padding, ViewBox } from '../core/d3';
 import { Arquivo } from '../core/utils/Arquivo';
 
@@ -49,11 +49,19 @@ function start() {
 const next = () => (idx.value < (genes.value.length - 1)) && setGene(genes.value[++idx.value]);
 const prev = () => (idx.value > 0) && setGene(genes.value[--idx.value]);
 
-onMounted(start)
-
 function baixar() {
     GENE_PLOT && Arquivo.download(genes.value[idx.value].nome + '.svg', GENE_PLOT.download(), 'image/svg+xml');
 }
+
+function dialog() {
+    MODALS.push({
+        titulo: 'Gene ' + (gene.value.meta['NID'] || gene.value.nome),
+        conteudo: 'dPSI, log2FC, rMATS? 3DRNASeq?, gos',
+        botoes: [{ text: 'OK', action: () => true, color: 'bg-indigo-500' }]
+    })
+}
+
+onMounted(start)
 
 </script>
         
@@ -66,7 +74,7 @@ function baixar() {
                 <Button :disable="!plotou" color="blue" @click="baixar">
                     <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
                 </Button>
-                <Button :disable="!plotou" color="blue" @click="baixar">
+                <Button :disable="!plotou" color="blue" @click="dialog">
                     <ChatIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Anots
                 </Button>
                 <Button color="blue" @click="next" class="mx-2"

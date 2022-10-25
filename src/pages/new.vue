@@ -14,7 +14,7 @@
 <script setup>
 import { ColorSwatchIcon } from '@heroicons/vue/solid';
 import { Arquivo } from '../core/utils/Arquivo';
-import { PROJETO, MODALS } from "../core/State";
+import { PROJETO, MODALS, notificar } from "../core/State";
 import { onBeforeMount } from 'vue';
 
 useHead({ title: 'New Project' });
@@ -36,7 +36,7 @@ function importar() {
           alert(`Carregou incorretamente. ERRO ${erros.join(', ')}`);
           window.location.href = window.location.href;
         }
-
+        notificar('Processando arquivos carregados')
         file.value = "Processando ...";
         const error = projeto.parseFiles(result, s => { (percent.value = s) > 99 && projeto.status++ });
         if (error) {
@@ -57,8 +57,9 @@ function setExperimento() {
 
   MODALS.push({
     titulo: 'Dados de amostra',
-    conteudo: 'Caso vc esteja usando dados de amostra vc precisa descompactar primeiro, e entaao carregar os 10 arquivos obtidos do arquivo comprimido.',
-    botoes: [{ text: 'OK', action: () => true, end: importar }]
+    color: 'warn',
+    conteudo: 'Caso vc esteja usando dados de amostra vc precisa descompactar primeiro, e entao carregar os 10 arquivos obtidos do arquivo comprimido.',
+    botoes: [{ text: 'OK', action: () => true, end: importar, color: 'bg-indigo-500' }]
   })
 
 }
@@ -69,7 +70,7 @@ onBeforeMount(() => projeto.reset())
 
 
 <template>
-  <div class="w-full px-4 pt-4 mb-48">
+  <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl p-8">
       <Sanfona titulo="Configurar o projeto" :opened="true">
         <FormRow>

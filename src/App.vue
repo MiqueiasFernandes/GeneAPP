@@ -39,13 +39,13 @@ const pages = (router) => router.options.routes
             <div class="flex space-x-4">
               <router-link v-for="item in pages($router)" :class="[
               $route.meta.title === item.meta.title ?
-                (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.fbgc) || 'bg-gray-900 text-white') :
+                (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.fbgc) || 'bg-gray-900 text-white border-slate-100 border') :
                 (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.hfbgc) || 'text-gray-300 hover:bg-gray-700 hover:text-white'),
               'px-3 py-2 rounded-md text-sm font-medium']"
                 :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined"
                 :to="((item.meta.rqproj) && (PROJETO.status < 1)) || ((item.meta.nqproj) && (PROJETO.status > 0)) ? '' : item.path">
                 {{
-                item.meta.title
+                    item.meta.title
                 }}</router-link>
             </div>
           </div>
@@ -108,8 +108,8 @@ const pages = (router) => router.options.routes
 
   <!-- resolver pagina inicial / para start/ -->
 
-  <div class="min-h-screen bg-gray-100">
-    <header class="bg-white shadow" v-if="$route.meta.title">
+  <div class="bg-gray-100">
+    <header class="bg-gray-50 shadow" v-if="$route.meta.title">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 @click="counter = 0" class="text-3xl font-bold leading-tight text-gray-900">
           {{ $route.meta.description }}
@@ -133,14 +133,14 @@ const pages = (router) => router.options.routes
     </path>
   </svg>
 
-  <div class="h-48 bg-gray-800 text-white">
-    <div class=" mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8">
-      <span class="text-xl font-extrabold ">Desenvolvido por <i class=" text-indigo-500 ">mikeias.net</i>
+  <div class="bg-gray-800 text-white">
+    <div class="px-4 py-32 flex justify-center">
+      <span class="text-xl font-extrabold">Desenvolvido por <i class=" text-indigo-500 ">mikeias.net</i>
         para o Capitulo III da tese de doutorado submetida ao PPG Bioinformatica ICB/UFMG</span>
     </div>
   </div>
 
-  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes">
+  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color">
     {{ modal.conteudo }}
   </Modal>
   <Notificacao v-for="(notificacao, i) in NOTIFICACOES" :color="notificacao.color" :index="NOTIFICACOES.length - i"
