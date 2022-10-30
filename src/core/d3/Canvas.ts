@@ -33,7 +33,7 @@ export class Fill {
         return this;
     }
 
-    setPattern(defs, c = "black", t = 1) {
+    setPattern(defs, c = "black", t = 1, o = 1) {
         defs.append("pattern")
             .attr("id", this.id)
             .attr("patternUnits", "userSpaceOnUse")
@@ -42,7 +42,8 @@ export class Fill {
             .append("path")
             .attr("d", t === 1 ? "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" : "M0,0 l5,5")
             .attr("stroke", c)
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1)
+            .attr("opacity", o);
         return this;
     }
 
@@ -57,8 +58,8 @@ export class Fill {
         return new Fill('G' + cor, cor).setGradient(c2, defs, r);
     }
 
-    static getPattern(defs, cor?, t?) {
-        return new Fill('P' + cor, cor).setPattern(defs, cor, t);
+    static getPattern(defs, cor?, t?, o?) {
+        return new Fill('P' + cor, cor).setPattern(defs, cor, t, o);
     }
 
 }
@@ -188,10 +189,10 @@ export class Canvas {
         item.attr("fill", `url(#${fill.id})`)
     }
 
-    fillPattern(item, cor, t?) {
+    fillPattern(item, cor, t?, o?) {
         var fill = this.fiils.some(x => x.id === `defP${cor}`) ? this.fiils.filter(x => x.id === `defP${cor}`)[0] : null
         if (!fill) {
-            this.fiils.push(fill = Fill.getPattern(this.defs, cor, t))
+            this.fiils.push(fill = Fill.getPattern(this.defs, cor, t, o))
         }
         item.attr("fill", `url(#${fill.id})`)
     }

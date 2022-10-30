@@ -13,6 +13,9 @@ export class Gene extends Locus {
     private dexp: DifferentialExpression = null;
     private anots;
     private canonic: Isoforma;
+    private has_bed = false;
+
+    getNome = () => this.meta['NID'] || this.nome
 
     getAS = () => this.as_events;
 
@@ -46,11 +49,14 @@ export class Gene extends Locus {
             this.bed[raw[0]] = [[parseInt(raw[2]), parseInt(raw[3]), parseInt(raw[4])]]
         else
             this.bed[raw[0]].push([parseInt(raw[2]), parseInt(raw[3]), parseInt(raw[4])])
+        this.has_bed = true
     }
 
     getBED = (site?: number[]) => site ? Object.fromEntries(Object.entries(this.bed).map(x => [x[0],
     x[1].filter(b => b[0] >= site[0] && b[1] <= site[1])
     ])) : this.bed;
+
+    hasBED = () => this.has_bed
 
     getAnots = (t?) => this.anots || (this.anots = [... new Set(this.isoformas.map(i => i.getAnotsAcession(t)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?'))
 

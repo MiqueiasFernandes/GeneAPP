@@ -3,70 +3,93 @@ import { CDS, Exon, Gene, Intron, Isoforma, Locus, Projeto } from "../model";
 import { AbstractPlot } from "./AbstractPlot";
 import { AreaPlot } from "./AreaPlot";
 import { Canvas } from "./Canvas";
-import { Padding, ViewBox } from "./Size";
+import { ViewBox } from "./Size";
 
 export class GenePlot extends AbstractPlot {
 
-    plotExon(exon: Exon, viewBox: ViewBox, R) {
-        const [X, W, Y, _, H] = this.getPoints(exon, R, viewBox).concat([15]);
-        const rct = this.rect(X, Y, W, H, 'blue', 8)
+    exon = (X, Y, W, H, c = 'green', s = 2) => {
+        const form = this.rect(X, Y - s * 2, W, H, 'blue', 8)
             .attr('stroke', 'black')
-            .attr('stroke-width', '2px')
-        rct.append("title").text(exon.nome)
-        this.fillGradient(rct, 'green')
+            .attr('stroke-width', s + 'px')
+        this.fillGradient(form, c)
+        return form
     }
 
-    plotCDS(cds: Locus, viewBox: ViewBox, R) {
-        const [X, W, Y, _, H] = this.getPoints(cds, R, viewBox).concat([11]);
-        const rct = this.rect(X, Y + 1, W, H + 2, 'blue', 5)
+    cds = (X, Y, W, H, s = 2) => {
+        const rct = this.rect(X, Y - s * 1.5, W, H + 2, 'blue', 5)
             .attr('stroke', 'black')
             .attr('stroke-width', '2px')
-        rct.append("title").text(cds.nome)
         this.fillGradient(rct, 'blue')
+        return rct;
     }
 
-    plotDomain(locus: Locus, viewBox: ViewBox, R) {
+    domain = (X, Y, W, H, s = 2, o = .3) => {
+        const rct = this.rect(X, Y - s * 1.5, W, H + 2, 'blue', 5)
+        this.fillPattern(rct, 'cyan', 2, o)
+        return rct
+    }
+
+    plotExon(exon: Exon, viewBox: ViewBox, R, c?, s?) {
+        const [X, W, Y, _, H] = this.getPoints(exon, R, viewBox).concat([15]);
+        const rct = this.exon(X, Y, W, H, c, s)
+        rct.append("title").text(exon.nome)
+    }
+
+    plotCDS(cds: Locus, viewBox: ViewBox, R, s?) {
+        const [X, W, Y, _, H] = this.getPoints(cds, R, viewBox).concat([11]);
+        const rct = this.cds(X, Y, W, H, s)
+        rct.append("title").text(cds.nome)
+    }
+
+    plotDomain(locus: Locus, viewBox: ViewBox, R, s?) {
         const [X, W, Y, _, H] = this.getPoints(locus, R, viewBox).concat([11]);
-        const rct = this.rect(X, Y + 1, W, H + 2, 'blue', 5)
+        const rct = this.domain(X, Y, W, H, s)
         rct.append("title").text(locus.nome)
-        this.fillPattern(rct, 'cyan', 2)
     }
 
-    plotIntron(intron: Intron, viewBox: ViewBox, R) {
+    plotIntron(intron: Intron, viewBox: ViewBox, R, c = 'black') {
         const [X, W, Y, _, H] = this.getPoints(intron, R, viewBox).concat([15]);
-        this.wave(X, Y + 3, W, 'black', 4).append("title").text(intron.nome)
+        this.wave(X, Y - 1, W, c, 4).append("title").text(intron.nome)
     }
 
     plotIsoform(projeto: Projeto, isoform: Isoforma, viewBox: ViewBox, R) {
-        const [X, W, Y, H] = this.getPoints(isoform, R, viewBox);
-        const xt = this.plotTPM(projeto, X, Y + 5, isoform.meta['MRNA'], false, 15, 10)
-        this.text(xt + 6, Y + 7, isoform.meta['NID'] || isoform.nome, { vc: 1, fs: '.6rem', b: 1 })
+        const [vbTitle, vbIso] = viewBox.splitY()
+        const vbT = vbTitle.addPaddingY(vbTitle.getBoxSize().height / 2).addPaddingX(R(isoform.start))
+        const xt = this.plotTPM(projeto, vbT, isoform.meta['MRNA'], false)
+        this.text(xt + 6, vbT.getBoxCenter()[1], isoform.meta['NID'] || isoform.nome,
+            { vc: 1, fs: '.6rem', b: 1, c: 'white', s: 'white' }).style('filter', 'blur(2px)').style('stroke-width', '4px')
+        this.text(xt + 6, vbT.getBoxCenter()[1], isoform.meta['NID'] || isoform.nome, { vc: 1, fs: '.6rem', b: 1 })
 
-        isoform.getIntrons().forEach(i => this.plotIntron(i, viewBox.addPaddingY(20), R))
-        isoform.getExons().forEach(e => this.plotExon(e, viewBox.addPaddingY(20), R))
-        isoform.hasCDS() && isoform.getCDS().getLoci().forEach(cds => this.plotCDS(cds, viewBox.addPaddingY(20), R))
-        isoform.getAnots().forEach(a => a.toLoci(isoform).forEach(l => this.plotDomain(l, viewBox.addPaddingY(20), R)))
+        isoform.getIntrons().forEach(i => this.plotIntron(i, vbIso, R))
+        isoform.getExons().forEach(e => this.plotExon(e, vbIso, R))
+        isoform.hasCDS() && isoform.getCDS().getLoci().forEach(cds => this.plotCDS(cds, vbIso, R))
+        isoform.getAnots().forEach(a => a.toLoci(isoform).forEach(l => this.plotDomain(l, vbIso, R)))
     }
 
-    plotTPM(projeto, x, y, id, gene = true, paddingX = 5, dm = 16) {
-        const ro = dm / 2
+    plotTPM(projeto, vb: ViewBox, id, gene = true) {
+        var x = vb.getBoxX0();
+        if (!projeto)
+            return x
+
+        const dm = vb.getBoxSize().height * .6
+        const ro = Math.round(dm / 2)
+        x += ro
+        const HM = vb.getBoxCenter()[1]
         const ttpm = (t) => t[1] > 0 ? `(${t[1]}) TPM μ ${t[0]}` : ` ${id} ?`
-        var x;
-        if (projeto) {
-            const tpmC = projeto.getCtrl().getTPM(id, gene)
-            const tpmT = projeto.getTrat().getTPM(id, gene)
+        const tpmC = projeto.getCtrl().getTPM(id, gene)
+        const tpmT = projeto.getTrat().getTPM(id, gene)
 
-            this.circ(paddingX + x, y + ro / 2, ro, 'white').attr('stroke', 'black')
-            this.circ(paddingX + x, y + ro / 2, ro, projeto.getCtrl().cor)
-                .attr('opacity', tpmC[0] > tpmT[0] ? 1 : .3)
-                .append("title").text(ttpm(tpmC))
+        this.circ(x, HM, ro, 'white').attr('stroke', 'black')
+        this.circ(x, HM, ro, projeto.getCtrl().cor)
+            .attr('opacity', tpmC[0] > tpmT[0] ? 1 : .3)
+            .append("title").text(ttpm(tpmC))
 
-            this.circ(paddingX + 3 + x + dm, y + ro / 2, ro, 'white').attr('stroke', 'black')
-            this.circ(x = (paddingX + 3 + x + dm), y + ro / 2, ro, projeto.getTrat().cor)
-                .attr('opacity', tpmT[0] > tpmC[0] ? 1 : .3)
-                .append("title").text(ttpm(tpmT))
-        }
-        return x + 3;
+        this.circ(3 + x + dm, HM, ro, 'white').attr('stroke', 'black')
+        this.circ(x = (3 + x + dm), HM, ro, projeto.getTrat().cor)
+            .attr('opacity', tpmT[0] > tpmC[0] ? 1 : .3)
+            .append("title").text(ttpm(tpmT))
+
+        return x + ro + 5;
     }
 
     plotLocus(gene: Locus, l: Locus, viewBox: ViewBox, R) {
@@ -75,12 +98,12 @@ export class GenePlot extends AbstractPlot {
         l.end = Math.min(gene.end, l.end)
         l.strand = gene.strand
         const [X, W, _, __] = this.getPoints(l, R, viewBox);
-        this.wave(X, viewBox.getBoxY1() - 100, W, 'orangered', 2).append("title").text(l.nome)
+        this.wave(X, viewBox.getBoxCenter()[1], W, 'orangered', 2).append("title").text(l.nome)
     }
 
-    plotBED(R, gene: Gene, viewBox: ViewBox, projeto) {
-        console.log()
-        const dt = {}
+    plotBED(gene: Gene, viewBox: ViewBox, projeto: Projeto) {
+        const dtC = {}
+        const dtT = {}
         Object.entries(gene.getBED()).forEach(([E, D]) => {
             const dx = []
             for (let i = 0; i <= gene.size; i++) {
@@ -90,75 +113,212 @@ export class GenePlot extends AbstractPlot {
                 for (let i = x[0]; i < ((k < a.length - 1) ? (a[k + 1][0] - 1) : x[1]); i++)
                     dx[i] = x[2]
             })
-            dt[E] = dx
+            if (projeto.getCtrl().samples.map(s => s.nome).includes(E)) {
+                dtC[E] = dx
+            } else {
+                dtT[E] = dx
+            }
         })
+
+        const [boxT, boxC] = viewBox.splitY()
+
         new AreaPlot()
             .stroke(.1)
-            .setCanvas(this, viewBox.toPadding(new Padding(viewBox.getBoxSize().height - 85, 0, 0, 0)))
+            .setCanvas(this, boxT)
             .setColor(d => projeto.getFatorBySample(d.key).cor)
             .hidleAx()
-            .plot(dt)
+            .plot(dtT)
+
+        new AreaPlot()
+            .stroke(.1)
+            .reverse(true)
+            .setCanvas(this, boxC)
+            .setColor(d => projeto.getFatorBySample(d.key).cor)
+            .hidleAx()
+            .plot(dtC)
     }
 
     getX0 = (l: Locus, R) => R(l.strand ? l.start : l.end)
     getX1 = (l: Locus, R) => R(l.strand ? l.end : l.start)
     getW = (l: Locus, R) => this.getX1(l, R) - this.getX0(l, R)
-    getPoints = (l: Locus, R, v: ViewBox) => [this.getX0(l, R), this.getW(l, R), v.getBoxY0(), v.getBoxSize().height]
+    getPoints = (l: Locus, R, v: ViewBox, h = 6) => [this.getX0(l, R), this.getW(l, R), v.getBoxCenter()[1] - h / 2, h]
 
-    plot(gene: Gene, projeto?: Projeto): Canvas {
-        if (!gene) return
-
-        const viewBox = this.viewBox.addPadding(15, 5).center();
-        const GH = 40
-        const boxGene = viewBox.withHeight(GH)
+    plotScala(vb: ViewBox, gene: Gene, legendH: number, PB_ZERO = 15) {
+        const MH = vb.getBoxCenter()[1]
 
         const R = d3
             .scaleLinear()
             .domain([gene.start, gene.end])
             .range(gene.strand ?
-                [boxGene.getBoxX0(), boxGene.getBoxX1()] :
-                [boxGene.getBoxX1(), boxGene.getBoxX0()]);
+                [vb.getBoxX0(), vb.getBoxX1()] :
+                [vb.getBoxX1(), vb.getBoxX0()]);
 
         this.svg
             .append('g')
-            .attr("transform", `translate(0,${boxGene.getBoxY0() + GH * .4})`)
+            .attr("transform", `translate(0,${MH})`)
             .call(d3.axisTop(R))
             .selectAll("text")
             .attr('font-size', '.5rem');
 
-        if (gene.isAS()) {
-            gene.getCanonic().getSites().forEach(s => {
-                const rct = this.rect(this.getX0(s, R), boxGene.getBoxY1() + 13, this.getW(s, R), viewBox.getBoxSize().height - 52)
-                this.fillPattern(rct, 'gray')
-            })
-        }
 
-        const gnY = boxGene.getBoxY0() + GH * .7
-        const xt = this.plotTPM(projeto, boxGene.getBoxX0(), gnY, gene.meta['NID'], true, 15)
-        this.text(xt + 10, gnY + 4, gene.meta['NID'], { vc: 1, fs: '.8rem', b: 1 })
-        this.text(boxGene.getBoxX0() - 13, boxGene.getBoxY0() + 20, gene.strand ? "5'" : "3'", { fs: '.6rem', b: 1, o: .5 })
-        this.text(boxGene.getBoxX1() + 5, boxGene.getBoxY0() + 20, gene.strand ? "3'" : "5'", { fs: '.6rem', b: 1, o: .5 })
+        const regua = this.line({ v: -100, y1: MH, y2: vb.full().getBoxY1() - legendH, c: "gray", x1: null, x2: null, h: null });
+        const ctext = this.text(0, vb.getBoxY1() - 2, '').attr('font-size', '.6rem')
 
-        const regua = this.line({ v: 0, y1: boxGene.getBoxY0() + 10, y2: viewBox.getBoxY1() + 5, c: "gray", x1: null, x2: null, h: null });
-        const ctext = this.text(0, boxGene.getBoxY1() + 10, '').attr('font-size', '.5rem')
-        const RM = 2
-        const RW = boxGene.getBoxSize().width + RM * 2
+        const RM = 3
+        const RW = vb.getBoxSize().width + RM * 2
         const pbPpx = gene.size / RW
-        this.rect(boxGene.getBoxX0() - RM, boxGene.getBoxY0() + GH * .3, RW, 8)
-            .on('mousemove', coord => {
-                regua &&
-                    regua.attr("x1", coord.offsetX) &&
-                    regua.attr("x2", coord.offsetX) &&
-                    ctext.attr("transform",
-                        `translate(${coord.offsetX + (coord.offsetX > boxGene.getBoxSize().width / 2 ? -5 : 5)},0)`)
-                        .text(Math.floor((gene.strand ? gene.start : gene.end) + ((coord.offsetX - 3 * RM - 6) * pbPpx * (gene.strand ? 1 : -1))).toLocaleString())
-                        .style('text-anchor', coord.offsetX > boxGene.getBoxSize().width / 2 ? 'end' : 'start')
-            })
+        // const pb = (c) => Math.floor((gene.strand ? gene.start : gene.end) + (c * pbPpx * (gene.strand ? 1 : -1)))
+        // var pb2 = c => pb(c)
+        // const limitS = (x) => x > 0 && x <= gene.size ? x : ''
+        // const calcS = gene.strand ? ((c) => limitS(1 + pb(c) - gene.start)) : ((c) => limitS(gene.size - (pb(c) - gene.start)))
+        // var modg = false
 
-        const boxes = viewBox.addPaddingY(GH + 10).toPadding(new Padding(0, 0, projeto ? 100 : 0, 0)).splitY(gene.getIsoformas().length)
-        gene.getIsoformas().forEach((iso, i) => this.plotIsoform(projeto, iso, boxes[i], R))
-        projeto && gene.cromossomo.getLoci(gene.start, gene.end).forEach(l => this.plotLocus(gene, l, viewBox, R))
-        projeto && this.plotBED(R, gene, viewBox, projeto)
+        this.rect(vb.getBoxX0() - RM, MH - 4, RW, 8)
+            .on('mousemove', ({ offsetX }) => {
+                offsetX > 0 && regua &&
+                    regua.attr("x1", offsetX) &&
+                    regua.attr("x2", offsetX) &&
+                    ctext.attr("transform",
+                        `translate(${offsetX + (offsetX > vb.getBoxSize().width / 2 ? -5 : 5)},0)`)
+                        .style('text-anchor', offsetX > vb.getBoxSize().width / 2 ? 'end' : 'start')
+                        .text()///pb2((gene.strand ? 1 : 0) + offsetX - PB_ZERO).toLocaleString())
+            })
+        //.on('dblclick', _ => (pb2 = (modg = !modg) ? calcS : (c => pb(c))))
+
+        this.text(vb.getBoxX0() - 13, MH, gene.strand ? "5'" : "3'", { fs: '.6rem', b: 1, o: .7 })
+        this.text(vb.getBoxX1() + 5, MH, gene.strand ? "3'" : "5'", { fs: '.6rem', b: 1, o: .7 })
+        return R;
+    }
+
+    plotGene(vb: ViewBox, gene: Gene, R, legendH: number, projeto: Projeto) {
+        const as = gene.isAS()
+        const [vbTitulo, vbGene] = vb.splitY()
+        const vbT = as ? vbTitulo : vb
+
+        const xt = this.plotTPM(projeto, vbT, gene.meta['NID'], true)
+        this.text(xt, vbT.getBoxCenter()[1], gene.getNome(), { vc: 1, fs: '.8rem', b: 1 })
+
+        if (!as)
+            return
+
+        gene.getCanonic().getIntrons().forEach(intron => this.plotIntron(intron, vbGene, R))
+        gene.getCanonic().getExons().forEach(exon => this.plotExon(exon, vbGene, R, 'red'))
+
+        gene.getCanonic().getSites().forEach(s => {
+            const x = this.getX0(s, R)
+            const y = vbGene.getBoxCenter()[1]
+            const w = this.getW(s, R)
+            const rct = this.rect(x, y, w, vb.full().getBoxSize().height - legendH - y)
+            this.fillPattern(rct, 'lightgray')
+            this.rect(x, y - 1, w, 4)
+        })
+    }
+
+    plotLegend(viewBox: ViewBox, projeto: Projeto) {
+        //exon constitutivo
+        //instron constittutivo
+        //alternativa
+        //cds
+        //exon
+        //gene
+        //domino
+
+        viewBox.splitX(4).forEach((vbs, i) => vbs.splitY(3).forEach((vb, j) => {
+            const X = vb.getBoxX0()
+            const Y = vb.getBoxCenter()[1]
+            switch (i * 10 + j) {
+                case 0:
+                    this.exon(X, Y - 1, 10, 10, 'red')
+                    this.text(X + 12, Y, 'Constitutive exon', { fs: '.6rem', vc: 1 })
+                    break;
+                case 1:
+                    this.exon(X, Y - 1, 10, 10)
+                    this.text(X + 12, Y, 'Exon', { fs: '.6rem', vc: 1 })
+                    break;
+                case 2:
+                    this.cds(X, Y, 10, 8)
+                    this.text(X + 12, Y + 3, 'CDS', { fs: '.6rem', vc: 1 })
+                    break;
+                case 10:
+                    this.cds(X, Y, 10, 8)
+                    this.domain(X, Y, 10, 8, 2, .8)
+                    this.text(X + 15, Y + 3, 'PFam domain', { fs: '.6rem', vc: 1 })
+                    break;
+                case 11:
+                    this.wave(X, Y - 1, 10, 'black', 4)
+                    this.text(X + 15, Y + 3, 'Intron', { fs: '.6rem', vc: 1 })
+                    break;
+                case 12:
+                    this.rect(X - 2, Y + 1, 12, 4)
+                    this.text(X + 15, Y + 3, 'Alternative region', { fs: '.6rem', vc: 1 })
+                    break;
+                case 20:
+                    this.text(X + 8, Y + 3, 'Exon skiping event', { fs: '.6rem', vc: 1 })
+                    break;
+                case 21:
+                    this.text(X + 8, Y + 3, 'Intron retetion event', { fs: '.6rem', vc: 1 })
+                    break;
+                case 22:
+                    this.text(X + 8, Y + 3, 'Premature terminator codon', { fs: '.6rem', vc: 1 })
+                    break;
+                case 30:
+                    if (!projeto)
+                        break
+                    this.circ(X, Y + 3, 5, projeto.getCtrl().cor).attr('stroke', 'black')
+                    this.text(X + 8, Y + 3, projeto.getCtrl().nome + ' TPM', { fs: '.6rem', vc: 1 })
+                    break;
+                case 31:
+                    if (!projeto)
+                        break
+                    this.circ(X, Y + 3, 5, projeto.getTrat().cor).attr('stroke', 'black')
+                    this.text(X + 8, Y + 3, projeto.getTrat().nome + ' TPM', { fs: '.6rem', vc: 1 })
+                    break;
+                case 32:
+                    break;
+            }
+
+        }))
+    }
+
+    plot(gene: Gene, projeto?: Projeto): Canvas {
+        if (!gene) return
+
+        const show_gene = gene.isAS()
+        const show_bed = gene.hasBED()
+        const show_genomic = projeto ? gene.cromossomo.getLoci2(gene.start, gene.end) : null;
+        const SCALA_H = 30
+        const GENE_H = show_gene ? 50 : 25
+        const GENOMIC_H = show_genomic ? 30 : 1
+        const BED_H = show_bed ? 100 : 1
+        const LEGEND_H = 40
+        const ISO_H = (this.viewBox.getBoxSize().height - (SCALA_H + GENE_H + GENOMIC_H + BED_H + LEGEND_H))
+
+        const viewBox = this.viewBox.addPadding(20, 5).center();
+        const vbScala = viewBox.withHeight(SCALA_H);
+        const vbGene = viewBox.addPaddingY(SCALA_H).withHeight(GENE_H);
+        const vbIsoforms = viewBox.addPaddingY(SCALA_H + GENE_H).withHeight(ISO_H);
+        const vbGenomic = viewBox.addPaddingY(SCALA_H + GENE_H + ISO_H).withHeight(GENOMIC_H);
+        const vbBED = viewBox.addPaddingY(SCALA_H + GENE_H + ISO_H + GENOMIC_H).withHeight(BED_H);
+        const vbLeged = viewBox.addPaddingY(SCALA_H + GENE_H + ISO_H + GENOMIC_H + BED_H).withHeight(LEGEND_H);
+
+        //const rc = (vb, c) => this.rect(vb.getBoxX0(), vb.getBoxY0(), vb.getBoxSize().width, vb.getBoxSize().height, c).attr('opacity', '.4')
+        //rc(this.viewBox.full(), 'white')
+        //vbScala && rc(vbScala, 'yellow')
+        //vbGene && rc(vbGene, 'red')
+        // vbIsoforms && rc(vbIsoforms, 'green')
+        //vbGenomic && rc(vbGenomic, 'blue')
+        //vbBED && rc(vbBED, 'magenta')
+        //vbLeged && rc(vbLeged, 'orange')
+
+        const R = this.plotScala(vbScala, gene, LEGEND_H);
+        this.plotGene(vbGene, gene, R, LEGEND_H, projeto);
+        show_genomic && show_genomic.forEach(l => this.plotLocus(gene, l, vbGenomic, R))
+        show_bed && this.plotBED(gene, vbBED, projeto)
+
+        const isoBoxs = vbIsoforms.splitY(gene.getIsoformas().length)
+        gene.getIsoformas().forEach((iso, i) => this.plotIsoform(projeto, iso, isoBoxs[i], R))
+
+        this.plotLegend(vbLeged, projeto)
         return this;
     }
 

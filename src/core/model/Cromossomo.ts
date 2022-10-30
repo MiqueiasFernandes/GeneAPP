@@ -39,4 +39,8 @@ export class Cromossomo {
     getGenes = () => this.genes;
 
     getLoci = (a, b) => this.loci.filter(l => (l.start <= a && l.end >= a) || (l.start <= b && l.end >= b) || (l.start <= a && l.end >= b) || (a <= l.start && b >= l.end))
+    getLoci2(a, b) {
+        const ls = this.getLoci(a, b)
+        return ls && ls.length > 0 ? ls : null;
+    }
 }

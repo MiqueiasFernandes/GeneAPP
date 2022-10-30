@@ -85,7 +85,7 @@ function carregar() {
                 const gene = GENE = Gene.fromNCBI(res.data.split('\n'))
                 PROJETO.nome = gene.nome;
                 route.meta.description = "Gene View " + query.id;
-                const vb = ViewBox.fromSize(800, (gene.getIsoformas().length + 1) * 50, Padding.simetric(5).center())
+                const vb = ViewBox.fromScreen((gene.getIsoformas().length) * 50 + 150, Padding.simetric(5).center())
                 GENE_PLOT = new GenePlot('plot', vb)
                 GENE_PLOT.plot(gene)
                 plotou.value = true

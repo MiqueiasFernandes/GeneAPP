@@ -52,8 +52,10 @@ export class ViewBox {
     }
 
     static fromSize = (width: number, height: number, padding?: Padding) => new ViewBox(new Size(width, height), padding);
+    static fromScreen = (h = 200, p?: Padding) => ViewBox.fromSize(Math.round(window.screen.availWidth * .8), h, p)
 
     getViewSize = () => this.viewSize;
+    full = () => new ViewBox(this.viewSize)
     getBoxSize = () => this.boxSize;
 
     getBoxCenter = () => [this.getBoxSize().width / 2 + this.getBoxX0(), this.getBoxSize().height / 2 + this.getBoxY0()];

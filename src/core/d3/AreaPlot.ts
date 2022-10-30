@@ -5,10 +5,16 @@ import { Canvas } from "./Canvas";
 export class AreaPlot extends AbstractPlot {
 
     contorno = 1;
+    revert = false;
 
     stroke(s = 1) {
         this.contorno = s;
         return this;
+    }
+
+    reverse(r) {
+        this.revert = r
+        return this
     }
 
     plot(data: any, maxx?, order = (x) => x): Canvas {
@@ -32,7 +38,8 @@ export class AreaPlot extends AbstractPlot {
         const max_x = maxx || Math.max(...stack.map(x => x.length));
 
         const X = d3.scaleLinear([min_x, max_x], [0, this.viewBox.getBoxSize().width])
-        const Y = d3.scaleLinear([min_y, max_y], [this.viewBox.getBoxSize().height, 0])
+        const r = [this.viewBox.getBoxSize().height, 0]
+        const Y = d3.scaleLinear([min_y, max_y], this.revert ? r.reverse() : r)
         //const C = d3.interpolateCool
 
         this.show_ax && this.svg

@@ -29,7 +29,7 @@ var GENE_PLOT = null;
 
 function setGene(g) {
     const gx = gene.value = g;
-    const vb = ViewBox.fromSize(800, (g.getIsoformas().length + 1) * 50 + 100, Padding.simetric(5).center())
+    const vb = ViewBox.fromScreen((g.getIsoformas().length + 1) * 50 + 200, Padding.simetric(5).center())
     GENE_PLOT = new GenePlot('plotg', vb)
     GENE_PLOT.plot(gx, PROJETO)
     plotou.value = true;
@@ -55,7 +55,6 @@ function baixar() {
 
 function dialog() {
     const as = gene.value.getAS();
-    console.log(as)
     MODALS.push({
         titulo: 'Gene ' + (gene.value.meta['NID'] || gene.value.nome),
         conteudo: '<b>dPSI</b>, log2FC, rMATS? 3DRNASeq?, gos',
