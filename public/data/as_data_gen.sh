@@ -676,7 +676,7 @@ rodar_rmats() {
         log 6 1 2 "executando o MASER , args:   MIN_AVG_READS: $mar | FDR: $fdr | PSI: $psi | MODE: $mode | GFF: $gff|"
         cd $TMP_DIR/rmats_out
         Rscript <(printf '
-        show("script obtido de https://raw.githubusercontent.com/mcfonseca-lab/docker/master/rmats/run_maser.R")
+        show("script adaptado de https://raw.githubusercontent.com/mcfonseca-lab/docker/master/rmats/run_maser.R")
         library(maser)
         args = commandArgs(trailingOnly=TRUE)
         label1 = args[[1]]
@@ -757,7 +757,12 @@ rodar_rmats() {
         #####Plot transcripts########
         #############################
         if(plot_transcripts){
-        ens_gtf <- rtracklayer::import.gff(gtf)
+        tryCatch({
+          ens_gtf <- rtracklayer::import.gff(gtf)
+        }, error=function (e) {
+          show(paste("Erro ao abrir GFF", gtf, e))
+          plot_transcripts = FALSE
+        })
         dir.create("tx_plots")
         plot_transcript_tracks <- function(x, maser_obj, gtf_f, type) {
             ID=gsub(" ", "", x["ID"], fixed = TRUE)
