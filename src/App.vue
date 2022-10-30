@@ -98,9 +98,9 @@ const pages = (router) => router.options.routes
 
     <DisclosurePanel class="sm:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1">
-        <DisclosureButton v-for="item in navigation" :key="item.name" as="a" :href="item.href"
-          :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium']"
-          :aria-current="item.current ? 'page' : undefined">{{ item.name }}
+        <DisclosureButton v-for="item in pages($router)" :key="item.meta.title" as="a" :href="item.path" 
+          :class="[$route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium']"
+          :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined">{{ item.meta.title }}
         </DisclosureButton>
       </div>
     </DisclosurePanel>
@@ -140,11 +140,13 @@ const pages = (router) => router.options.routes
     </div>
   </div>
 
-  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color">
+  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color" :html="modal.html">
     {{ modal.conteudo }}
   </Modal>
+
   <Notificacao v-for="(notificacao, i) in NOTIFICACOES" :color="notificacao.color" :index="NOTIFICACOES.length - i"
     :id="notificacao.id" :timeout="notificacao.timeout">
     {{ notificacao.msg }}
   </Notificacao>
+
 </template>

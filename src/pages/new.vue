@@ -23,6 +23,7 @@ const projeto = PROJETO;
 const percent = ref(-1);
 const file = ref(null);
 const raw_data = [];
+const sanfona_st = ref(1)
 
 function importar() {
   Arquivo.importManyData(
@@ -66,13 +67,18 @@ function setExperimento() {
 
 onBeforeMount(() => projeto.reset())
 
+function test(x) {
+  console.log('oi', x)
+}
+
+
 </script>
 
 
 <template>
   <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl p-8">
-      <Sanfona titulo="Configurar o projeto" :opened="true">
+      <Sanfona titulo="Configurar o projeto" :opened="sanfona_st === 1" @open="(s) => (s && (sanfona_st = 1))">
         <FormRow>
           <FormCol>
             <FormInputText label="Nome do projeto" :content="projeto.nome" @update="(x) => (projeto.nome = x)" />
@@ -104,17 +110,17 @@ onBeforeMount(() => projeto.reset())
         </FormRow>
       </Sanfona>
 
-      <Sanfona titulo="Carregar dados extras">
+      <Sanfona titulo="Carregar dados extras" :opened="sanfona_st === 2" @open="(s) => (s && (sanfona_st = 2))">
         <FormRow>
           <FormCol>
-            <Button color="acent" @click="setData">upload orthoven</Button>
-            <Button color="acent" @click="setData">download gos agbase</Button>
-            <Button color="acent" @click="setData">upload agbase</Button>
+            <Button color="acent" @click="">upload orthoven</Button>
+            <Button color="acent" @click="">download gos agbase</Button>
+            <Button color="acent" @click="">upload agbase</Button>
           </FormCol>
         </FormRow>
       </Sanfona>
 
-      <Sanfona titulo="Custom project">
+      <Sanfona titulo="Custom project" :opened="sanfona_st === 3" @open="(s) => (s && (sanfona_st = 3))">
         criar a partir de out tabelar rmtas 3d
         criar a partir de genoma + as genes ncbi
         <!-- https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&id=2&rettype=gene_table&retmode=text -->

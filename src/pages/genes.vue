@@ -54,9 +54,12 @@ function baixar() {
 }
 
 function dialog() {
+    const as = gene.value.getAS();
+    console.log(as)
     MODALS.push({
         titulo: 'Gene ' + (gene.value.meta['NID'] || gene.value.nome),
-        conteudo: 'dPSI, log2FC, rMATS? 3DRNASeq?, gos',
+        conteudo: '<b>dPSI</b>, log2FC, rMATS? 3DRNASeq?, gos',
+        html: 'hello <strong>world</strong>',
         botoes: [{ text: 'OK', action: () => true, color: 'bg-indigo-500' }]
     })
 }
