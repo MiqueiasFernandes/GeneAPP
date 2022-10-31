@@ -29,6 +29,7 @@ export EMAIL=teste@teste.com
 export TIMEOUT=60
 export MODE="JCEC"
 export SERVER="https://www.genome.jp/tools-bin/ete"
+export IPSCAN="http://ftp.ebi.ac.uk/pub/software/unix/iprscan/5/5.59-91.0/interproscan-5.59-91.0-64-bit.tar.gz"
 
 log() {
     local tipo=$([ $5 ] || echo "INFO")$5
@@ -216,6 +217,12 @@ preparar_ambiente() {
     else
         log 1 7 0 "pulando instalacao do 3DRNAseq"
     fi
+
+    ## 8 instalar o interproscan
+    log 1 7 0 "instalando o interproScan5"
+    wget -O interproscan.tar.gz $IPSCAN 1>$LOG_DIR/_1.7.1_ipscan.log.txt 2>$LOG_DIR/_1.7.1_ipscan..err.txt
+    tar -xf interproscan.tar.gz
+    bash interproscan*/interproscan.sh 1>$LOG_DIR/_1.7.2_ipscan.log.txt 2>$LOG_DIR/_1.7.2_ipscan.err.txt
 
     echo "$(date +%d/%m\ %H:%M) programas instalados" >>$RESUMO
     log 1 0 0 "ambiente configurado"
@@ -619,6 +626,7 @@ quantificar_amostras() {
                 [[ $(echo $ARG | grep TIMEOUT=) ]] && export TIMEOUT=$(echo $ARG | cut -d= -f2) && log 5 0 0 "param TIMEOUT : $TIMEOUT" && continue
                 [[ $(echo $ARG | grep GENE2PTNA=) ]] && export GENE2PTNA=$(echo $ARG | cut -d= -f2) && log 5 0 0 "param GENE2PTNA : $GENE2PTNA" && continue
                 [[ $(echo $ARG | grep GEN_NCBI_TABLE) ]] && export GEN_NCBI_TABLE=1 && log 5 0 0 "param GEN_NCBI_TABLE : 1" && continue
+                [[ $(echo $ARG | grep ONLINE) ]] && export ONLINE=1 && log 5 0 0 "param ONLINE : 1" && continue
 
                 log 5 0 0 "param sem definicao $ARG" "WARN"
             fi
@@ -757,23 +765,22 @@ rodar_rmats() {
         #####Plot transcripts########
         #############################
         if(plot_transcripts){
-        tryCatch({
-          ens_gtf <- rtracklayer::import.gff(gtf)
-        }, error=function (e) {
-          show(paste("Erro ao abrir GFF", gtf, e))
-          plot_transcripts = FALSE
-        })
-        dir.create("tx_plots")
-        plot_transcript_tracks <- function(x, maser_obj, gtf_f, type) {
-            ID=gsub(" ", "", x["ID"], fixed = TRUE)
-            gene=x["geneSymbol"]
-            gene_maser <- geneEvents(maser_obj, geneS = gene)
-            pdf(paste0("tx_plots/",gene,"_",type,"_",ID,"_tx.pdf"))
-            plotTranscripts(gene_maser, type = type, event_id = ID,
-                            gtf = gtf_f, zoom = F, show_PSI = TRUE)
-            dev.off()
-        }
-        
+            tryCatch({
+                ens_gtf <- rtracklayer::import.gff(gtf)
+            }, error=function (e) {
+                show(paste("Erro ao abrir GFF", gtf, e))
+                plot_transcripts = FALSE
+            })
+            dir.create("tx_plots")
+            plot_transcript_tracks <- function(x, maser_obj, gtf_f, type) {
+                ID=gsub(" ", "", x["ID"], fixed = TRUE)
+                gene=x["geneSymbol"]
+                gene_maser <- geneEvents(maser_obj, geneS = gene)
+                pdf(paste0("tx_plots/",gene,"_",type,"_",ID,"_tx.pdf"))
+                plotTranscripts(gene_maser, type = type, event_id = ID,
+                                gtf = gtf_f, zoom = F, show_PSI = TRUE)
+                dev.off()
+            }
         }
         ##########################
         ######Write output########
@@ -2208,23 +2215,32 @@ anotar() {
 
     [ ! -d $LOCAL ] && mkdir $LOCAL
     rm -f $TSV
-    local TT=$(grep -c , $PTNAS)
 
-    if (($(grep -c , $PTNAS) > 10)); then
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f1 | grep ,) 1 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f2 | grep ,) 2 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f3 | grep ,) 3 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f4 | grep ,) 4 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f5 | grep ,) 5 &
+    if [ $ONLINE ]; then
+        local TT=$(grep -c , $PTNAS)
 
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f6 | grep ,) 6 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f7 | grep ,) 7 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f8 | grep ,) 8 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f9 | grep ,) 9 &
-        anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f10 | grep ,) 0 &
-        wait
+        if (($(grep -c , $PTNAS) > 10)); then
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f1 | grep ,) 1 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f2 | grep ,) 2 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f3 | grep ,) 3 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f4 | grep ,) 4 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f5 | grep ,) 5 &
+
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f6 | grep ,) 6 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f7 | grep ,) 7 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f8 | grep ,) 8 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f9 | grep ,) 9 &
+            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f10 | grep ,) 0 &
+            wait
+        else
+            anotar_api $LOCAL $Q $TSV $TT $PTNAS 1
+        fi
     else
-        anotar_api $LOCAL $Q $TSV $TT $PTNAS 1
+        sed 's/[*.]$//' $PTNAS | grep -v '*' | awk '{print ">"$1}' | tr , \\n >ptns.faa
+        bash interproscan*/interproscan.sh \
+            -appl PANTHER,Pfam,SMART \
+            -cpu 10 -f TSV -goterms -pa -verbose \
+            -i ptns.faa -o $TSV 1>$LOG_DIR/_6.4.2_interproscan.log.txt 2>$LOG_DIR/_6.4.2_interproscan.err.txt
     fi
 
     echo "$(date +%d/%m\ %H:%M) terminou anotacao" >>$RESUMO

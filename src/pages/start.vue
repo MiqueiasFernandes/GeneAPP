@@ -9,7 +9,8 @@
 </route>
 
 <script setup>
-import { ClipboardListIcon, FolderDownloadIcon, DownloadIcon } from '@heroicons/vue/solid'
+import { ClipboardListIcon, FolderDownloadIcon } from '@heroicons/vue/solid'
+import { DownloadIcon } from '@heroicons/vue/outline'
 useHead({ title: 'Get started on GeneAPP' })
 </script>
   
