@@ -218,11 +218,10 @@ preparar_ambiente() {
         log 1 7 0 "pulando instalacao do 3DRNAseq"
     fi
 
-    ## 8 instalar o interproscan
-    log 1 7 0 "instalando o interproScan5"
-    wget -O interproscan.tar.gz $IPSCAN 1>$LOG_DIR/_1.7.1_ipscan.log.txt 2>$LOG_DIR/_1.7.1_ipscan..err.txt
-    tar -xf interproscan.tar.gz
-    bash interproscan*/interproscan.sh 1>$LOG_DIR/_1.7.2_ipscan.log.txt 2>$LOG_DIR/_1.7.2_ipscan.err.txt
+   ## 8 instalar o interproscan
+    log 1 8 0 "instalando o interproScan5"
+    [ ! -f /tmp/interproscan.tar.gz ] && log 1 8 1 "baixando o interproScan5"
+    [ ! -f /tmp/interproscan.tar.gz ] && wget -O /tmp/interproscan.tar.gz $IPSCAN 1>$LOG_DIR/_1.7.1_ipscan.log.txt 2>$LOG_DIR/_1.7.1_ipscan..err.txt
 
     echo "$(date +%d/%m\ %H:%M) programas instalados" >>$RESUMO
     log 1 0 0 "ambiente configurado"
@@ -2236,8 +2235,10 @@ anotar() {
             anotar_api $LOCAL $Q $TSV $TT $PTNAS 1
         fi
     else
+        [ -f /tmp/interproscan.tar.gz ] && [ ! -f /tmp/interproscan*/interproscan.sh ] && cd /tmp && tar -xf /tmp/interproscan.tar.gz
+        cd $TMP_DIR
         sed 's/[*.]$//' $PTNAS | grep -v '*' | awk '{print ">"$1}' | tr , \\n >ptns.faa
-        bash interproscan*/interproscan.sh \
+        bash /tmp/interproscan*/interproscan.sh \
             -appl PANTHER,Pfam,SMART \
             -cpu 10 -f TSV -goterms -pa -verbose \
             -i ptns.faa -o $TSV 1>$LOG_DIR/_6.4.2_interproscan.log.txt 2>$LOG_DIR/_6.4.2_interproscan.err.txt
