@@ -26,15 +26,8 @@ const projeto = PROJETO;
 const HEIGHT = 300;
 
 function plotQC(wC) {
-    // "Sample"
-    // "FastQC_mqc-generalstats-fastqc-percent_duplicates"
-    // "FastQC_mqc-generalstats-fastqc-percent_gc"
-    // "FastQC_mqc-generalstats-fastqc-percent_fails"
-    // "FastQC_mqc-generalstats-fastqc-total_sequences"
-
     const W = wC * 2;
     const H = HEIGHT;
-
     const viewBox = ViewBox.fromSize(W, H, Padding.simetric(10));
     const canvas = new Canvas('graphQc', viewBox)//, '#efefef');
 
@@ -56,7 +49,6 @@ function plotQC(wC) {
         .setCanvas(canvas, viewBox)
         .setTitle('QC')
         .plot(dataSet)
-
 }
 
 function plotRd(wC) {

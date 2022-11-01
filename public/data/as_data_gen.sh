@@ -2231,6 +2231,7 @@ anotar() {
             anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f9 | grep ,) 9 &
             anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f10 | grep ,) 0 &
             wait
+            log 6 4 0 "anotou interpro ONLINE"
         else
             anotar_api $LOCAL $Q $TSV $TT $PTNAS 1
         fi
@@ -2242,6 +2243,7 @@ anotar() {
             -appl PANTHER,Pfam,SMART \
             -cpu 10 -f TSV -goterms -pa -verbose \
             -i ptns.faa -o $TSV 1>$LOG_DIR/_6.4.2_interproscan.log.txt 2>$LOG_DIR/_6.4.2_interproscan.err.txt
+        log 6 4 0 "anotou interpro LOCAL"
     fi
 
     echo "$(date +%d/%m\ %H:%M) terminou anotacao" >>$RESUMO

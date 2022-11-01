@@ -36,8 +36,8 @@ export class ASrmats extends AlternativeSplicing {
         switch (tipo) {
             case 'RI':
                 //ri riExonStart_0base	riExonEnd
-                var ria = parseInt(raw['riExonStart_0base'])
-                var rib = parseInt(raw['riExonEnd'])
+                var ria = parseInt(raw['downstreamEE'])
+                var rib = parseInt(raw['upstreamES'])
                 this.extra['AS_SITE_START'] = Math.min(ria, rib)
                 this.extra['AS_SITE_END'] = Math.max(ria, rib)
                 break;

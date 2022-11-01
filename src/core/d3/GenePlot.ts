@@ -1,5 +1,7 @@
 import * as d3 from "d3";
+import geneVue from "src/pages/gene.vue";
 import { CDS, Exon, Gene, Intron, Isoforma, Locus, Projeto } from "../model";
+import { ASrmats } from "../model/AlternativeSplicing";
 import { AbstractPlot } from "./AbstractPlot";
 import { AreaPlot } from "./AreaPlot";
 import { Canvas } from "./Canvas";
@@ -214,18 +216,54 @@ export class GenePlot extends AbstractPlot {
         })
     }
 
+    plotRI(projeto: Projeto, gene: Gene, event, vb: ViewBox, R) {
+        const start = parseInt(event.extra['AS_SITE_START'])
+        const end = parseInt(event.extra['AS_SITE_END'])
+        const id = event.extra['ID']
+
+        const sites = gene.getCanonic().getSites().filter(s => s.start >= start && s.end <= end)
+        sites.length < 1 && sites.push(new Locus(null, start, end, gene.strand, null))
+
+        const ptc = Object.fromEntries(projeto.getPTC().map(x => [x.id, x]))
+        const s1 = Math.min(ptc[id].f1, 1) + Math.min(ptc[id].f2, 1) + Math.min(ptc[id].f3, 1)
+        const s2 = s1 > 2 ? 1.2 : s1 > 1 ? 1 : .8
+        const sw = 10 * s2
+
+        const Y = vb.getBoxCenter()[1]
+        sites.forEach(locus => {
+            const [X, W] = this.getPoints(locus, R, vb);
+            const rct = this.rect(X, Y + 3, W, 20)
+            this.fillPattern(rct, 'red', 3)
+            rct.append("title").text(id)
+            this.star(X + W / 2 - sw, Y, 'black', s2, 'yellow').append("title").text('Prenature Terminator Codon')
+        })
+    }
+
+    plotSE(gene: Gene, event, vb: ViewBox, R) {
+
+        console.log(event)
+        const start = parseInt(event.extra['upstreamEE'])
+        const end = parseInt(event.extra['downstreamES'])
+        const locus = new Locus(null, start, end, gene.strand, null)
+        const [X, W] = this.getPoints(locus, R, vb);
+        const Y = vb.getBoxCenter()[1] + 20
+        const rct = this.arrow(X, Y, X + W, Y+15, 'black', 3)
+    }
+
+    plotAS(projeto: Projeto, vb: ViewBox, gene: Gene, R) {
+
+        const as = gene.getAS();
+
+        as.filter(a => a['tipo'] === 'RI').forEach(evt => this.plotRI(projeto, gene, evt, vb, R))
+        as.filter(a => a['tipo'] === 'SE').forEach(evt => this.plotSE(gene, evt, vb, R))
+
+    }
+
     plotLegend(viewBox: ViewBox, projeto: Projeto) {
-        //exon constitutivo
-        //instron constittutivo
-        //alternativa
-        //cds
-        //exon
-        //gene
-        //domino
 
         viewBox.splitX(4).forEach((vbs, i) => vbs.splitY(3).forEach((vb, j) => {
             const X = vb.getBoxX0()
-            const Y = vb.getBoxCenter()[1]
+            const Y = vb.getBoxCenter()[1]+2
             switch (i * 10 + j) {
                 case 0:
                     this.exon(X, Y - 1, 10, 10, 'red')
@@ -236,7 +274,7 @@ export class GenePlot extends AbstractPlot {
                     this.text(X + 12, Y, 'Exon', { fs: '.6rem', vc: 1 })
                     break;
                 case 2:
-                    this.cds(X, Y, 10, 8)
+                    this.cds(X, Y-1, 10, 8)
                     this.text(X + 12, Y + 3, 'CDS', { fs: '.6rem', vc: 1 })
                     break;
                 case 10:
@@ -253,13 +291,17 @@ export class GenePlot extends AbstractPlot {
                     this.text(X + 15, Y + 3, 'Alternative region', { fs: '.6rem', vc: 1 })
                     break;
                 case 20:
-                    this.text(X + 8, Y + 3, 'Exon skiping event', { fs: '.6rem', vc: 1 })
-                    break;
-                case 21:
+                    const rct = this.rect(X-12, Y , 15, 10)
+                    this.fillPattern(rct, 'red', 3)
                     this.text(X + 8, Y + 3, 'Intron retetion event', { fs: '.6rem', vc: 1 })
                     break;
-                case 22:
+                case 21:
+                    this.star(X-12, Y-6, 'black', .5, 'yellow')
                     this.text(X + 8, Y + 3, 'Premature terminator codon', { fs: '.6rem', vc: 1 })
+                    break;
+                case 22:
+                    this.arrow(X-10, Y+3, X+3, Y+3, 'black', 1, 5)
+                    this.text(X + 8, Y + 3, 'Exon skiping event', { fs: '.6rem', vc: 1 })
                     break;
                 case 30:
                     if (!projeto)
@@ -317,6 +359,7 @@ export class GenePlot extends AbstractPlot {
 
         const isoBoxs = vbIsoforms.splitY(gene.getIsoformas().length)
         gene.getIsoformas().forEach((iso, i) => this.plotIsoform(projeto, iso, isoBoxs[i], R))
+        show_gene && this.plotAS(projeto, vbGene, gene, R)
 
         this.plotLegend(vbLeged, projeto)
         return this;
