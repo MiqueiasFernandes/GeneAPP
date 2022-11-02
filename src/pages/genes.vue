@@ -13,9 +13,9 @@
           
 <script setup>
 import { BeakerIcon, ChatIcon, FilterIcon } from '@heroicons/vue/solid'
-import { CursorClickIcon, DownloadIcon, ShareIcon } from '@heroicons/vue/outline';
+import { CursorClickIcon, DownloadIcon, ShareIcon, BadgeCheckIcon, ArrowSmLeftIcon, ArrowSmRightIcon } from '@heroicons/vue/outline';
 import { onMounted } from 'vue';
-import { PROJETO, MODALS } from "../core/State";
+import { PROJETO, MODALS, notificar } from "../core/State";
 import { GenePlot, Padding, ViewBox } from '../core/d3';
 import { Arquivo } from '../core/utils/Arquivo';
 
@@ -29,10 +29,13 @@ var GENE_PLOT = null;
 const modal = ref('modal')
 const compartilhar = ref('compartilhar')
 const filtro = ref('filtro')
+const confirm = ref(false)
+const cgs = {}
 
 function setGene(g) {
     const gx = gene.value = g;
     plotou.value = false;
+    confirm.value = false;
     GENE_PLOT && GENE_PLOT.reset()
     if (!g) return
 
@@ -43,6 +46,14 @@ function setGene(g) {
     const plt = {}
     plt[gx.nome + '.svg'] = { data: GENE_PLOT.download(), tipo: 'image/svg+xml' }
     PROJETO.addResultados(plt)
+    if (!cgs[gx.nome]) {
+        const conf = gx.checkAS(PROJETO)
+        cgs[gx.nome] = conf && conf.startsWith('AS') ? 2 : 1
+        if (cgs[gx.nome] > 1) {
+            notificar(conf, 'success', 300)
+        }
+    }
+    confirm.value = cgs[gx.nome] > 1;
 }
 
 function start() {
@@ -211,8 +222,11 @@ onMounted(start)
     <div class="p-4 bg-gray-100 grid grid-cols-1">
         <div class="w-full flex justify-center">
             <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md flex justify-evenly">
-                <BeakerIcon class="h-8 w-8 text-slate-500 mt-1 mx-1"></BeakerIcon>
-                <Button color="blue" class="mx-1" @click="prev" :disable="!plotou || idx < 1">Prev</Button>
+                <BadgeCheckIcon v-if="confirm" class="p-1 h-8 w-8 text-green-500 bg-green-100 rounded-full mt-1 mx-1" />
+                <BeakerIcon v-else class="h-8 w-8 text-slate-500 mt-1 mx-1" />
+                <Button color="blue" class="mx-1" @click="prev" :disable="!plotou || idx < 1">
+                    <ArrowSmLeftIcon class="h-5 w-5" />
+                </Button>
                 <Button class=" mx-1" :disable="!plotou" color="blue" @click="baixar">
                     <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
                 </Button>
@@ -225,8 +239,9 @@ onMounted(start)
                 <Button class=" mx-1" :disable="!plotou" color="blue" @click="share(gene)">
                     <ShareIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Share
                 </Button>
-                <Button class=" mx-1" color="blue" @click="next"
-                    :disable="!plotou || idx > (genes.length - 2)">Next</Button>
+                <Button class=" mx-1" color="blue" @click="next" :disable="!plotou || idx > (genes.length - 2)">
+                    <ArrowSmRightIcon class="h-5 w-5" />
+                </Button>
                 <span
                     class="bg-slate-500/75 rounded-full  mx-1 text-white inline-flex items-center justify-center p-2">{{
                             idx + 1

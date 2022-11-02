@@ -27,7 +27,7 @@ onMounted(() => setTimeout(() => remove(), parseInt(props.timeout) * 1000))
 <template>
     <div class="top-8 right-8 absolute animate-pulse"
         :style="{ 'padding-top': `${index * HEIGHT}px`, 'animation-iteration-count': 3 }">
-        <div class="flex items-center p-4 mb-4 w-full max-w-xs rounded-lg shadow text-gray-500 bg-white" role="alert">
+        <div class="flex items-center p-4 mb-4 w-full max-w-lg rounded-lg shadow text-gray-500 bg-white" role="alert">
             <div :class="' inline-flex flex-shrink-0 justify-center items-center w-8 h-8 rounded-lg ' + modo()">
                 <CheckIcon aria-hidden="true" class="w-5 h-5" fill="currentColor" />
             </div>

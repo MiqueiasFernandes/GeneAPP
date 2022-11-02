@@ -1,3 +1,4 @@
+import { Projeto } from "../model";
 import { AlternativeSplicing, AS3dranseq, ASrmats } from "../model/AlternativeSplicing";
 import { Cromossomo } from "../model/Cromossomo";
 import { DifferentialExpression } from "../model/DifferentialExpression";
@@ -208,6 +209,74 @@ export class Gene extends Locus {
         dt[2].forEach(i => gene.addIsoforma(Isoforma.deserialize(gene, i)))
         dt[3].forEach(as => gene.addAS(as[0] === 'rMATS' ? ASrmats.fromShare(gene, as) : AS3dranseq.fromShare(gene, dt)))
         return gene;
+    }
+
+    checkAS(projeto: Projeto) {
+        if (!projeto)
+            return null;
+        var conf = null;
+        this.as_events.filter(a => a['tipo'] === 'RI').forEach(evt => {
+            var start = parseInt(evt.extra['AS_SITE_START'])
+            var end = parseInt(evt.extra['AS_SITE_END'])
+            this.getCanonic().getSites().filter(s => s.start >= start && s.end <= end).forEach(site => {
+
+                start = site.start
+                end = site.end
+
+                //achar as isoformas que tiveram introns retidos
+                const tem_i = this.isoformas.map(iso => iso.getIntrons()).filter(i => i.filter(j => j.start >= start && j.end <= end).length > 0).map(i => i[0].isoforma.nome)
+                if (tem_i.length < 1) return
+                //achar os exons que reteram os intron
+                const tem_e = this.isoformas.map(iso => iso.getExons()).filter(e => e.filter(j => j.start <= start && j.end >= end).length > 0).map(i => i[0].isoforma.nome)
+                if (tem_e.length < 1) return
+                //definir se houve as pelo 3d
+                var evts: any[] = this.as_events.filter(a => a.evidence === '3DRNASeq')
+                if (evts.length < 1) return
+                evts = evts.map(e => e.getAS(projeto)).filter(x => x.length > 0)
+                ///definir se evt ocorreu em intron da iso x exon da iso y e houve dif tpm controle trat
+                tem_i.forEach(x =>
+                    tem_e.forEach(y => {
+                        evts.forEach(t => t.forEach(([S, Ts]) => {
+                            if ((S === x && Ts.includes(y)) || (S === y && Ts.includes(x)))
+                                conf = `AS ${this.getNome()} RI ${x} & ${y} !`
+                        }))
+                    }))
+            })
+        })
+        if (conf)
+            return conf;
+        this.as_events.filter(a => a['tipo'] === 'SE').forEach(evt => {
+            var start = parseInt(evt.extra['AS_SITE_START'])
+            var end = parseInt(evt.extra['AS_SITE_END'])
+            this.getCanonic().getSites().filter(s => s.start >= start && s.end <= end).forEach(site => {
+
+                start = site.start
+                end = site.end
+
+                //achar as isoformas que tiveram exons pulado
+                const tem_i = this.isoformas.map(iso => iso.getExons()).filter(i => i.filter(j => j.start >= start && j.end <= end).length > 0).map(i => i[0].isoforma.nome)
+                if (tem_i.length < 1) return
+                
+                //achar os introns que substituiram os es
+                const tem_e = this.isoformas.map(iso => iso.getIntrons()).filter(e => e.filter(j => j.start <= start && j.end >= end).length > 0).map(i => i[0].isoforma.nome)
+                if (tem_e.length < 1) return
+               
+                //definir se houve as pelo 3d
+                var evts: any[] = this.as_events.filter(a => a.evidence === '3DRNASeq')
+                if (evts.length < 1) return
+
+                evts = evts.map(e => e.getAS(projeto)).filter(x => x.length > 0)
+                ///definir se evt ocorreu em intron da iso x exon da iso y e houve dif tpm controle trat
+                tem_i.forEach(x =>
+                    tem_e.forEach(y => {
+                        evts.forEach(t => t.forEach(([S, Ts]) => {
+                            if ((S === x && Ts.includes(y)) || (S === y && Ts.includes(x)))
+                                conf = `AS ${this.getNome()} SE ${x} & ${y} !`
+                        }))
+                    }))
+            })
+        })
+        return conf
     }
 
 }

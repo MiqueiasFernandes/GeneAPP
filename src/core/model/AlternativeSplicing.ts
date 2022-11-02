@@ -1,8 +1,9 @@
 import { Gene } from "../locus/Gene";
+import { Projeto } from "./Projeto";
 
 export class AlternativeSplicing {
     evidence: string;
-    private gene: Gene;
+    gene: Gene;
     qvalue: number;
     dps: number;
     extra: {};
@@ -29,6 +30,16 @@ export class AS3dranseq extends AlternativeSplicing {
         super('3DRNASeq', gene, raw['maxdeltaPS'], raw['adj.pval'], raw);
     }
     static fromShare = (gene: Gene, dt) => new AS3dranseq(gene, { 'maxdeltaPS': dt[1], 'adj.pval': dt[2] })
+
+    getAS(projeto: Projeto) {
+        var expc = this.gene.getIsoformas().map(iso => [iso.nome, projeto.getCtrl().getTPM(iso.meta['MRNA'], false)])
+        var expt = this.gene.getIsoformas().map(iso => [iso.nome, projeto.getTrat().getTPM(iso.meta['MRNA'], false)])
+        expc = expc.filter(t => t[1][0] > 0 && t[1][1] > 0)
+        expt = expt.filter(t => t[1][0] > 0 && t[1][1] > 0)
+        return expc.map(t1 => [t1[0],
+        expt.filter(t2 => t1[0] !== t2[0] && t1[1][0] !== t2[1][0]).map(x => x[0])])
+            .filter(x => x[1].length > 0)
+    }
 }
 
 export class ASrmats extends AlternativeSplicing {

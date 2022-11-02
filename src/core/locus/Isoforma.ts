@@ -61,7 +61,7 @@ export class Isoforma extends Locus {
         this.introns = this.exons
             .map(e => `${e.start},${e.end}`).join(';').split(',').map(x => x.split(';')).filter(x => x.length === 2)
             .map(
-                (i, k) => new Intron(this.cromossomo, parseInt(i[0]) + 1, parseInt(i[1]) - 1, this.strand, 'Intron' + k)
+                (i, k) => new Intron(this.cromossomo, parseInt(i[0]) + 1, parseInt(i[1]) - 1, this.strand, 'Intron' + k).update(this)
             );
         return this;
     }

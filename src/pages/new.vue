@@ -39,7 +39,12 @@ function importar() {
         }
         notificar('Processando arquivos carregados')
         file.value = "Processando ...";
-        const error = projeto.parseFiles(result, s => { (percent.value = s) > 99 && projeto.status++ });
+        const error = projeto.parseFiles(result, s => {
+          ((percent.value = s) > 99 && ++projeto.status)
+          if (s > 99) {
+            notificar(`Total ${projeto.getALLGenes().length} genes loaded`, 'success', 10)
+          }
+        });
         if (error) {
           alert(`Carregou incorretamente. ERRO ${error}`);
           window.location.href = window.location.href;
@@ -66,11 +71,6 @@ function setExperimento() {
 }
 
 onBeforeMount(() => projeto.reset())
-
-function test(x) {
-  console.log('oi', x)
-}
-
 
 </script>
 
