@@ -2393,7 +2393,7 @@ finalizar() {
     [[ ! $NOSEQS -eq "1" ]] && saveSeqs
 
     cp ri_psc.csv $OUT_DIR/filogenia.txt \
-        geneapp/anotacao.tsv geneapp/cov_all.bed \
+        geneapp/cov_all.bed \
         rmats_out/*.MATS.JCEC.txt rmats_out/sign_ev* \
         to3d/transcript_gene_ma* to3d/experimental_design.csv \
         to3d/result/Sig*gene*.csv \
@@ -2401,6 +2401,8 @@ finalizar() {
         to3d/result/D*ene*estin*tatistics.csv to3d/result/RNAse*nfo.csv multiqc_data/multiqc_general_stats.txt \
         $TMP_DIR/gene2mrna2cds2ptn.csv $TMP_DIR/all_as_isoforms.txt \
         $RESUMO geneapp_data
+
+    cp geneapp/anotacao.tsv geneapp_data/kanotacao.tsv 
 
     cd geneapp_data && for f in *MATS* sign_events_* multiqc*; do mv $f $f.csv; done && cd ..
 
