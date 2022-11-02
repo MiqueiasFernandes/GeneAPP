@@ -6,15 +6,16 @@ const props = defineProps({
     active: { default: 'tab1' }
 });
 
+const emits = defineEmits(["change"])
 </script>
 <template>
     <div class="border-b border-gray-200 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
             <Tab v-for="tab in names" :id="tab" :disabled="disable.includes(tab)" :active="active === tab"
-                @click="active = tab">
+                @click="$emit('change', active = tab)">
                 <slot :name="tab" />
             </Tab>
         </ul>
     </div>
-    <slot :name="active+'Content'" />
+    <slot :name="active + 'Content'" />
 </template>

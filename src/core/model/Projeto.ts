@@ -38,6 +38,8 @@ export class Projeto {
     private filogenia;
     private resultados = {};
     private baixando = false;
+    private FNA = null;
+    private FAA = null;
 
 
     constructor(nome: string) {
@@ -166,6 +168,13 @@ export class Projeto {
             ///analise 3DRnaSEQ  SIGNIFICATIVO genes" >> $RESUMO
             /// Total : ... AS genes encontrados | so rMATS $SO_RMATS | so 3DRNASEQ $SO_3D | ambos $AMBOS 
         ];
+
+
+        this.FNA = this.part(files, 'das_genes.inline');
+        this.FAA = this.part(files, 'ptnas.inline');
+
+        console.log(this.FNA)
+        console.log(this.FAA)
 
         return null;
     }
@@ -415,7 +424,7 @@ export class Projeto {
     }
 
     parseAnotacao(files) {
-        const anotacao = this.part(files, 'anotacao.tsv').map(x => x.split('\t')).map(x => [x[0].split(',')[0], x]);
+        const anotacao = this.part(files, 'kanotacao.tsv').map(x => x.split('\t')).map(x => [x[0].split(',')[0], x]);
         this.getALLIsos().forEach(iso =>
             anotacao.filter(a => a[0] === iso.meta['PTNA']).map(a => a[1]).forEach(a => iso.add_anotacoes(Anotacao.fromRaw2(a)))
         );

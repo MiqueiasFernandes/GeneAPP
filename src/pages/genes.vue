@@ -13,7 +13,7 @@
           
 <script setup>
 import { BeakerIcon, ChatIcon, FilterIcon } from '@heroicons/vue/solid'
-import { CursorClickIcon, DownloadIcon, ShareIcon, BadgeCheckIcon, ArrowSmLeftIcon, ArrowSmRightIcon } from '@heroicons/vue/outline';
+import { CursorClickIcon, DownloadIcon, ShareIcon, BadgeCheckIcon, ArrowSmLeftIcon, ArrowSmRightIcon, PresentationChartLineIcon, DocumentTextIcon } from '@heroicons/vue/outline';
 import { onMounted } from 'vue';
 import { PROJETO, MODALS, notificar } from "../core/State";
 import { GenePlot, Padding, ViewBox } from '../core/d3';
@@ -63,6 +63,10 @@ function start() {
         genes.value = PROJETO.getALLGenes();
         setGene(genes.value[idx.value = 0]);
     }, 300);
+}
+
+function repaint() {
+    setTimeout(() => setGene(genes.value[idx.value]), 500)
 }
 
 const next = () => (idx.value < (genes.value.length - 1)) && setGene(genes.value[++idx.value]);
@@ -219,43 +223,66 @@ onMounted(start)
         </FormRow>
     </Modal>
 
-    <div class="p-4 bg-gray-100 grid grid-cols-1">
-        <div class="w-full flex justify-center">
-            <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md flex justify-evenly">
-                <BadgeCheckIcon v-if="confirm" class="p-1 h-8 w-8 text-green-500 bg-green-100 rounded-full mt-1 mx-1" />
-                <BeakerIcon v-else class="h-8 w-8 text-slate-500 mt-1 mx-1" />
-                <Button color="blue" class="mx-1" @click="prev" :disable="!plotou || idx < 1">
-                    <ArrowSmLeftIcon class="h-5 w-5" />
-                </Button>
-                <Button class=" mx-1" :disable="!plotou" color="blue" @click="baixar">
-                    <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
-                </Button>
-                <Button class=" mx-1" :disable="!plotou" color="blue" @click="filtro.show()">
-                    <FilterIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Filter
-                </Button>
-                <Button class=" mx-1" :disable="!plotou" color="blue" @click="dialog">
-                    <ChatIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Anots
-                </Button>
-                <Button class=" mx-1" :disable="!plotou" color="blue" @click="share(gene)">
-                    <ShareIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Share
-                </Button>
-                <Button class=" mx-1" color="blue" @click="next" :disable="!plotou || idx > (genes.length - 2)">
-                    <ArrowSmRightIcon class="h-5 w-5" />
-                </Button>
-                <span
-                    class="bg-slate-500/75 rounded-full  mx-1 text-white inline-flex items-center justify-center p-2">{{
-                            idx + 1
-                    }}/{{ genes.length }}</span>
-            </div>
-        </div>
+    <Tabs :names="['gene', 'seq', 'ptn']" active="gene" @change="(x) => x === 'gene' && repaint()">
 
-        <hr class="my-2" />
-        <Button class="m-4 w-24" v-if="!plotou" @click="start()">
-            <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Plot
-        </Button>
-        <div id="plotg" class="w-full flex justify-center">
-            <Imagem class="m-32"></Imagem>
-        </div>
-    </div>
+        <template #gene>
+            <PresentationChartLineIcon class="mr-2 w-5 h-5" /> Gene
+        </template>
+        <template #geneContent>
+            <div class="p-4 bg-gray-100 grid grid-cols-1">
+                <div class="w-full flex justify-center">
+                    <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md flex justify-evenly">
+                        <BadgeCheckIcon v-if="confirm"
+                            class="p-1 h-8 w-8 text-green-500 bg-green-100 rounded-full mt-1 mx-1" />
+                        <BeakerIcon v-else class="h-8 w-8 text-slate-500 mt-1 mx-1" />
+                        <Button color="blue" class="mx-1" @click="prev" :disable="!plotou || idx < 1">
+                            <ArrowSmLeftIcon class="h-5 w-5" />
+                        </Button>
+                        <Button class=" mx-1" :disable="!plotou" color="blue" @click="baixar">
+                            <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
+                        </Button>
+                        <Button class=" mx-1" :disable="!plotou" color="blue" @click="filtro.show()">
+                            <FilterIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Filter
+                        </Button>
+                        <Button class=" mx-1" :disable="!plotou" color="blue" @click="dialog">
+                            <ChatIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Anots
+                        </Button>
+                        <Button class=" mx-1" :disable="!plotou" color="blue" @click="share(gene)">
+                            <ShareIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Share
+                        </Button>
+                        <Button class=" mx-1" color="blue" @click="next" :disable="!plotou || idx > (genes.length - 2)">
+                            <ArrowSmRightIcon class="h-5 w-5" />
+                        </Button>
+                        <span
+                            class="bg-slate-500/75 rounded-full  mx-1 text-white inline-flex items-center justify-center p-2">{{
+                                    idx + 1
+                            }}/{{ genes.length }}</span>
+                    </div>
+                </div>
+                <br class="my-1" />
+                <Button class="m-4 w-24" v-if="!plotou" @click="start()">
+                    <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Plot
+                </Button>
+                <div id="plotg" class="w-full flex justify-center">
+                    <Imagem class="m-32"></Imagem>
+                </div>
+            </div>
+        </template>
+
+        <template #seq>
+            <DocumentTextIcon class="mr-2 w-5 h-5" /> Genomic
+        </template>
+        <template #seqContent>
+            seqeuncia
+        </template>
+
+        <template #ptn>
+            <DocumentTextIcon class="mr-2 w-5 h-5" /> Protein
+        </template>
+        <template #ptnContent>
+            sequencia
+        </template>
+    </Tabs>
+
 </template>
         

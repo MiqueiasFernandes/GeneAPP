@@ -2339,8 +2339,8 @@ analisar() {
 saveSeqs() {
     cp $TMP_DIR/ptnas.inline $TMP_DIR/geneapp_data
     paste -d, \
-        <(grep \> $TMP_DIR/das_genes.fna | cut -d\  -f1) \
-        <(sed 's/>.*/@/' $TMP_DIR/das_genes.fna | tr -d \\n | tr @ \\n | tail -n+2 | cut -c-40) \
+        <(grep \> $TMP_DIR/das_genes.fna | cut -d\  -f1 | tr -d \>) \
+        <(sed 's/>.*/@/' $TMP_DIR/das_genes.fna | tr -d \\n | tr @ \\n | tail -n+2) \
         >$TMP_DIR/geneapp_data/das_genes.inline
 }
 
@@ -2402,7 +2402,7 @@ finalizar() {
         $TMP_DIR/gene2mrna2cds2ptn.csv $TMP_DIR/all_as_isoforms.txt \
         $RESUMO geneapp_data
 
-    cp geneapp/anotacao.tsv geneapp_data/kanotacao.tsv 
+    cp geneapp/anotacao.tsv geneapp_data/kanotacao.tsv
 
     cd geneapp_data && for f in *MATS* sign_events_* multiqc*; do mv $f $f.csv; done && cd ..
 
