@@ -2386,7 +2386,7 @@ finalizar() {
         " | cut -c9-) \
         1>$LOG_DIR/_7.3.1_gerar_PTC.log.txt 2>$LOG_DIR/_7.3.1_gerarPTC.err.txt
 
-    [[ ! $noseq -eq "1" ]] saveSeqs
+    [[ ! $NOSEQS -eq "1" ]] && saveSeqs
 
     cp ri_psc.csv $OUT_DIR/filogenia.txt \
         geneapp/anotacao.tsv geneapp/cov_all.bed \
