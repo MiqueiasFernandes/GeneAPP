@@ -2339,8 +2339,8 @@ analisar() {
 saveSeqs() {
     cp $TMP_DIR/ptnas.inline $TMP_DIR/geneapp_data
     paste -d, \
-        <(grep \> tmp_1667404249/das_genes.fna | cut -d\  -f1) \
-        <(sed 's/>.*/@/' tmp_1667404249/das_genes.fna | tr -d \\n | tr @ \\n | tail -n+2 | cut -c-40) \
+        <(grep \> $TMP_DIR/das_genes.fna | cut -d\  -f1) \
+        <(sed 's/>.*/@/' $TMP_DIR/das_genes.fna | tr -d \\n | tr @ \\n | tail -n+2 | cut -c-40) \
         >$TMP_DIR/geneapp_data/das_genes.inline
 }
 
