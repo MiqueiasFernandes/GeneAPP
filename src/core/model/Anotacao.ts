@@ -3,7 +3,7 @@ import { Locus } from "../locus/Locus";
 
 export class Anotacao {
     key: string;
-    private value: string;
+    value: string;
     private link: string;
     private locus: Locus;
     private anotations: {};

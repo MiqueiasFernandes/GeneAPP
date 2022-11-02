@@ -83,7 +83,7 @@ export class Locus {
         return locus;
     }
 
-    getAnotsAcession = (t?) => this.anotacoes.filter(x => !t || (x.key === t[0] || x.key === t[1])).map(a => a.get('acession') || '?')
+    getAnotsAcession = (t?) => this.anotacoes.filter(x => !t || (x.key === t[0] || x.key === t[1])).map(a => a.value || '?')
     getAnotsText = (t?) => this.anotacoes.filter(x => !t || x.key).map(a => a.get('text')).filter(x => !!x)
     getAnots = (t?) => this.anotacoes.filter(x => !t || (x.key === t))
     share = () => [this.start, this.end]
