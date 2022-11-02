@@ -218,10 +218,10 @@ preparar_ambiente() {
         log 1 7 0 "pulando instalacao do 3DRNAseq"
     fi
 
-   ## 8 instalar o interproscan
-    log 1 8 0 "instalando o interproScan5"
-    [ ! -f /tmp/interproscan.tar.gz ] && log 1 8 1 "baixando o interproScan5"
-    [ ! -f /tmp/interproscan.tar.gz ] && wget -O /tmp/interproscan.tar.gz $IPSCAN 1>$LOG_DIR/_1.7.1_ipscan.log.txt 2>$LOG_DIR/_1.7.1_ipscan..err.txt
+    ## 8 instalar o interproscan
+    [ ! -f $OUT_DIR/anotacao.tsv ] && log 1 8 0 "instalando o interproScan5"
+    [ ! -f $OUT_DIR/anotacao.tsv ] && [ ! -f /tmp/interproscan.tar.gz ] && log 1 8 1 "baixando o interproScan5"
+    [ ! -f $OUT_DIR/anotacao.tsv ] && [ ! -f /tmp/interproscan.tar.gz ] && wget -O /tmp/interproscan.tar.gz $IPSCAN 1>$LOG_DIR/_1.7.1_ipscan.log.txt 2>$LOG_DIR/_1.7.1_ipscan..err.txt
 
     echo "$(date +%d/%m\ %H:%M) programas instalados" >>$RESUMO
     log 1 0 0 "ambiente configurado"
@@ -626,6 +626,7 @@ quantificar_amostras() {
                 [[ $(echo $ARG | grep GENE2PTNA=) ]] && export GENE2PTNA=$(echo $ARG | cut -d= -f2) && log 5 0 0 "param GENE2PTNA : $GENE2PTNA" && continue
                 [[ $(echo $ARG | grep GEN_NCBI_TABLE) ]] && export GEN_NCBI_TABLE=1 && log 5 0 0 "param GEN_NCBI_TABLE : 1" && continue
                 [[ $(echo $ARG | grep ONLINE) ]] && export ONLINE=1 && log 5 0 0 "param ONLINE : 1" && continue
+                [[ $(echo $ARG | grep NOSEQS) ]] && export NOSEQS=1 && log 5 0 0 "param NOSEQS : 1" && continue
 
                 log 5 0 0 "param sem definicao $ARG" "WARN"
             fi
@@ -2212,10 +2213,10 @@ anotar() {
         open('$PTNAS', 'w').writelines([f'{x.id},{str(x.seq)}{os.linesep}' for x in SeqIO.parse('$TMP_DIR/ptnas.faa', 'fasta')])
     " | cut -c9-) 1>$LOG_DIR/_6.4.1_ext_ptnas.log.txt 2>$LOG_DIR/_6.4.1_ext_ptnas.err.txt
 
-    [ ! -d $LOCAL ] && mkdir $LOCAL
     rm -f $TSV
 
     if [ $ONLINE ]; then
+        [ ! -d $LOCAL ] && mkdir $LOCAL
         local TT=$(grep -c , $PTNAS)
 
         if (($(grep -c , $PTNAS) > 10)); then
@@ -2236,14 +2237,19 @@ anotar() {
             anotar_api $LOCAL $Q $TSV $TT $PTNAS 1
         fi
     else
-        [ -f /tmp/interproscan.tar.gz ] && [ ! -f /tmp/interproscan*/interproscan.sh ] && cd /tmp && tar -xf /tmp/interproscan.tar.gz
-        cd $TMP_DIR
-        sed 's/[*.]$//' $PTNAS | grep -v '*' | awk '{print ">"$1}' | tr , \\n >ptns.faa
-        bash /tmp/interproscan*/interproscan.sh \
-            -appl PANTHER,Pfam,SMART \
-            -cpu 10 -f TSV -goterms -pa -verbose \
-            -i ptns.faa -o $TSV 1>$LOG_DIR/_6.4.2_interproscan.log.txt 2>$LOG_DIR/_6.4.2_interproscan.err.txt
-        log 6 4 0 "anotou interpro LOCAL"
+        if [ -f $LOCAL.tsv ]; then
+            log 6 4 0 "recuperoou interpro de $LOCAL.tsv"
+            cp $LOCAL.tsv $TSV
+        else
+            [ -f /tmp/interproscan.tar.gz ] && [ ! -f /tmp/interproscan*/interproscan.sh ] && cd /tmp && tar -xf /tmp/interproscan.tar.gz
+            cd $TMP_DIR
+            sed 's/[*.]$//' $PTNAS | grep -v '*' | awk '{print ">"$1}' | tr , \\n >ptns.faa
+            bash /tmp/interproscan*/interproscan.sh \
+                -appl PANTHER,Pfam,SMART \
+                -cpu 10 -f TSV -goterms -pa -verbose \
+                -i ptns.faa -o $TSV 1>$LOG_DIR/_6.4.2_interproscan.log.txt 2>$LOG_DIR/_6.4.2_interproscan.err.txt
+            log 6 4 0 "anotou interpro LOCAL"
+        fi
     fi
 
     echo "$(date +%d/%m\ %H:%M) terminou anotacao" >>$RESUMO
@@ -2329,6 +2335,11 @@ analisar() {
 
 }
 
+saveSeqs() {
+    cp $TMP_DIR/ptnas.inline $TMP_DIR/geneapp_data
+    cp $TMP_DIR/das_genes.fna $TMP_DIR/geneapp_data
+}
+
 finalizar() {
 
     log 7 1 1 "finalizando"
@@ -2374,6 +2385,8 @@ finalizar() {
         print('introns extraidos', len(final)) 
         " | cut -c9-) \
         1>$LOG_DIR/_7.3.1_gerar_PTC.log.txt 2>$LOG_DIR/_7.3.1_gerarPTC.err.txt
+
+    [[ ! $noseq -eq "1" ]] saveSeqs
 
     cp ri_psc.csv $OUT_DIR/filogenia.txt \
         geneapp/anotacao.tsv geneapp/cov_all.bed \
