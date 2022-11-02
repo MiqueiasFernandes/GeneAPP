@@ -24,6 +24,7 @@ export class Anotacao {
         return loci;
     };
 
+    share = () => [this.value, this.anotations['start'], this.anotations['stop']]
 
     public setLocus(locus: Locus) {
         this.locus = locus;
@@ -87,7 +88,7 @@ export class Anotacao {
         //09 Status - is the status of the match (T: true)
         //10 Date - is the date of the run
         //11 InterPro annotations - accession (e.g. IPR002093)
-        const interpro = raw[11];
+        const interpro = raw[11].trim();
         //12 InterPro annotations - description (e.g. BRCA2 repeat)
         //13 (GO annotations (e.g. GO:0005515) - optional column; only displayed if –goterms option is switched on)
         const gos = raw[13];
@@ -97,13 +98,13 @@ export class Anotacao {
         const anotacoes = [Anotacao.fromRaw(raw)];
 
         interpro && anotacoes.push(new Anotacao('InterPro', interpro, { acession: interpro, text: raw[12], start, stop }))
-        tool === 'Pfam' && anotacoes.push(new Anotacao('Pfam', accession, { acession: accession, text: anotacao, start, stop }))
-        tool !== 'Pfam' && anotacoes.push(new Anotacao('Other', accession, { acession: accession, text: anotacao, start, stop, raw }))
+        tool === 'Pfam' && anotacoes.push(new Anotacao('Pfam', accession, { accession, text: anotacao, start, stop }))
+        tool !== 'Pfam' && anotacoes.push(new Anotacao('Other', accession, { accession, text: anotacao, start, stop, raw }))
         gos && gos.length > 3 && gos.split('|').map(go => go.trim()).forEach(go => {
-            anotacoes.push(new Anotacao('GO', accession, { acession: accession }))
+            anotacoes.push(new Anotacao('GO', go.trim(), { accession }))
         });
         path && path.length > 3 && path.split('|').map(pa => pa.trim()).forEach(pa => {
-            anotacoes.push(new Anotacao('Pathway', pa.split(':')[0], { acession: pa.split(':')[1] }))
+            anotacoes.push(new Anotacao('Pathway', pa.split(':')[1].trim(), { accession, db: pa.split(':')[0] }))
         });
         return anotacoes.filter(a => a.key && a.value);
     }

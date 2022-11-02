@@ -499,13 +499,16 @@ export class Projeto {
                 new ASrmats(this.genes[das["GeneID"]], das, 'SE')
             ));
 
+        const ptcs = Object.fromEntries(this.getPTC().map(x => [x.id, x]))
+
         /// RI   'ID', 'GeneID', 'geneSymbol', 'chr', 'strand', 'riExonStart_0base', 'riExonEnd', 'upstreamES', 'upstreamEE', 'downstreamES', 'downstreamEE', 'ID', 'IJC_SAMPLE_1', 'SJC_SAMPLE_1', 'IJC_SAMPLE_2', 'SJC_SAMPLE_2', 'IncFormLen', 'SkipFormLen', 'PValue', 'FDR', 'IncLevel1', 'IncLevel2', 'IncLevelDifference']
         mats_ri
             .getRows({ "GeneID": fnSTR, 'IncLevelDifference': fnFloat, 'FDR': fnFloat })
-            .map(e => Object.assign(e, { MASER: mats_ri_sig.includes(e.ID) }))
+            .map(e => Object.assign(e, { MASER: mats_ri_sig.includes(e.ID), ptc: ptcs[e["ID"]] }))
             .forEach(das => this.genes[das["GeneID"]] && this.das_genes.push(
                 new ASrmats(this.genes[das["GeneID"]], das, 'RI')
             ));
+
 
         return null;
     }

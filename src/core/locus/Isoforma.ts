@@ -14,6 +14,7 @@ export class Isoforma extends Locus {
     private three_prime_utr: UTR = null;
     private cds: CDS = null;
     private gene: Gene = null;
+    private tags = []
 
     addExon = (exon: Exon) => this.exons.push(exon);
     addIntron = (intron: Intron) => this.introns.push(intron);
@@ -26,6 +27,30 @@ export class Isoforma extends Locus {
     getUTR = () => [this.five_prime_utr, this.three_prime_utr];
     getGene = () => this.gene;
     hasCDS = () => !!this.cds;
+
+    getTags = () => this.tags.length > 0 ? this.tags :
+        (this.tags =
+            (this.nome + ',' + this.meta['NID'] + ',' + this.meta['MRNA'] + ',' +
+                this.exons.map(i => i.nome).join(',')
+            ).split(',')
+        )
+
+    share = () => [
+        (this.meta['NID'] || this.meta['MRNA'] || this.nome),
+        [this.start, this.end],
+        this.exons.map(e => e.share()),
+        this.cds ? this.cds.share() : [],
+        this.getAnots('InterPro').map(a => a.share())
+    ]
+
+    static deserialize(gene: Gene, i: any): Isoforma {
+        const iso = new Isoforma(gene.cromossomo, i[1][0], i[1][1], gene.strand, i[0])
+        i[2].forEach((e, k) => iso.addExon(new Exon(gene.cromossomo, e[0], e[1], gene.strand, 'Exon' + (k + 1))))
+        i[3].forEach((c, k) => iso.setCDS(new Locus(gene.cromossomo, c[0], c[1], gene.strand, 'CDS' + (k + 1))))
+        i[4].forEach((a, k) => iso.add_anotacao(new Anotacao('InterPro', a[0], { start: a[1], stop: a[2] })))
+        iso.update(gene);
+        return iso;
+    }
 
     update(gene: Gene): Isoforma {
         this.gene = gene;

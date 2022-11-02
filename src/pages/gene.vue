@@ -74,6 +74,17 @@ function baixar() {
     GENE_PLOT && Arquivo.download(GENE_PLOT.nome + '.svg', GENE_PLOT.download(), 'image/svg+xml');
 }
 
+
+function setGene(g) {
+    const gene = GENE = g
+    PROJETO.nome = gene.nome;
+    route.meta.description = "Gene View " + query.id;
+    const vb = ViewBox.fromScreen((gene.getIsoformas().length) * 50 + 150, Padding.simetric(5).center())
+    GENE_PLOT = new GenePlot('plot', vb)
+    GENE_PLOT.plot(gene)
+    plotou.value = true
+}
+
 function carregar() {
     if (query.id) {
         notificar(`Carregando gene ${query.id} pelo NCBI`)
@@ -82,15 +93,14 @@ function carregar() {
         axios.get(url)
             .then(res => {
                 status.value = 'gene carregado!'
-                const gene = GENE = Gene.fromNCBI(res.data.split('\n'))
-                PROJETO.nome = gene.nome;
-                route.meta.description = "Gene View " + query.id;
-                const vb = ViewBox.fromScreen((gene.getIsoformas().length) * 50 + 150, Padding.simetric(5).center())
-                GENE_PLOT = new GenePlot('plot', vb)
-                GENE_PLOT.plot(gene)
-                plotou.value = true
+                setGene(Gene.fromNCBI(res.data.split('\n')))
             })
             .catch(e => status.value = 'erro ao carregar ' + url)
+    }
+    if (query.x) {
+        const dt = JSON.parse(atob(query.x))
+        const gene = Gene.fromShare(dt)
+        setGene(gene)
     }
 }
 

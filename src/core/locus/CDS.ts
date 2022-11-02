@@ -10,6 +10,7 @@ export class CDS {
     constructor(locus: Locus) {
         this.addSite(locus);
     }
+    share = () => this.loci.map(l => l.share())
 
     addSite(locus: Locus): CDS {
         this.loci.push(locus);

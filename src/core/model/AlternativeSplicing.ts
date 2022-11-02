@@ -19,12 +19,16 @@ export class AlternativeSplicing {
     getEvidence = () => this.evidence;
     hasMASER = () => this.extra['MASER']
     getGene = () => this.gene;
+    share() {
+        return [this.evidence, this.dps, this.qvalue]
+    }
 }
 
 export class AS3dranseq extends AlternativeSplicing {
     constructor(gene: Gene, raw: {}) {
         super('3DRNASeq', gene, raw['maxdeltaPS'], raw['adj.pval'], raw);
     }
+    static fromShare = (gene: Gene, dt) => new AS3dranseq(gene, { 'maxdeltaPS': dt[1], 'adj.pval': dt[2] })
 }
 
 export class ASrmats extends AlternativeSplicing {
@@ -32,37 +36,37 @@ export class ASrmats extends AlternativeSplicing {
     constructor(gene: Gene, raw: {}, tipo: string) {
         super('rMATS', gene, raw['IncLevelDifference'], raw['FDR'], raw);
         this.tipo = raw['tipo'] = tipo;
-
-        switch (tipo) {
-            case 'RI':
-                //ri riExonStart_0base	riExonEnd
-                var ria = parseInt(raw['downstreamEE'])
-                var rib = parseInt(raw['upstreamES'])
-                this.extra['AS_SITE_START'] = Math.min(ria, rib)
-                this.extra['AS_SITE_END'] = Math.max(ria, rib)
-                break;
-            case 'SE':
-                //se  exonStart_0base	exonEnd
-                var sea = parseInt(raw['exonStart_0base'])
-                var seb = parseInt(raw['exonEnd'])
-                this.extra['AS_SITE_START'] = Math.min(sea, seb)
-                this.extra['AS_SITE_END'] = Math.max(sea, seb)
-                break;
-            default:
-                //a3ss   longExonStart_0base	longExonEnd	shortES	shortEE
-                //a5ss  longExonStart_0base	longExonEnd	shortES	shortEE
-                var a = parseInt(raw['longExonStart_0base'])
-                var b = parseInt(raw['longExonEnd'])
-                var c = parseInt(raw['shortES'])
-                var d = parseInt(raw['shortEE'])
-                this.extra['AS_INI_DIF'] = a !== c
-                this.extra['AS_END_DIF'] = b !== d
-                this.extra['AS_INI_DIF'] && this.extra['AS_END_DIF'] && console.warn('Evento AS duplicado ' + raw)
-                this.extra['AS_SITE_START'] = this.extra['AS_INI_DIF'] ? Math.min(a, c) : a
-                this.extra['AS_SITE_END'] = this.extra['AS_END_DIF'] ? Math.max(b, d) : b
-                this.extra['AS_PB'] = this.extra['AS_INI_DIF'] ? Math.max(a, c) : Math.min(b, d)
-                break;
-        }
+        if (!this.extra['AS_SITE_START'] && !this.extra['AS_SITE_END'])
+            switch (tipo) {
+                case 'RI':
+                    //ri riExonStart_0base	riExonEnd
+                    var ria = parseInt(raw['downstreamEE'])
+                    var rib = parseInt(raw['upstreamES'])
+                    this.extra['AS_SITE_START'] = Math.min(ria, rib)
+                    this.extra['AS_SITE_END'] = Math.max(ria, rib)
+                    break;
+                case 'SE':
+                    //se  exonStart_0base	exonEnd
+                    var sea = parseInt(raw['exonStart_0base'])
+                    var seb = parseInt(raw['exonEnd'])
+                    this.extra['AS_SITE_START'] = Math.min(sea, seb)
+                    this.extra['AS_SITE_END'] = Math.max(sea, seb)
+                    break;
+                default:
+                    //a3ss   longExonStart_0base	longExonEnd	shortES	shortEE
+                    //a5ss  longExonStart_0base	longExonEnd	shortES	shortEE
+                    var a = parseInt(raw['longExonStart_0base'])
+                    var b = parseInt(raw['longExonEnd'])
+                    var c = parseInt(raw['shortES'])
+                    var d = parseInt(raw['shortEE'])
+                    this.extra['AS_INI_DIF'] = a !== c
+                    this.extra['AS_END_DIF'] = b !== d
+                    this.extra['AS_INI_DIF'] && this.extra['AS_END_DIF'] && console.warn('Evento AS duplicado ' + raw)
+                    this.extra['AS_SITE_START'] = this.extra['AS_INI_DIF'] ? Math.min(a, c) : a
+                    this.extra['AS_SITE_END'] = this.extra['AS_END_DIF'] ? Math.max(b, d) : b
+                    this.extra['AS_PB'] = this.extra['AS_INI_DIF'] ? Math.max(a, c) : Math.min(b, d)
+                    break;
+            }
         this.extra['IMPACT'] = 1 + this.extra['AS_SITE_END'] - this.extra['AS_SITE_START']
     }
 
@@ -74,4 +78,22 @@ export class ASrmats extends AlternativeSplicing {
         Math.max(this.extra['AS_SITE_START'], this.extra['AS_SITE_END']) - this.getGene().start]))
 
     getASpb = (genoma?) => this.extra['AS_PB'] - (genoma ? 0 : this.getGene().start)
+
+    share() {
+        return super.share().concat([
+            this.tipo,
+            this.extra['AS_SITE_START'], this.extra['AS_SITE_END'], this.extra['ID'],
+            this.extra['upstreamEE'], this.extra['downstreamES'], this.extra['ptc']
+        ])
+    };
+
+    static fromShare = (gene: Gene, dt) => new ASrmats(
+        gene, {
+        'IncLevelDifference': dt[1],
+        'FDR': dt[2],
+        'AS_SITE_START': dt[4],
+        'AS_SITE_END': dt[5],
+        'ID': dt[6], 'upstreamEE': dt[7], 'downstreamES': dt[8], ptc: dt[9]
+    },
+        dt[3])
 }

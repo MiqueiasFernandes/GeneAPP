@@ -1,4 +1,4 @@
-import { AlternativeSplicing } from "../model/AlternativeSplicing";
+import { AlternativeSplicing, AS3dranseq, ASrmats } from "../model/AlternativeSplicing";
 import { Cromossomo } from "../model/Cromossomo";
 import { DifferentialExpression } from "../model/DifferentialExpression";
 import { Exon } from "./Exon";
@@ -14,6 +14,14 @@ export class Gene extends Locus {
     private anots;
     private canonic: Isoforma;
     private has_bed = false;
+    private tags = []
+
+    getTags = () => this.tags.length > 0 ? this.tags :
+        (this.tags =
+            (this.nome + ',' + this.meta['NID'] + ',' +
+                this.isoformas.map(i => i.getTags().join(',')).join(',')
+            ).split(',')
+        )
 
     getNome = () => this.meta['NID'] || this.nome
 
@@ -26,6 +34,8 @@ export class Gene extends Locus {
     setDE(de: DifferentialExpression) {
         this.dexp = de;
     }
+
+    getDE = () => this.dexp;
 
     addIsoforma(isoforma: Isoforma) {
         this.isoformas.push(isoforma);
@@ -59,7 +69,10 @@ export class Gene extends Locus {
     hasBED = () => this.has_bed
 
     getAnots = (t?) => this.anots || (this.anots = [... new Set(this.isoformas.map(i => i.getAnotsAcession(t)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?'))
-
+    getGO = () => [... new Set(this.isoformas.map(i => i.getAnots('GO').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
+    getPathway = () => [... new Set(this.isoformas.map(i => i.getAnots('Pathway').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
+    getPfam = () => [... new Set(this.isoformas.map(i => i.getAnots('Pfam').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
+    getInterpro = () => [... new Set(this.isoformas.map(i => i.getAnots('InterPro').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
     // A2M alpha-2-macroglobulin[Homo sapiens]
     // Gene ID: 2, updated on 9-Oct-2022
 
@@ -181,4 +194,20 @@ export class Gene extends Locus {
 
         return this.canonic;
     }
+
+    share = () => [
+        this.getNome(),
+        [this.start, (this.strand ? '+' : '-'), this.end],
+        this.isoformas.map(i => i.share()),
+        this.as_events.map(a => a.share())
+    ]
+
+    static fromShare(dt) {
+        const cromossomo = new Cromossomo('Unknown', dt[1][2] - dt[1][0] + 1)
+        const gene = new Gene(cromossomo, dt[1][0], dt[1][2], dt[1][1] == '+', dt[0])
+        dt[2].forEach(i => gene.addIsoforma(Isoforma.deserialize(gene, i)))
+        dt[3].forEach(as => gene.addAS(as[0] === 'rMATS' ? ASrmats.fromShare(gene, as) : AS3dranseq.fromShare(gene, dt)))
+        return gene;
+    }
+
 }

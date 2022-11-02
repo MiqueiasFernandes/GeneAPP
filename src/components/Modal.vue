@@ -11,15 +11,22 @@ const props = defineProps({
             { text: 'Ficar' }
         ]
     },
-    color: { default: 'info' }
+    color: { default: 'info' },
+    html: { default: null },
+    show: { default: true}
 });
-const open = ref(true)
+const open = ref(props.show)
 
 function parseColor(color) {
     if (!color) return 'text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500'
     if (color === 'red') return 'border-transparent bg-red-600 text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
     return color
 }
+
+function show() {
+    open.value = true
+}
+defineExpose({show})
 </script>
 
 <template>
@@ -58,6 +65,8 @@ function parseColor(color) {
                                             {{ titulo }}
                                         </DialogTitle>
                                         <div class="mt-2">
+                                            <p v-if="html" class="text-sm text-gray-500" v-html="html">
+                                            </p>
                                             <p class="text-sm text-gray-500">
                                                 <slot />
                                             </p>
