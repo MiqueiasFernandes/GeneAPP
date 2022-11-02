@@ -2248,6 +2248,7 @@ anotar() {
                 -appl PANTHER,Pfam,SMART \
                 -cpu 10 -f TSV -goterms -pa -verbose \
                 -i ptns.faa -o $TSV 1>$LOG_DIR/_6.4.2_interproscan.log.txt 2>$LOG_DIR/_6.4.2_interproscan.err.txt
+            cp $TSV $LOCAL.tsv
             log 6 4 0 "anotou interpro LOCAL"
         fi
     fi
@@ -2261,17 +2262,17 @@ filogenia() {
     local A_FILO=$OUT_DIR/filogenia.txt
     local J_FILO=$TMP_DIR/geneapp/job_filogenia.txt
 
-    if [ -f $A_FILO ]; then
-        echo "$(date +%d/%m\ %H:%M) recuperando filogenia de $A_FILO" >>$RESUMO
-        return
-    fi
-
     python3 <(printf "
         from Bio import SeqIO
         gene_seqs = SeqIO.parse('$TMP_DIR/gene_seqs.fa' , 'fasta')
         gene_as = set([l.strip() for l in open('$TMP_DIR/geneapp/all_as_genes.txt') if len(l) > 2])
         SeqIO.write([x for x in gene_seqs if x.id in gene_as], '$A_SEQ', 'fasta')
     " | cut -c9-) 1>$LOG_DIR/_6.4.0_ext_genes.log.txt 2>$LOG_DIR/_6.4.0_ext_genes.err.txt
+
+    if [ -f $A_FILO ]; then
+        echo "$(date +%d/%m\ %H:%M) recuperando filogenia de $A_FILO" >>$RESUMO
+        return
+    fi
 
     if [ -f $J_FILO ]; then
         JOB=$(head -1 $J_FILO | tr -d :alphanum:)
