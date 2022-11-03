@@ -40,6 +40,7 @@ export class Projeto {
     private baixando = false;
     private FNA = null;
     private FAA = null;
+    private arquivos = [];
 
 
     constructor(nome: string) {
@@ -117,17 +118,17 @@ export class Projeto {
         if (erros.length > 0) {
             return { erros: erros.map(e => e[0] + ' {R' + e[1] + 'E' + e[2] + '}'), metadata: null, files: null, headers: null };
         }
+        this.arquivos = Object.values(files).map(x => x[0])
         return { erros: undefined, metadata, files, headers };
     }
 
-    private part = (v, t) => v.filter(x => x[0] === t)[0][1];
+    private part = (v, t) => this.arquivos.includes(t) ? v.filter(x => x[0] === t)[0][1] : [];
 
     private getCSV = (v, t, h, s = ",") => {
         const lines = this.part(v, t);
         const header = h ? h.filter(x => x[0] === t)[0][1] : null;
         return CSV.fromLines(lines.filter(l => l !== header), s, header ? header.split(s) : []);
     }
-
 
     // https://github.com/jasondavies/newick.js
     parseNewick(a) { for (var e = [], r = {}, s = a.split(/\s*(;|\(|\)|,|:)\s*/), t = 0; t < s.length; t++) { var n = s[t]; switch (n) { case "(": var c = {}; r['branchset'] = [c], e.push(r), r = c; break; case ",": var c = {}; e[e.length - 1].branchset.push(c), r = c; break; case ")": r = e.pop(); break; case ":": break; default: var h = s[t - 1]; ")" == h || "(" == h || "," == h ? r['name'] = n : ":" == h && (r['length'] = parseFloat(n)) } } return r }
@@ -169,13 +170,8 @@ export class Projeto {
             /// Total : ... AS genes encontrados | so rMATS $SO_RMATS | so 3DRNASEQ $SO_3D | ambos $AMBOS 
         ];
 
-
-        this.FNA = this.part(files, 'das_genes.inline');
-        this.FAA = this.part(files, 'ptnas.inline');
-
-        console.log(this.FNA)
-        console.log(this.FAA)
-
+        this.FNA = Object.fromEntries(Object.values<string>(this.part(files, 'das_genes.inline')).map(x => x.split(',')));
+        this.FAA = Object.fromEntries(Object.values<string>(this.part(files, 'ptnas.inline')).map(x => x.split(',')));
         return null;
     }
 
@@ -314,6 +310,8 @@ export class Projeto {
                             gene.meta = locus.meta;
                             cromossomos[crh_nome].addGene(gene);
                             this.genes[locus.meta['NID']] = gene;
+                            this.FNA && this.FNA[gene.nome] && (gene.seq = this.FNA[gene.nome])
+                            this.FNA && this.FNA[gene.meta['NID']] && (gene.seq = this.FNA[gene.meta['NID']])
                         } else {
                             console.warn(`Cromossomo ${crh_nome} not found: ${l}`);
                         }
@@ -333,6 +331,10 @@ export class Projeto {
                                 mrna.meta['NID'] = mrna.meta.ID
                                 this.gene_prefix > 0 && (mrna.meta['NID'] = mrna.meta.ID.replace('rna-', ''))
                                 this.isoformas_FASTA[mrna.meta['MRNA']] = mrna;
+                                this.FAA && this.FAA[mrna.nome] && (mrna.seq = this.FAA[mrna.nome])
+                                this.FAA && this.FAA[mrna.meta['NID']] && (mrna.seq = this.FAA[mrna.meta['NID']])
+                                this.FAA && this.FAA[mrna.meta['MRNA']] && (mrna.seq = this.FAA[mrna.meta['MRNA']])
+                                this.FAA && this.FAA[mrna.meta['PTNA']] && (mrna.seq = this.FAA[mrna.meta['PTNA']])
                             } else {
                                 console.warn(locus);
                             }

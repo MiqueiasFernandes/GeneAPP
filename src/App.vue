@@ -98,7 +98,7 @@ const pages = (router) => router.options.routes
 
     <DisclosurePanel class="sm:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1">
-        <DisclosureButton v-for="item in pages($router)" :key="item.meta.title" as="a" :href="item.path" 
+        <DisclosureButton v-for="item in pages($router)" :key="item.meta.title" as="a" :href="item.path"
           :class="[$route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium']"
           :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined">{{ item.meta.title }}
         </DisclosureButton>
@@ -122,11 +122,10 @@ const pages = (router) => router.options.routes
         </h5>
       </div>
     </header>
-    <main>
+    <main class="pb-1">
       <router-view />
     </main>
   </div>
-
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="bg-gray-800 fill-gray-100">
     <path fill-opacity="1"
       d="M0,128L34.3,154.7C68.6,181,137,235,206,234.7C274.3,235,343,181,411,186.7C480,192,549,256,617,282.7C685.7,309,754,299,823,250.7C891.4,203,960,117,1029,101.3C1097.1,85,1166,139,1234,154.7C1302.9,171,1371,149,1406,138.7L1440,128L1440,0L1405.7,0C1371.4,0,1303,0,1234,0C1165.7,0,1097,0,1029,0C960,0,891,0,823,0C754.3,0,686,0,617,0C548.6,0,480,0,411,0C342.9,0,274,0,206,0C137.1,0,69,0,34,0L0,0Z">

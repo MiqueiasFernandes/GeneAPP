@@ -19,6 +19,7 @@ export class Locus {
     fase = 0;
     start_aa = 0;
     end_aa = 0;
+    seq = null;
 
     anotacoes: Array<Anotacao> = new Array<Anotacao>();
 

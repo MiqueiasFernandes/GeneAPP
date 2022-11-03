@@ -27,7 +27,7 @@ export class Isoforma extends Locus {
     getUTR = () => [this.five_prime_utr, this.three_prime_utr];
     getGene = () => this.gene;
     hasCDS = () => !!this.cds;
-
+    getNome = () => this.meta['NID'] || this.meta['MRNA'] || this.nome
     getTags = () => this.tags.length > 0 ? this.tags :
         (this.tags =
             (this.nome + ',' + this.meta['NID'] + ',' + this.meta['MRNA'] + ',' +
@@ -136,5 +136,37 @@ export class Isoforma extends Locus {
         ctb.forEach((c, i) => mrna.setCDS(new Locus(gene.cromossomo, c[0], c[1], gene.strand, `CDS${i}`)))
         mrna.update(gene);
         return mrna;
+    }
+
+    mark(seq: string) {
+        seq = seq.toLocaleUpperCase()
+        const pbs = this.strand ? seq.split('') : seq.split('').reverse()
+
+        const mark = (a, b, pbs, l, r) => {
+            if (this.strand) {
+                pbs[l.start - r.start] = a + pbs[l.start - r.start]
+                pbs[l.end - r.start] = pbs[l.end - r.start] + b
+            } else {
+                pbs[l.start - r.start - 1] = pbs[l.start - r.start - 1] + b
+                pbs[l.end - r.start - 1] = a + pbs[l.end - r.start - 1]
+            }
+        }
+
+        mark('!', '*', pbs, this, this.gene)
+        this.cds.getLoci().forEach(c => mark('#', '$', pbs, c, this.gene))
+        this.exons.forEach(e => mark('%', '$', pbs, e, this.gene))
+        this.introns.forEach(i => mark('?', '&', pbs, i, this.gene))
+
+        return ('<span class="text-slate-700">' + (this.strand ? pbs.join('') : pbs.reverse().join(''))
+            .replaceAll('!', '<b class="font-bold">')
+            .replaceAll('#', '<i class="bg-indigo-200">')
+            .replaceAll('%', '<i class="text-green-600">')
+            .replaceAll('$', '</i>')
+            .replaceAll('?', '<span class="underline decoration-wavy text-gray-400">')
+            .replaceAll('&', '</span>')
+            .replaceAll('*', '</b>') + '</span>')
+            .replace('<i class="bg-indigo-200">ATG', '<i class="bg-indigo-600 rounded-full text-white p-1">ATG</i><i class="bg-indigo-200">')
+            .replace('<i class="bg-indigo-200"><i class="text-green-600">ATG', '<i class="bg-indigo-600 rounded-full text-white p-1">ATG</i><i class="bg-indigo-200"><i class="text-green-600">')
+
     }
 }
