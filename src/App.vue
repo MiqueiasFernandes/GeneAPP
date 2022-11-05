@@ -13,7 +13,7 @@ const pages = (router) => router.options.routes
 
 <template>
 
-  <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
+  <Disclosure as="nav" class="bg-gray-800 fixed w-full shadow z-10" v-slot="{ open }">
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -106,7 +106,7 @@ const pages = (router) => router.options.routes
     </DisclosurePanel>
   </Disclosure>
 
-  <div class="bg-gray-100">
+  <div class="bg-gray-100 pt-16">
     <header class="bg-gray-50 shadow" v-if="$route.meta.title">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 @click="counter = 0" class="text-3xl font-bold leading-tight text-gray-900">
@@ -120,7 +120,7 @@ const pages = (router) => router.options.routes
         </h5>
       </div>
     </header>
-    <main class="pb-1">
+    <main class="p-2">
       <router-view />
     </main>
   </div>
@@ -138,21 +138,23 @@ const pages = (router) => router.options.routes
     </div>
   </div>
 
-  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color" :html="modal.html"
-    :inputs="modal.inputs">
-    {{ modal.conteudo }}
-  </Modal>
-
-  <div class="top-8 right-0 -mr-8 absolute max-w-lg px-4 py-2 flex flex-col items-end rounded-l-3xl"
+  <div class="top-8 right-0 -mr-8 fixed max-w-lg px-4 py-2 flex flex-col items-end rounded-l-3xl z-10"
     style="background:  radial-gradient(white, transparent)">
     <!-- <template v-for="notificacao in Object.values(NOTIFICACOES).sort((a, b) => (a && b) ? a.id - b.id : 0)"> -->
     <template v-for="notificacao in NOTIFICACOES">
-      <Notificacao class="pr-10" v-if="notificacao && !notificacao.close" :color="notificacao.color" :timeout="notificacao.timeout"
-        :id="notificacao.id">
+      <Notificacao class="pr-10" v-if="notificacao && !notificacao.close" :color="notificacao.color"
+        :timeout="notificacao.timeout" :id="notificacao.id">
         {{ notificacao.msg }}
       </Notificacao>
     </template>
   </div>
+
+  <Modal
+  v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color" :html="modal.html"
+    :inputs="modal.inputs">
+    {{ modal.conteudo }}
+  </Modal>
+
 
 
 </template>

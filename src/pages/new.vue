@@ -63,7 +63,7 @@ function setExperimento() {
 
   MODALS.push({
     titulo: 'Dados de amostra',
-    color: 'warn',
+    color: 'info',
     conteudo: 'Caso vc esteja usando dados de amostra vc precisa descompactar primeiro, e entao carregar os 10 arquivos obtidos do arquivo comprimido.',
     botoes: [{ text: 'OK', action: () => true, end: importar, color: 'bg-indigo-500' }]
   })
