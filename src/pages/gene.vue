@@ -18,6 +18,7 @@ import { GenePlot, Padding, ViewBox } from '../core/d3';
 import { Anotacao, Gene } from '../core/model';
 import { PROJETO, notificar } from "../core/State";
 import { Arquivo } from '../core/utils/Arquivo';
+import { getNCBIaa, getInterpro, withEmail } from '../core/ClientAPI'
 useHead({ title: 'Gene View' });
 
 const route = useRoute()
@@ -30,48 +31,32 @@ var GENE_PLOT = null;
 
 function anotar() {
     if (!GENE_PLOT) return
-    anotou.value = true
     if (!GENE || GENE.getIsoformas().length < 2) return
-    const eutils = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=@&rettype=fasta&retmode=text'
-    GENE.getIsoformas().forEach(iso => {
-        const ptnas = iso.getAnots('Protein')
-        if (ptnas.length === 1) {
-            const ptn = ptnas[0].value
-            const ipro = 'https://www.ebi.ac.uk/Tools/services/rest/iprscan5'
-            axios.get(eutils.replace('@', ptn))
-                .then(res => {
+    withEmail(_ => {
+        anotou.value = true
+        GENE.getIsoformas().forEach(iso => {
+            const ptnas = iso.getAnots('Protein')
+            if (ptnas.length === 1) {
+                const ptn = ptnas[0].value
+                getNCBIaa(ptn, (seq) => {
                     notificar(`${ptn} obtida da API do eutis/NCBI`)
-                    axios.postForm(
-                        `${ipro}/run`, {
-                        email: 'teste@teste.com',
-                        goterms: false,
-                        pathways: false,
-                        appl: 'PfamA',
-                        title: 'anotar',
-                        sequence: res.data.split('\n').slice(1).join('')
-                    }).then(res => {
-                        const job = res.data;
-                        notificar(`Job ${job.substring(0, 10)}... anotando pela API InterproScan5`, 'success', 60)
-                        const itv = setInterval(() => {
-                            axios.get(`${ipro}/status/${job}`).then(res => {
-                                if (res.data === 'FINISHED') {
-                                    clearInterval(itv)
-                                    axios.get(`${ipro}/result/${job}/tsv`).then(res => {
-                                        res.data.split('\n').forEach(
-                                            x => Anotacao.fromRaw2(x.split('\t')).forEach(a => iso.add_anotacao(a)))
-                                        GENE_PLOT.invalidate(GENE)
-                                    })
-                                }
-                            })
-                        }, 60000)
-                    })
-                })
-        }
-    });
+
+                    getInterpro(seq,
+                        (status, t) => notificar(status, t > 1 ? 'warn' : 'success', 60),
+                        (anots) => {
+                            iso.add_anotacoes(anots)
+                            GENE_PLOT.invalidate(GENE)
+                        })
+
+
+                }).catch(_ => notificar(`Erro ao obter aa ${ptn} pelo NCBI.`, 'danger', 60))
+            }
+        });
+    })
 }
 
 function baixar() {
-    GENE_PLOT && Arquivo.download(GENE_PLOT.nome + '.svg', GENE_PLOT.download(), 'image/svg+xml');
+    GENE_PLOT && GENE && Arquivo.download(GENE.nome + '.svg', GENE_PLOT.download(), 'image/svg+xml');
 }
 
 

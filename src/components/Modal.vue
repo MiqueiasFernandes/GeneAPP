@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { ExclamationIcon, ExclamationCircleIcon } from '@heroicons/vue/outline'
+import FormInputText from './FormInputText.vue';
 const props = defineProps({
     titulo: { default: "Atenção" },
     conteudo: { default: "Aprovar." },
@@ -13,9 +14,11 @@ const props = defineProps({
     },
     color: { default: 'info' },
     html: { default: null },
-    show: { default: true}
+    show: { default: true },
+    inputs: { default: [] }
 });
 const open = ref(props.show)
+const data = ref({})
 
 function parseColor(color) {
     if (!color) return 'text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500'
@@ -26,7 +29,17 @@ function parseColor(color) {
 function show() {
     open.value = true
 }
-defineExpose({show})
+
+function submit(botao) {
+    if (!botao) {
+        const def = props.botoes.filter(b => b.default)
+        if (def.length > 0)
+            botao = def[0]
+    }
+    botao && (!botao.action || !(open.value = !botao.action(data.value))) && botao.end && botao.end(botao, data.value)
+}
+
+defineExpose({ show })
 </script>
 
 <template>
@@ -70,6 +83,10 @@ defineExpose({show})
                                             <p class="text-sm text-gray-500">
                                                 <slot />
                                             </p>
+                                            <FormInputText v-for="input in inputs" :label="input.label"
+                                                @keyup.enter="submit(null)" :content="input.value"
+                                                @update="(x) => (data[input.label] = x)">
+                                            </FormInputText>
                                         </div>
                                     </div>
                                 </div>
@@ -77,7 +94,7 @@ defineExpose({show})
                             <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                                 <button type="button" v-for="botao in botoes"
                                     :class="parseColor(botao.color) + ' inline-flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm'"
-                                    @click="botao.action ? (open = !botao.action()) : null ; botao.end && botao.end(botao)">
+                                    @click="submit(botao)">
                                     {{ botao.text }}
                                 </button>
                             </div>

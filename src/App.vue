@@ -106,8 +106,6 @@ const pages = (router) => router.options.routes
     </DisclosurePanel>
   </Disclosure>
 
-  <!-- resolver pagina inicial / para start/ -->
-
   <div class="bg-gray-100">
     <header class="bg-gray-50 shadow" v-if="$route.meta.title">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -126,6 +124,7 @@ const pages = (router) => router.options.routes
       <router-view />
     </main>
   </div>
+
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="bg-gray-800 fill-gray-100">
     <path fill-opacity="1"
       d="M0,128L34.3,154.7C68.6,181,137,235,206,234.7C274.3,235,343,181,411,186.7C480,192,549,256,617,282.7C685.7,309,754,299,823,250.7C891.4,203,960,117,1029,101.3C1097.1,85,1166,139,1234,154.7C1302.9,171,1371,149,1406,138.7L1440,128L1440,0L1405.7,0C1371.4,0,1303,0,1234,0C1165.7,0,1097,0,1029,0C960,0,891,0,823,0C754.3,0,686,0,617,0C548.6,0,480,0,411,0C342.9,0,274,0,206,0C137.1,0,69,0,34,0L0,0Z">
@@ -139,13 +138,21 @@ const pages = (router) => router.options.routes
     </div>
   </div>
 
-  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color" :html="modal.html">
+  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color" :html="modal.html"
+    :inputs="modal.inputs">
     {{ modal.conteudo }}
   </Modal>
 
-  <Notificacao v-for="(notificacao, i) in NOTIFICACOES" :color="notificacao.color" :index="NOTIFICACOES.length - i"
-    :id="notificacao.id" :timeout="notificacao.timeout">
-    {{ notificacao.msg }}
-  </Notificacao>
+  <div class="top-8 right-0 -mr-8 absolute max-w-lg px-4 py-2 flex flex-col items-end rounded-l-3xl"
+    style="background:  radial-gradient(white, transparent)">
+    <!-- <template v-for="notificacao in Object.values(NOTIFICACOES).sort((a, b) => (a && b) ? a.id - b.id : 0)"> -->
+    <template v-for="notificacao in NOTIFICACOES">
+      <Notificacao class="pr-10" v-if="notificacao && !notificacao.close" :color="notificacao.color" :timeout="notificacao.timeout"
+        :id="notificacao.id">
+        {{ notificacao.msg }}
+      </Notificacao>
+    </template>
+  </div>
+
 
 </template>

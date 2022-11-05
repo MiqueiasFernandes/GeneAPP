@@ -216,7 +216,7 @@ export class GenePlot extends AbstractPlot {
         })
     }
 
-    plotRI(projeto: Projeto, gene: Gene, event, vb: ViewBox, R) {
+    plotRI(gene: Gene, event, vb: ViewBox, R) {
         const start = parseInt(event.extra['AS_SITE_START'])
         const end = parseInt(event.extra['AS_SITE_END'])
         const id = event.extra['ID']
@@ -250,20 +250,17 @@ export class GenePlot extends AbstractPlot {
         rct.append("title").text(event.extra['ID'])
     }
 
-    plotAS(projeto: Projeto, vb: ViewBox, gene: Gene, R) {
-
+    plotAS(vb: ViewBox, gene: Gene, R) {
         const as = gene.getAS();
-
-        as.filter(a => a['tipo'] === 'RI').forEach(evt => this.plotRI(projeto, gene, evt, vb, R))
+        as.filter(a => a['tipo'] === 'RI').forEach(evt => this.plotRI(gene, evt, vb, R))
         as.filter(a => a['tipo'] === 'SE').forEach(evt => this.plotSE(gene, evt, vb, R))
-
     }
 
     plotLegend(viewBox: ViewBox, projeto: Projeto) {
 
         viewBox.splitX(4).forEach((vbs, i) => vbs.splitY(3).forEach((vb, j) => {
             const X = vb.getBoxX0()
-            const Y = vb.getBoxCenter()[1] + 2
+            const Y = vb.getBoxCenter()[1]
             switch (i * 10 + j) {
                 case 0:
                     this.exon(X, Y - 1, 10, 10, 'red')
@@ -359,7 +356,7 @@ export class GenePlot extends AbstractPlot {
 
         const isoBoxs = vbIsoforms.splitY(gene.getIsoformas().length)
         gene.getIsoformas().forEach((iso, i) => this.plotIsoform(projeto, iso, isoBoxs[i], R))
-        show_gene && this.plotAS(projeto, vbGene, gene, R)
+        show_gene && this.plotAS(vbGene, gene, R)
 
         this.plotLegend(vbLeged, projeto)
         return this;
