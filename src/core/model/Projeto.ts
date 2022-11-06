@@ -37,7 +37,6 @@ export class Projeto {
     private ptc: CSV;
     private filogenia;
     private resultados = {};
-    private baixando = false;
     private FNA = null;
     private FAA = null;
     private arquivos = [];

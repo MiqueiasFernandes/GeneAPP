@@ -506,7 +506,7 @@ quantificar() {
             ILLUMINACLIP:TruSeq3-PE.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36 \
             1>$LOG_DIR/_5.$SID.2_qc.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.2_qc.$SAMPLE.err.txt
     fi
-    grep 'Surviving' $LOG_DIR/_5.$SID.2_qc.$SAMPLE.err.txt >>$RESUMO
+    grep 'Surviving' $LOG_DIR/_5.$SID.2_qc.$SAMPLE.err.txt | sed "s/^/$SAMPLE,/" >>$RESUMO
 
     # 3 rodar o fastqc
     log 5 $SID 3 "reportando controle de qualidade da amostra $SAMPLE com fastqc ..."

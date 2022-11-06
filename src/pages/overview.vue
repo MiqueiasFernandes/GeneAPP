@@ -266,11 +266,65 @@ function plotFilo(wC) {
 }
 
 const show = ref(false);
+const tableED = ref([])
+
+function loadTables() {
+
+    /// tabela experimental design
+    /// 1. fator
+    /// 2. amostra
+    /// 3. run
+
+    const dt = []
+    dt.push(...PROJETO.getCtrl().samples.map(s => ({ fator: s.fator, sample: s.nome, run: s.run })))
+    dt.push(...PROJETO.getTrat().samples.map(s => ({ fator: s.fator, sample: s.nome, run: s.run })))
+
+    const dataSet = projeto.qc_status
+        .mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length") //// media de tamanho
+        .mapColInt("FastQC_mqc-generalstats-fastqc-total_sequences")   //// quantidade
+        .mapCol("FastQC_mqc-generalstats-fastqc-percent_fails", parseFloat) ////falhou qc
+        .getRows();
+
+    /// 4. total reads
+    //  5. taamnho
+    /// 6. Qc falhou %
+    /// 7. % mapeda genoma
+
+    const resumo2 = PROJETO.getResumo('overall alignment rate')
+        .filter(x => x.indexOf('GENOMA:') > 0)
+        .map(x => [x.split(' de ')[1].split(' ')[0], x.split(' GENOMA: ')[1].split(' ')[0]])
+
+    dt.forEach(d => {
+
+        const oar = resumo2.filter(x => x[0].startsWith(d.sample))
+        if (oar.length > 0) {
+            d.map = oar[0][1]
+        }
+
+        const ss = dataSet.filter(x => x.Sample.startsWith(d.sample))
+        if (ss.length > 0) {
+            d.tamanho = ss[0]["FastQC_mqc-generalstats-fastqc-avg_sequence_length"]
+            d.quantidate = ss[0]["FastQC_mqc-generalstats-fastqc-total_sequences"]
+            d.qc = ss[0]["FastQC_mqc-generalstats-fastqc-percent_fails"].toPrecision(2) + '%'
+        }
+    })
+
+    /// 8. QC reads %
+    // ////Input Read Pairs: ...   Dropped:
+
+    const resumo1 = PROJETO.getResumo('Input Read Pairs:')
+    console.log(resumo1)
+
+    console.log(dt)
+
+
+}
 
 function criar() {
     show.value = true;
     const wC = 1100 / 7;
     setTimeout(() => {
+        loadTables();
         plotQC(wC);
         plotRd(wC);
         plotMp(wC);
