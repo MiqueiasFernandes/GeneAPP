@@ -66,7 +66,9 @@ export class Gene extends Locus {
     getBED = (site?: number[]) => site ? Object.fromEntries(Object.entries(this.bed).map(x => [x[0],
     x[1].filter(b => b[0] >= site[0] && b[1] <= site[1])
     ])) : this.bed;
-
+    maxTPM = () => Object.values<number[][]>(this.bed).map(ss => ss.map(b => b[2]).reduce((a, b) => Math.max(a, b), 0)).reduce((a, b) => Math.max(a, b), 0)
+    minTPM = () => Object.values<number[][]>(this.bed).map(ss => ss.map(b => b[2]).reduce((a, b) => Math.min(a, b), 99999)).reduce((a, b) => Math.min(a, b), 999999)
+    cov = () => Object.values<number[][]>(this.bed).map(ss => ss.filter(b => b[2] > 0).map(x => x[1] - x[0]).reduce((a, b) => a + b, 0)).reduce((a, b) => Math.max(a, b), 0)
     hasBED = () => this.has_bed
 
     getAnots = (t?) => this.anots || (this.anots = [... new Set(this.isoformas.map(i => i.getAnotsAcession(t)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?'))

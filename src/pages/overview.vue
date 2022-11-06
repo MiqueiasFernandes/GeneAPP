@@ -19,7 +19,7 @@ import {
     Canvas, ViewBox, VennPlot, RadarPlot, Padding, BarPlotRadial, FunilPlot,
     BarPlot, BarPlotVertical, ViolinPlot, AreaPlot, UpsetPlot, DendogramPlot
 } from '../core/d3';
-import { PROJETO } from "../core/State";
+import { PROJETO, CACHE } from "../core/State";
 useHead({ title: 'Overview' });
 
 const projeto = PROJETO;
@@ -190,7 +190,7 @@ function plotAn(wC) {
     projeto.getALLASIsos().forEach(iso => {
         const g = iso.getGene().nome;
         iso.anotacoes.forEach(a => {
-            const x = a.get('acession');
+            const x = a.value;
             switch (a.key) {
                 case 'Pfam': return data.PFam.genes.push(g) && data.PFam.anotacao.push(x)
                 case 'InterPro': return data.Interpro.genes.push(g) && data.Interpro.anotacao.push(x)
@@ -286,7 +286,19 @@ const tableEDheader = [
     { meta: { id: 'quantidate', lab: 'Reads', ord: 5 } },
     { meta: { id: 'tamanho', lab: 'Length', ord: 6 } },
     { meta: { id: 'qc', lab: 'QC Fail', ord: 7 } },
-    { meta: { id: 'map', lab: 'Mapping', ord: 8 } }
+    { meta: { id: 'drop', lab: 'QC Dropped', ord: 8 } },
+    { meta: { id: 'map', lab: 'Mapping', ord: 9 } }
+]
+
+const tableGN = ref([])
+const tableGNheader = [
+    { meta: { id: 'nome', lab: 'Name', ord: 1 } },
+    { meta: { id: 'isos', lab: 'Isoforms', ord: 2 } },
+    { meta: { id: 'chr', lab: 'Chromossome', ord: 3 } },
+    { meta: { id: 'strand', lab: 'Strand', ord: 4 } },
+    { meta: { id: 'start', lab: 'Start', ord: 5, class: 'font-mono text-right pr-4' } },
+    { meta: { id: 'end', lab: 'End', ord: 6, class: 'font-mono text-right pr-4' } },
+    { meta: { id: 'size', lab: 'Size', ord: 7, class: 'font-mono text-right pr-4' } },
 ]
 
 function loadTables() {
@@ -353,27 +365,33 @@ function loadTables() {
         { etapa: 'Discovery', prop: 'DAS Genes some evidence', val: getProp('Total : ', ' AS genes encontrados |')[0] },
         { etapa: 'Discovery', prop: 'DAS Genes multiple evidence', val: getProp('| ambos ', ' |')[0] },
 
-        { etapa: 'Anotation', prop: 'Proteome size', val: '' },
-        { etapa: 'Anotation', prop: 'Proteome length', val: '' },
-        { etapa: 'Anotation', prop: 'Proteins to anotte', val: '' },
-        { etapa: 'Anotation', prop: 'Proteins to anotte length', val: '' },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'PFam: found Genes', val: anot1('Pfam').length },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'PFam: found Acessions', val: anot2('Pfam').length },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Interpro: found Genes', val: anot1('InterPro').length },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Interpro: found Acessions', val: anot2('InterPro').length },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'GO: found Genes', val: anot1('GO').length },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'GO: found Acessions', val: anot2('GO').length },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Pathways: found Genes', val: anot1('Pathway').length },
-        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Pathways: found Acessions', val: anot2('Pathway').length },
-        { etapa: 'Anotation', prop: 'Total length proteins with domains', val: anot3() },
 
-        { etapa: 'BED Generation', tool: 'deeptools', prop: 'Total genes with bed', val: '' },
-        { etapa: 'BED Generation', tool: 'deeptools', prop: 'TPM min', val: '' },
-        { etapa: 'BED Generation', tool: 'deeptools', prop: 'TPM max', val: '' },
-        { etapa: 'BED Generation', tool: 'deeptools', prop: 'Total AS Gene coverage', val: '' },
+        { etapa: 'BED Generation', tool: 'deeptools', prop: 'Total AS genes with bed', val: (100 * PROJETO.getALLGenes().filter(g => g.hasBED()).length / PROJETO.getALLGenes().length).toPrecision(3) + '%' },
+
     ]
 
     tablePR.value = rs.concat(rs2).concat(rs3)
+
+    setTimeout(() => {
+        if (!CACHE.value['bedanotacao']) {
+            CACHE.value['bedanotacao'] = [
+                { etapa: 'BED Generation', tool: 'deeptools', prop: 'TPM min', val: PROJETO.getALLGenes().map(g => g.minTPM()).reduce((a, b) => Math.min(a, b), 999999) },
+                { etapa: 'BED Generation', tool: 'deeptools', prop: 'TPM max', val: PROJETO.getALLGenes().map(g => g.maxTPM()).reduce((a, b) => Math.max(a, b), 0) },
+                { etapa: 'BED Generation', tool: 'deeptools', prop: 'Max AS Gene coverage', val: (PROJETO.getALLGenes().map(g => g.cov() / g.size).reduce((a, b) => Math.max(a, b), 0) * 100).toPrecision(3) + '%' },
+                { etapa: 'Anotation', prop: 'Proteins to anotte', val: getProp2('Quantiade de proteins: ') },
+                { etapa: 'Anotation', prop: 'Proteins to anotte length', val: getProp2('manho total de proteins:') },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'PFam: found Genes', val: anot1('Pfam').length },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'PFam: found Acessions', val: anot2('Pfam').length },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'Interpro: found Genes', val: anot1('InterPro').length },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'Interpro: found Acessions', val: anot2('InterPro').length },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'GO: found Genes', val: anot1('GO').length },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'GO: found Acessions', val: anot2('GO').length },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'Pathways: found Genes', val: anot1('Pathway').length },
+                { etapa: 'Anotation', tool: 'InterproScan', prop: 'Pathways: found Acessions', val: anot2('Pathway').length },
+                { etapa: 'Anotation', prop: 'Total length domains redundant', val: anot3() }]
+        }
+        tablePR.value.push(...CACHE.value['bedanotacao'])
+    }, 300);
 
     /// tabela experimental design
     /// 1. fator
@@ -400,6 +418,12 @@ function loadTables() {
 
     dt.forEach(d => {
 
+        /// 8. QC reads %
+        const resumo1 = PROJETO.getResumo(d.sample + ',Input Read Pairs:')
+        if (resumo1.length > 0) {
+            d.drop = resumo1[0].split('Dropped:')[1].split('(')[1].split(')')[0]
+        }
+
         const oar = resumo2.filter(x => x[0].startsWith(d.sample))
         if (oar.length > 0) {
             d.map = oar[0][1]
@@ -417,15 +441,16 @@ function loadTables() {
         }
     })
 
-    /// 8. QC reads %
-    // ////Input Read Pairs: ...   Dropped:
-
-    const resumo1 = PROJETO.getResumo('Input Read Pairs:')
-    console.log(resumo1)
-
     tableED.value = dt
-
-
+    tableGN.value = PROJETO.getALLGenes().map(g => ({
+        nome: g.getNome(),
+        isos: g.getIsoformas().length,
+        chr: g.cromossomo.nome,
+        strand: g.strand ? "5' →" : "3' →",
+        start: g.start,
+        end: g.end,
+        size: g.size
+    }))
 }
 
 function criar() {
@@ -475,29 +500,18 @@ const graficos = [
     ]
 ];
 
-const cols = ['Etapa', 'Tool', 'Fator', 'Sample', 'Propriedade', 'Valor'];
-const rows = [
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-    { 'Etapa': 'map', 'Tool': 'star', 'Fator': 'red', 'Sample': 'xpto', 'Propriedade': 'total', 'Valor': 300 },
-];
-
-
 </script>
     
 <template>
     <div>
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <Tabs :names="['table', 'table2', 'table3', 'chart']" active="table">
-
+            <Tabs :names="['table2', 'table', 'table3', 'chart']" active="table2">
 
                 <template #table>
                     <TableIcon class="mr-2 w-5 h-5" /> Pipeline results
                 </template>
                 <template #tableContent>
-                    <Table class="my-4" :cols="tablePRheader" :rows="tablePR"></Table>
+                    <Table class="my-4" :cols="tablePRheader" :rows="tablePR"> </Table>
                 </template>
 
                 <template #table2>
@@ -511,11 +525,8 @@ const rows = [
                     <TableIcon class="mr-2 w-5 h-5" /> Gene repertory
                 </template>
                 <template #table3Content>
-                    <Table class="my-4" :cols="cols" :rows="rows"></Table>
+                    <Table class="my-4" :cols="tableGNheader" :rows="tableGN" indexed="true"></Table>
                 </template>
-
-
-
 
                 <template #chart>
                     <PresentationChartLineIcon class="mr-2 w-5 h-5" /> Graphics
