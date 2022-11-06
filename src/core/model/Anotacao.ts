@@ -14,6 +14,11 @@ export class Anotacao {
         this.anotations = anotations;
     }
 
+    size() {
+        return this.anotations && this.anotations['start'] && this.anotations['stop'] ?
+            (1 + this.anotations['stop'] - this.anotations['start']) : 0
+    }
+
     get = (k) => this.anotations[k];
     toLoci(iso: Isoforma): Locus[] {
         const loci = [];

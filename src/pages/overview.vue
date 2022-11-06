@@ -266,9 +266,114 @@ function plotFilo(wC) {
 }
 
 const show = ref(false);
+
+const tablePR = ref([])
+const tablePRheader = [
+    { meta: { id: 'etapa', lab: 'Step', ord: 0 } },
+    { meta: { id: 'tool', lab: 'Tool', ord: 1 } },
+    { meta: { id: 'fator', lab: 'Factor', ord: 2 } },
+    { meta: { id: 'sample', lab: 'Sample', ord: 3 } },
+    { meta: { id: 'prop', lab: 'Property', ord: 4 } },
+    { meta: { id: 'val', lab: 'Value', ord: 5, class: 'font-mono font-bold' } }
+]
+
 const tableED = ref([])
+const tableEDheader = [
+    { meta: { id: 'fator', lab: 'Factor', ord: 1 } },
+    { meta: { id: 'sample', lab: 'Sample', ord: 2 } },
+    { meta: { id: 'tipo', lab: 'Library', ord: 3 } },
+    { meta: { id: 'run', lab: 'Run', ord: 4 } },
+    { meta: { id: 'quantidate', lab: 'Reads', ord: 5 } },
+    { meta: { id: 'tamanho', lab: 'Length', ord: 6 } },
+    { meta: { id: 'qc', lab: 'QC Fail', ord: 7 } },
+    { meta: { id: 'map', lab: 'Mapping', ord: 8 } }
+]
 
 function loadTables() {
+
+
+    const dataSet = projeto.qc_status
+        .mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length") //// media de tamanho
+        .mapColInt("FastQC_mqc-generalstats-fastqc-total_sequences")   //// quantidade
+        .mapCol("FastQC_mqc-generalstats-fastqc-percent_fails", parseFloat) ////falhou qc
+        .getRows();
+
+    const qtdR = dataSet.map(x => x["FastQC_mqc-generalstats-fastqc-total_sequences"]).reduce((a, b) => a + b, 0)
+    const lenR = dataSet.map(x => x["FastQC_mqc-generalstats-fastqc-avg_sequence_length"]).reduce((a, b) => a + b, 0) / dataSet.length;
+
+    const getProp = (a, b, c) => {
+        const ops = PROJETO.getResumo(a)
+            .filter(x => !b || x.indexOf(b) > 0)
+            .map(x => a && b ? (x.split(a)[1].split(b)[0]) : x)
+        return ops.length > 0 ? ops.map(x => c ? x.split(': ')[1] : x) : ['']
+    }
+    const getProp2 = (x) => getProp(x, null, true)[0]
+
+    /// tabela processamento
+    const rs = [
+        { etapa: 'Pre processamento', prop: 'Genome Size', val: getProp2('Tamanho do genoma: ') },
+        { etapa: 'Pre processamento', prop: 'Cromossomes', val: getProp2('sequencias no genoma: ') },
+        { etapa: 'Pre processamento', prop: 'Total genes', val: getProp2('Quantidade de genes: ') },
+        { etapa: 'Pre processamento', prop: 'Genes coding', val: getProp2('Quantidade de genes cod prot: ') },
+        { etapa: 'Pre processamento', prop: 'AS Genes coding', val: getProp2('Genes com AS anotado:') },
+        { etapa: 'Pre processamento', prop: 'Transcripts', val: getProp2('Quantiade de transcritos:') },
+        { etapa: 'Pre processamento', prop: 'Transcriptome length', val: getProp2('ho total de transcritos:') },
+        { etapa: 'Pre processamento', prop: 'Transcripts coding', val: getProp2('CDS de genes com AS anotado:') },
+        { etapa: 'Pre processamento', prop: 'AS Genes transcripts coding length', val: getProp2('total da CDS de genes com AS:') },
+        { etapa: 'Pre processamento', prop: 'RNASeq reads', val: `${(qtdR / 1000000).toPrecision(3)}mi` },
+        { etapa: 'Pre processamento', prop: 'RNASeq read length', val: lenR },
+        { etapa: 'Pre processamento', prop: 'Transcritome depth', val: ((qtdR * lenR) / (parseInt(getProp2('ho total de transcritos:').replace('Mpb', '') * 1000000))).toPrecision(3) + 'x' },
+        //{ etapa: 'Pre processamento', prop: 'Transcritome coding coverage', val: '' },
+    ]
+
+    const rs2 = []
+    PROJETO.fatores.forEach(f => f.samples.forEach(s => rs2.push(...[
+        { etapa: 'Align', tool: 'Hisat', fator: f.nome, sample: s.nome, prop: 'Mapping Genome', val: getProp(`ento de ${s.nome} no GENOMA: `, ' overall ali')[0] },
+        { etapa: 'Align', tool: 'Hisat', fator: f.nome, sample: s.nome, prop: 'Mapping Transcripts', val: getProp(`ento de ${s.nome} no CDS: `, ' overall ali')[0] },
+        { etapa: 'Align', tool: 'Hisat', fator: f.nome, sample: s.nome, prop: 'Mapping AS Genes', val: getProp(`ento de ${s.nome} no AS_GENES: `, ' overall ali')[0] },
+        { etapa: 'Align', tool: 'Salmon', fator: f.nome, sample: s.nome, prop: 'Quantify AS Genes transcripts', val: (parseInt(getProp2(`CDS expressa em ${s.nome}: `)) / parseInt(getProp2('CDS de genes com AS anotado:')) * 100).toPrecision(3) + '%' },
+    ])))
+
+    const gns = PROJETO.getALLGenes().map(g => g.getAS())
+    const anot1 = (x) => [...new Set(PROJETO.getALLASIsos().filter(i => i.getAnots(x).length > 0).map(x => x.getGene().nome))]
+    const anot2 = (x) => [...new Set(PROJETO.getALLASIsos().map(i => i.getAnots(x).map(x => x.value)).reduce((a, b) => a.concat(b), []))]
+    const anot3 = () => PROJETO.getALLASIsos().map(i => i.getAnots('InterPro').map(x => x.size()).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0)
+    const rs3 = [
+        { etapa: 'Discovery', tool: 'rMATS', prop: 'Bam 1', val: getProp('factor ', '.bams escolhido para --b1')[0] },
+        { etapa: 'Discovery', tool: 'rMATS', prop: 'Bam 2', val: getProp('factor ', '.bams escolhido para --b2')[0] },
+        { etapa: 'Discovery', tool: 'rMATS', prop: 'Total Events', val: getProp('rMATS encontrou ', 'total  even')[0] },
+        { etapa: 'Discovery', tool: 'Maser', prop: 'Total Events', val: getProp('analise rMATS ', ' SIGNIFICATIVO ge')[0] },
+        { etapa: 'Discovery', tool: 'Maser', prop: 'A3SS genes', val: gns.filter(es => es.some(e => e['tipo'] === 'A3SS' && e.extra['MASER'])).length },
+        { etapa: 'Discovery', tool: 'Maser', prop: 'A5SS genes', val: gns.filter(es => es.some(e => e['tipo'] === 'A5SS' && e.extra['MASER'])).length },
+        { etapa: 'Discovery', tool: 'Maser', prop: 'RI genes', val: gns.filter(es => es.some(e => e['tipo'] === 'RI' && e.extra['MASER'])).length },
+        { etapa: 'Discovery', tool: 'Maser', prop: 'SE genes', val: gns.filter(es => es.some(e => e['tipo'] === 'SE' && e.extra['MASER'])).length },
+        { etapa: 'Discovery', tool: '3DRNASeq', prop: 'Total DAS genes', val: PROJETO.getALLDASgenes().length },
+        { etapa: 'Discovery', tool: '3DRNASeq', prop: 'Sign DAS genes', val: getProp('analise 3DRnaSEQ ', ' SIGNIFICA')[0] },
+        { etapa: 'Discovery', tool: '3DRNASeq', prop: 'Sign DE genes', val: PROJETO.Significant_DE_genes.length },
+        { etapa: 'Discovery', prop: 'DAS Genes some evidence', val: getProp('Total : ', ' AS genes encontrados |')[0] },
+        { etapa: 'Discovery', prop: 'DAS Genes multiple evidence', val: getProp('| ambos ', ' |')[0] },
+
+        { etapa: 'Anotation', prop: 'Proteome size', val: '' },
+        { etapa: 'Anotation', prop: 'Proteome length', val: '' },
+        { etapa: 'Anotation', prop: 'Proteins to anotte', val: '' },
+        { etapa: 'Anotation', prop: 'Proteins to anotte length', val: '' },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'PFam: found Genes', val: anot1('Pfam').length },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'PFam: found Acessions', val: anot2('Pfam').length },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Interpro: found Genes', val: anot1('InterPro').length },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Interpro: found Acessions', val: anot2('InterPro').length },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'GO: found Genes', val: anot1('GO').length },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'GO: found Acessions', val: anot2('GO').length },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Pathways: found Genes', val: anot1('Pathway').length },
+        { etapa: 'Anotation', tool: 'InterproScan', prop: 'Pathways: found Acessions', val: anot2('Pathway').length },
+        { etapa: 'Anotation', prop: 'Total length proteins with domains', val: anot3() },
+
+        { etapa: 'BED Generation', tool: 'deeptools', prop: 'Total genes with bed', val: '' },
+        { etapa: 'BED Generation', tool: 'deeptools', prop: 'TPM min', val: '' },
+        { etapa: 'BED Generation', tool: 'deeptools', prop: 'TPM max', val: '' },
+        { etapa: 'BED Generation', tool: 'deeptools', prop: 'Total AS Gene coverage', val: '' },
+    ]
+
+    tablePR.value = rs.concat(rs2).concat(rs3)
 
     /// tabela experimental design
     /// 1. fator
@@ -279,11 +384,6 @@ function loadTables() {
     dt.push(...PROJETO.getCtrl().samples.map(s => ({ fator: s.fator, sample: s.nome, run: s.run })))
     dt.push(...PROJETO.getTrat().samples.map(s => ({ fator: s.fator, sample: s.nome, run: s.run })))
 
-    const dataSet = projeto.qc_status
-        .mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length") //// media de tamanho
-        .mapColInt("FastQC_mqc-generalstats-fastqc-total_sequences")   //// quantidade
-        .mapCol("FastQC_mqc-generalstats-fastqc-percent_fails", parseFloat) ////falhou qc
-        .getRows();
 
     /// 4. total reads
     //  5. taamnho
@@ -294,11 +394,19 @@ function loadTables() {
         .filter(x => x.indexOf('GENOMA:') > 0)
         .map(x => [x.split(' de ')[1].split(' ')[0], x.split(' GENOMA: ')[1].split(' ')[0]])
 
+    const resumo3 = PROJETO.getResumo(' tratando ')
+        .filter(x => x.indexOf(' como ') > 0)
+        .map(x => [x.split(' tratando ')[1].split(' ')[0], x.split(' como ')[1].split(' ')[0]])
+
     dt.forEach(d => {
 
         const oar = resumo2.filter(x => x[0].startsWith(d.sample))
         if (oar.length > 0) {
             d.map = oar[0][1]
+        }
+        const tp = resumo3.filter(x => x[0].startsWith(d.sample))
+        if (tp.length > 0) {
+            d.tipo = tp[0][1]
         }
 
         const ss = dataSet.filter(x => x.Sample.startsWith(d.sample))
@@ -315,7 +423,7 @@ function loadTables() {
     const resumo1 = PROJETO.getResumo('Input Read Pairs:')
     console.log(resumo1)
 
-    console.log(dt)
+    tableED.value = dt
 
 
 }
@@ -384,18 +492,19 @@ const rows = [
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <Tabs :names="['table', 'table2', 'table3', 'chart']" active="table">
 
+
                 <template #table>
                     <TableIcon class="mr-2 w-5 h-5" /> Pipeline results
                 </template>
                 <template #tableContent>
-                    <Table class="my-4" :cols="cols" :rows="rows"></Table>
+                    <Table class="my-4" :cols="tablePRheader" :rows="tablePR"></Table>
                 </template>
 
                 <template #table2>
                     <TableIcon class="mr-2 w-5 h-5" /> Experimental design
                 </template>
                 <template #table2Content>
-                    <Table class="my-4" :cols="cols" :rows="rows"></Table>
+                    <Table class="my-4" :cols="tableEDheader" :rows="tableED" indexed="true"></Table>
                 </template>
 
                 <template #table3>

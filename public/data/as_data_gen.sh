@@ -2213,6 +2213,9 @@ anotar() {
         open('$PTNAS', 'w').writelines([f'{x.id},{str(x.seq)}{os.linesep}' for x in SeqIO.parse('$TMP_DIR/ptnas.faa', 'fasta')])
     " | cut -c9-) 1>$LOG_DIR/_6.4.1_ext_ptnas.log.txt 2>$LOG_DIR/_6.4.1_ext_ptnas.err.txt
 
+    [ -f $TMP_DIR/ptnas.faa ] && echo "Quantiade de proteins: $(grep -c \> $TMP_DIR/ptnas.faa)" >>$RESUMO
+    [ -f $TMP_DIR/ptnas.faa ] && echo "Tamanho total de proteins: $(grep -v \> $TMP_DIR/ptnas.faa | tr -d '\n' | wc -c)" >>$RESUMO
+
     rm -f $TSV
 
     if [ $ONLINE ]; then

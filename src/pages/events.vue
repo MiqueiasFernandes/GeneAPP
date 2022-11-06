@@ -605,14 +605,31 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                     <TableIcon class="mr-2 w-5 h-5" /> AS Details
                 </template>
                 <template #tableContent>
-                    tabela
+                    1. Gene
+                    2. Mrna envolvido
+                    3. D psi
+                    4. Fdr
+                    5. Tam evento
+                    6. Anotacao
+                    7. Log2fc
+                    8. Rmats
+                    9. Maser
+                    10. 3d
+                    11. Tipo
+                    12. Ptna size
+                    13. Prematrr stop codon
+                    14. Nome cromossoo
+                    15. Min exp isoform
+                    16. Exp gene
+                    17. Max isso exp
+                    18. % exon region sem exp
                 </template>
 
                 <template #table2>
                     <TableIcon class="mr-2 w-5 h-5" /> Anottaion table
                 </template>
                 <template #table2Content>
-                    tabela
+                    gene, dpsi [,,,] fdr .05, go, biol proc, pfam , pathay
                 </template>
 
                 <template #chart>
