@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Gene } from './model';
 import { Anotacao } from './model/Anotacao';
 import { EMAIL, MODALS, notificar } from './State';
 
@@ -64,8 +65,11 @@ export function getUniprot(id: string, cbk: (x) => {}) {
         })
 }
 
+const NCBI_EFETCH_API = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi'
+
+/// https://www.ncbi.nlm.nih.gov/books/NBK25497
 export function getNCBIaa(id, seq = (aa: string) => aa) {
-    return axios.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi', {
+    return axios.get(NCBI_EFETCH_API, {
         params: {
             db: 'protein',
             id,
@@ -73,6 +77,29 @@ export function getNCBIaa(id, seq = (aa: string) => aa) {
             retmode: 'text'
         }
     }).then(res => seq(res.data.split('\n').slice(1).join('')))
+}
+
+//https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
+export function getNCBInc({ cromossomo, start, end, strand }, seq = (fna: string) => fna) {
+    return axios.get(NCBI_EFETCH_API, {
+        params: {
+            db: 'nuccore',
+            id: cromossomo.nome, strand: strand ? 1 : 2, seq_start: start, seq_stop: end,
+            rettype: 'fasta',
+            retmode: 'text'
+        }
+    }).then(res => seq(res.data.split('\n').slice(1).join('')))
+}
+
+export function getNCBIgene(id, gene = (d) => null) {
+    return axios.get(NCBI_EFETCH_API, {
+        params: {
+            db: 'gene',
+            id,
+            rettype: 'gene_table',
+            retmode: 'text'
+        }
+    }).then(res => gene(Gene.fromNCBI(res.data.split('\n'))))
 }
 
 export function getInterpro(sequence: string,

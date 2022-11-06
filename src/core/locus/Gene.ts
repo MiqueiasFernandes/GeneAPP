@@ -115,7 +115,7 @@ export class Gene extends Locus {
         const from = parseInt(ref.split(' from: ')[1].split(' ')[0])
         const start = Math.min(to, from)
         const end = Math.max(to, from)
-        const chr = new Cromossomo(ref.split(' ')[1], end - start + 1)
+        const chr = new Cromossomo(ref.trim().split(' ')[0], end - start + 1)
         const gene = new Gene(chr, start, end, ref.indexOf(' (minus strand) ') < 1, nome)
         mrnas.map(m => Isoforma.fromTable(m, gene)).forEach(i => gene.addIsoforma(i))
         return gene;
@@ -256,11 +256,11 @@ export class Gene extends Locus {
                 //achar as isoformas que tiveram exons pulado
                 const tem_i = this.isoformas.map(iso => iso.getExons()).filter(i => i.filter(j => j.start >= start && j.end <= end).length > 0).map(i => i[0].isoforma.nome)
                 if (tem_i.length < 1) return
-                
+
                 //achar os introns que substituiram os es
                 const tem_e = this.isoformas.map(iso => iso.getIntrons()).filter(e => e.filter(j => j.start <= start && j.end >= end).length > 0).map(i => i[0].isoforma.nome)
                 if (tem_e.length < 1) return
-               
+
                 //definir se houve as pelo 3d
                 var evts: any[] = this.as_events.filter(a => a.evidence === '3DRNASeq')
                 if (evts.length < 1) return

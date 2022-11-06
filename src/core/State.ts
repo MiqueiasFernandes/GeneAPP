@@ -6,6 +6,7 @@ export const PROJETO = reactive(new Projeto("AS Experiment"));
 export const MODALS = reactive([])
 export const NOTIFICACOES = ref([])
 export const EMAIL = ref(null)
+export const CACHE = ref({})
 
 export const notificar = (msg, color = 'success', timeout?) => {
     NOTIFICACOES.value = NOTIFICACOES.value.filter(n => !n.close)
@@ -14,5 +15,6 @@ export const notificar = (msg, color = 'success', timeout?) => {
 }
 
 export const remove = (id) => {
-    NOTIFICACOES.value.filter(n => n.id === id)[0].close = true
+    const ns = NOTIFICACOES.value.filter(n => n.id === id)
+    if (ns && ns.length > 0) ns[0].close = true
 }

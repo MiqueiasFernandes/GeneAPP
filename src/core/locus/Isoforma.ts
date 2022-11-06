@@ -131,7 +131,7 @@ export class Isoforma extends Locus {
             gene.strand,
             nome);
 
-        ptna && mrna.add_anotacao(new Anotacao('Protein', ptna))
+        ptna && (mrna.meta['PTNA'] = ptna) && mrna.add_anotacao(new Anotacao('Protein', ptna))
         etb.forEach((e, i) => mrna.addExon(new Exon(gene.cromossomo, e[0], e[1], gene.strand, `Exon${i}`)))
         ctb.forEach((c, i) => mrna.setCDS(new Locus(gene.cromossomo, c[0], c[1], gene.strand, `CDS${i}`)))
         mrna.update(gene);
