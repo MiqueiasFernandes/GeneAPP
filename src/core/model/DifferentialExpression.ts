@@ -2,8 +2,8 @@ import { Gene } from "../locus/Gene";
 
 export class DifferentialExpression {
     private gene: Gene;
-    private log2fc: number;
-    private qvalue: number;
+    log2fc: number;
+    qvalue: number;
 
     constructor(gene: Gene, log2fc: number, qvalue: number) {
         this.gene = gene;

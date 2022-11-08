@@ -50,4 +50,6 @@ export class CDS {
             .map(l => l.siteFromAA(startAA, endAA)).filter(x => x[0] > 0)
     }
 
+    len = () => this.loci.reduce((a, b) => a + b.size, 0)
+
 }

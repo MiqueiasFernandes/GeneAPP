@@ -1,4 +1,7 @@
+import { Exon } from "../locus/Exon";
 import { Gene } from "../locus/Gene";
+import { Intron } from "../locus/Intron";
+import { Isoforma } from "../locus/Isoforma";
 import { Projeto } from "./Projeto";
 
 export class AlternativeSplicing {
@@ -23,6 +26,21 @@ export class AlternativeSplicing {
     share() {
         return [this.evidence, this.dps, this.qvalue]
     }
+
+    getMRNAs(): Isoforma[][] {
+        if (this.gene.getIsoformas().length < 3) {
+            return [this.gene.getIsoformas()]
+        }
+        const ret = []
+        this.gene.getIsoformas().forEach((a, i) => {
+            this.gene.getIsoformas().forEach((b, j) => {
+                if (j > i) {
+                    ret.push([a, b])
+                }
+            })
+        })
+        return ret;
+    }
 }
 
 export class AS3dranseq extends AlternativeSplicing {
@@ -39,6 +57,29 @@ export class AS3dranseq extends AlternativeSplicing {
         return expc.map(t1 => [t1[0],
         expt.filter(t2 => t1[0] !== t2[0] && t1[1][0] !== t2[1][0]).map(x => x[0])])
             .filter(x => x[1].length > 0)
+    }
+
+    getMRNAs(projeto?: Projeto): Isoforma[][] {
+        const cand = super.getMRNAs();
+        const ret = []
+
+        if (cand.length < 1 || !projeto)
+            return ret
+
+
+        cand.forEach(([a, b]) => {
+            const tpm_a_c = projeto.getCtrl().getTPM(a.meta['MRNA'], false)[0]
+            const tpm_a_t = projeto.getTrat().getTPM(a.meta['MRNA'], false)[0]
+            const tpm_b_c = projeto.getCtrl().getTPM(b.meta['MRNA'], false)[0]
+            const tpm_b_t = projeto.getTrat().getTPM(b.meta['MRNA'], false)[0]
+            if (tpm_a_c > 0 && tpm_a_t > 0 && tpm_b_c > 0 && tpm_b_t && (
+                (tpm_a_c < tpm_b_c && tpm_a_t > tpm_b_t) ||
+                (tpm_a_c > tpm_b_c && tpm_a_t < tpm_b_t)
+            ))
+                ret.push([a, b])
+        })
+
+        return ret;
     }
 }
 
@@ -107,4 +148,30 @@ export class ASrmats extends AlternativeSplicing {
         'ID': dt[6], 'upstreamEE': dt[7], 'downstreamES': dt[8], ptc: dt[9]
     },
         dt[3])
+
+    getMRNAs(): Isoforma[][] {
+        const cand = super.getMRNAs();
+        const ret = []
+
+        if (cand.length < 1)
+            return ret
+
+        if (this.tipo === 'RI') {
+            cand.forEach(([a, b]) => { /////                      o intron tem que estar dentro do evento
+                const validRI = (i: Intron) => this.extra['AS_SITE_START'] <= i.start && i.end <= this.extra['AS_SITE_END']
+                const isRI = (i: Intron, es: Exon[]) => es.some(e => e.start <= i.start && e.end >= i.end) && validRI(i)
+                if (a.getIntrons().some(i => isRI(i, b.getExons())) || b.getIntrons().some(i => isRI(i, a.getExons())))
+                    ret.push([a, b])
+            })
+        }
+        if (this.tipo === 'SE') {
+            cand.forEach(([a, b]) => {
+                const validSE = (e: Exon) => this.extra['AS_SITE_START'] <= e.start && e.end <= this.extra['AS_SITE_END']
+                const isSE = (e: Exon, is: Intron[]) => is.some(i => i.start <= e.start && i.end >= e.end) && validSE(e)
+                if (a.getExons().some(e => isSE(e, b.getIntrons())) || b.getExons().some(e => isSE(e, a.getIntrons())))
+                    ret.push([a, b])
+            })
+        }
+        return ret;
+    }
 }

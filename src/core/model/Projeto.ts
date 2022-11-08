@@ -150,25 +150,6 @@ export class Projeto {
         const fdata = this.part(files, 'filogenia.txt');
         this.filogenia = fdata.length > 0 && fdata[0].length > 10 ? this.parseNewick(fdata[0]) : null;
 
-        const log = [
-            ///Tamanho do genoma: 
-            ///Quantiade de sequencias no genoma: 
-            ///Quantidade de genes: 
-            ///Quantidade de genes cod prot: 
-            ///Quantiade de transcritos: 
-            ///Tamanho total de transcritos: 
-            ///Genes com AS anotado: 
-            ///CDS de genes com AS anotado: 
-            ///Tamanho total da CDS de genes com AS:
-            /// xxxxxxx  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxMapeamento no $LABEL: 
-            ///tratando $SAMPLE como 
-            ///Surviving' 
-            ///CDS expressa em $SAMPLE: 
-            ///analise rMATS 
-            ///analise 3DRnaSEQ  SIGNIFICATIVO genes" >> $RESUMO
-            /// Total : ... AS genes encontrados | so rMATS $SO_RMATS | so 3DRNASEQ $SO_3D | ambos $AMBOS 
-        ];
-
         this.FNA = Object.fromEntries(Object.values<string>(this.part(files, 'das_genes.inline')).map(x => x.split(',')));
         this.FAA = Object.fromEntries(Object.values<string>(this.part(files, 'ptnas.inline')).map(x => x.split(',')));
         return null;

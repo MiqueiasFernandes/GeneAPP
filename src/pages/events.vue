@@ -13,7 +13,7 @@
           
 <script setup>
 import { TableIcon, PresentationChartLineIcon, } from '@heroicons/vue/solid';
-import { CursorClickIcon, DownloadIcon } from '@heroicons/vue/outline';
+import { CursorClickIcon, DownloadIcon, FilterIcon, SearchIcon } from '@heroicons/vue/outline';
 import {
     Padding, ScatterPlot, ViewBox, Point, BarPlot, BarPlotVertical,
     Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot, WordCloudPlot, TreePlot
@@ -566,9 +566,100 @@ function plotTr() {
 
 }
 
+const tabEh = ref([
+    { meta: { id: 'gene', lab: 'Gene', ord: 1 } },
+    { meta: { id: 'isoA', lab: 'Isoform1', ord: 2, hide: true } },
+    { meta: { id: 'isoB', lab: 'Isoform2', ord: 3, hide: true } },
+    { meta: { id: 'psi', lab: 'Δ PSI', ord: 4 } },
+    { meta: { id: 'fdr', lab: 'FDR', ord: 5 } },
+    { meta: { id: 'tam', lab: 'Δ Exonic Size', ord: 6, hide: true } },
+    { meta: { id: 'cds', lab: 'Δ CDS Size', ord: 7 } },
+    { meta: { id: 'de', lab: 'Log2FC', ord: 8 } },
+    { meta: { id: 'tipo', lab: 'Type', ord: 9 } },
+    { meta: { id: 'maser', lab: 'Maser', ord: 10, hide: true } },
+    { meta: { id: 'is3d', lab: 'Event', ord: 11 } },
+    { meta: { id: 'mint', lab: 'min mRNA TPM', ord: 12, hide: true } },
+    { meta: { id: 'maxt', lab: 'max mRNA TPM', ord: 13, hide: true } },
+    { meta: { id: 'ptn', lab: 'min Protein Size', ord: 14 } },
+    { meta: { id: 'ptc', lab: 'PTC', ord: 15, hide: true } },
+    { meta: { id: 'chr', lab: 'Chromossome', ord: 16, hide: true } },
+    { meta: { id: 'egc', lab: projeto.getCtrl().nome + ' gene TPM', ord: 17, hide: true } },
+    { meta: { id: 'egt', lab: projeto.getTrat().nome + ' gene TPM', ord: 18, hide: true } }
+])
+
+const tabE = ref([])
+
+function loadTables() {
+    const tabevt = []
+    projeto.getALLGenes().forEach(
+        gene => gene.getAS().forEach(
+            event => {
+                event.getMRNAs(PROJETO).forEach(([isoA, isoB]) => {
+                    tabevt.push({
+                        // 1. Gene
+                        gene: gene.getNome(),
+                        g: gene.getNome().toLowerCase(),
+                        // 2. Mrna envolvido
+                        isoA: isoA.getNome(),
+                        // 3. Mrna envolvido
+                        isoB: isoB.getNome(),
+                        // 4. D psi
+                        psi: event.dps,
+                        // 5. Fdr
+                        fdr: event.qvalue.toPrecision(3),
+                        // 6. Tam exon evento
+                        tam: Math.abs(isoA.getExons().reduce((x, y) => x + y.size, 0) - isoB.getExons().reduce((x, y) => x + y.size, 0)),
+                        // 7.tam CDS evento
+                        cds: Math.abs(isoA.getCDS().len() - isoB.getCDS().len()),
+                        // 8. Log2fc
+                        de: gene.getDE()?.log2fc || 0,
+                        // 9. Rmats
+                        tipo: event['tipo'],
+                        // 10. Maser
+                        maser: event.extra['MASER'] ? '✔️' : '❌',
+                        // 11. evidence,
+                        is3d: event.evidence === 'rMATS' ? event.extra['ID'] : '3DRNASeq',
+                        // 12. min iso TPM
+                        mint: Math.min(
+                            projeto.getCtrl().getTPM(isoA.meta['MRNA'], false)[0],
+                            projeto.getTrat().getTPM(isoA.meta['MRNA'], false)[0],
+                            projeto.getCtrl().getTPM(isoB.meta['MRNA'], false)[0],
+                            projeto.getTrat().getTPM(isoB.meta['MRNA'], false)[0]
+                        ),
+                        // 13. max iso TPM
+                        maxt: Math.max(
+                            projeto.getCtrl().getTPM(isoA.meta['MRNA'], false)[0],
+                            projeto.getTrat().getTPM(isoA.meta['MRNA'], false)[0],
+                            projeto.getCtrl().getTPM(isoB.meta['MRNA'], false)[0],
+                            projeto.getTrat().getTPM(isoB.meta['MRNA'], false)[0]
+                        ),
+                        // 14. min Ptna size
+                        ptn: Math.min(isoA.getCDS().len(), isoB.getCDS().len()) / 3,
+                        // 15. Prematrr stop codon
+                        ptc: (event.extra['ptc'] && event.extra['ptc'].f1 > 0 && event.extra['ptc'].f2 > 0 && event.extra['ptc'].f3 > 0) ? '✔️' : '❌',
+                        // 16. Nome cromossoo
+                        chr: gene.cromossomo.nome,
+                        // 17. Exp gene cont
+                        egc: projeto.getCtrl().getTPM(gene.meta['NID']).join('/'),
+                        // 18. Exp gene trat
+                        egt: projeto.getTrat().getTPM(gene.meta['NID']).join('/')
+                    })
+                })
+            }))
+    tabE.value = tabevt
+}
+
+function search(s) {
+    if (!s || s.trim().length < 3)
+        return tabE.value.forEach(x => (x._hide = false))
+    s = s.toLowerCase().trim()
+    tabE.value.forEach(x => x.g.indexOf(s) < 0 && (x._hide = true))
+}
+
 function criar() {
     show.value = true;
     setTimeout(() => {
+        loadTables();
         plotDE();
         plotDA();
         plotDAr();
@@ -605,24 +696,22 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                     <TableIcon class="mr-2 w-5 h-5" /> AS Details
                 </template>
                 <template #tableContent>
-                    1. Gene
-                    2. Mrna envolvido
-                    3. D psi
-                    4. Fdr
-                    5. Tam evento
-                    6. Anotacao
-                    7. Log2fc
-                    8. Rmats
-                    9. Maser
-                    10. 3d
-                    11. Tipo
-                    12. Ptna size
-                    13. Prematrr stop codon
-                    14. Nome cromossoo
-                    15. Min exp isoform
-                    16. Exp gene
-                    17. Max isso exp
-                    18. % exon region sem exp
+                    <div class="flex inline items-center justify-between border rounded-lg my-2 px-4 w-1/2 text-slate-600">
+                        <SearchIcon class="h-8 w-8 mx-2 fill-slate-200	" />
+                        <FormInputText class="w-lg" label="Search gene" @update="search"></FormInputText>
+                        <span class="bg-indigo-500 text-white p-1 rounded-full mx-2 h-8">{{ tabE.filter(r =>
+                                !r._hide).length
+                        }}</span>
+                    </div>
+                    <div class="flex flex-wrap my-2 text-slate-600 border rounded-lg">
+                        <FilterIcon class="h-8 w-8 -mt-2 -ml-4 fill-slate-200	" />
+                        <label v-for="col in tabEh" for="col.meta.id" class="mx-2 my-1 p-1 border rounded">
+                            {{ col.meta.lab }}
+                            <input type="checkbox" class="accent-pink-500" :checked="!col.meta.hide" :id="col.meta.id"
+                                v-model="col.meta.hide" :true-value="false" :false-value="true" />
+                        </label>
+                    </div>
+                    <Table class="my-4" :cols="tabEh" :rows="tabE" indexed="true"></Table>
                 </template>
 
                 <template #table2>

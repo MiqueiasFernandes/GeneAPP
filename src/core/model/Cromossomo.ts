@@ -3,7 +3,7 @@ import { Isoforma } from "../locus/Isoforma";
 import { Locus } from "../locus/Locus";
 
 export class Cromossomo {
-    private nome: string;
+    nome: string;
     private tamanho: number;
     private genes: Array<Gene> = new Array<Gene>();
     private loci: Array<Locus> = new Array<Locus>();
