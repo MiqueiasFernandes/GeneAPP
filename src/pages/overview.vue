@@ -303,6 +303,11 @@ const tableGNheader = [
 
 function loadTables() {
 
+    const store = (f, h, t) => {
+        const cols = h.map(c => c.meta.id)
+        const tab = [h.map(c => c.meta.lab)].concat(t.map(r => cols.map(c => `${r[c]}`)))
+        tab && tab.length > 2 && PROJETO.addCSV(f, tab)
+    }
 
     const dataSet = projeto.qc_status
         .mapColInt("FastQC_mqc-generalstats-fastqc-avg_sequence_length") //// media de tamanho
@@ -391,6 +396,7 @@ function loadTables() {
                 { etapa: 'Anotation', prop: 'Total length domains redundant', val: anot3() }]
         }
         tablePR.value.push(...CACHE.value['bedanotacao'])
+        store('Pipeline_table.csv', tablePRheader, tablePR.value)
     }, 300);
 
     /// tabela experimental design
@@ -442,15 +448,17 @@ function loadTables() {
     })
 
     tableED.value = dt
+    store('Experiment_table.csv', tableEDheader, dt)
     tableGN.value = PROJETO.getALLGenes().map(g => ({
         nome: g.getNome(),
         isos: g.getIsoformas().length,
         chr: g.cromossomo.nome,
-        strand: g.strand ? "5' →" : "3' →",
+        strand: g.strand ? "5'" : "3'",
         start: g.start,
         end: g.end,
         size: g.size
     }))
+    store('Gene_table.csv', tableGNheader, tableGN.value)
 }
 
 function criar() {

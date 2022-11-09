@@ -19,6 +19,7 @@ import {
     Heatmap, Canvas, GraphPlot, LinesPlot, VennPlot, PiePlot, WordCloudPlot, TreePlot
 } from '../core/d3'
 import { PROJETO } from "../core/State";
+import { getInterpro2GO } from "../core/ClientAPI";
 useHead({ title: 'Overview' });
 
 const projeto = PROJETO;
@@ -32,7 +33,7 @@ const graficos = [
     ],
     [
         { id: 'graphHm2', titulo: 'Heatmap Iso top TPM' },
-        { id: 'graphLk', titulo: 'Gene relatoions' },
+        { id: 'graphLk', titulo: 'Gene relations (GO & IPRO)' },
     ],
     [
         { id: 'graphBar', titulo: 'AS Discovery' },
@@ -294,6 +295,7 @@ function plotLk() {
     nodes.forEach(n => n.group = 'a-gene')
 
     const links = []
+    let nnodes = []
 
     nodes.forEach((n1, i) => {
         nodes.forEach((n2, j) => {
@@ -303,18 +305,28 @@ function plotLk() {
                 if (dist < _MAX_DIST_)
                     return links.push({ source: n1.nome, target: n2.nome, w: (_MAX_DIST_ - dist) / _MAX_DIST_ * 5 })
             }
-            const a1 = n1.getAnots(_ANOT_)
+            const a1 = n1.getInterpro().concat(n1.getGO())
             if (a1.length < 1) return
-            const a2 = n2.getAnots(_ANOT_)
+            const a2 = n2.getInterpro().concat(n2.getGO())
             if (a2.length < 1) return
+
             const b = a1.filter(a => a2.includes(a))
             if (b.length < 1) return
-            links.push({ source: n1.nome, target: n2.nome, w: b.length + 1 })
+            // b.forEach(a => {
+            //     links.push({ source: n1.nome, target: a, w: b.length })
+            //     links.push({ source: n2.nome, target: a, w: b.length })
+            // })
+            // nnodes.push(...b)
+            links.push({ source: n1.nome, target: n2.nome, w: b.length })
         })
     })
 
+
     nodes.forEach(g => links.push({ source: g.cromossomo.nome, target: g.nome }))
     projeto.cromossomos.forEach(c => nodes.push({ nome: c.nome, group: 'z-cromossomo' }))
+
+    nnodes = [... new Set(nnodes)]
+    nnodes.forEach(n => nodes.push({ nome: n, group: 'c-interpro' }))
 
     const data = {
         nodes: nodes.map(g => ({ id: g.nome, group: g.group })), links
@@ -587,7 +599,17 @@ const tabEh = ref([
     { meta: { id: 'egt', lab: projeto.getTrat().nome + ' gene TPM', ord: 18, hide: true } }
 ])
 
+const tabGh = ref([
+    { meta: { id: 'gene', lab: 'Gene', ord: 1, class: 'text-sm' } },
+    { meta: { id: 'psi', lab: 'Δ PSI', ord: 2 } },
+    { meta: { id: 'fdr', lab: 'FDR', ord: 3 } },
+    { meta: { id: 'go', lab: 'Gene Ontology', ord: 4, class: 'text-sm' } },
+    { meta: { id: 'ipro', lab: 'InterPro', ord: 5, class: 'text-sm' } },
+    { meta: { id: 'pathway', lab: 'Pathways', ord: 6, class: 'text-sm' } },
+])
+
 const tabE = ref([])
+const tabG = ref([])
 
 function loadTables() {
     const tabevt = []
@@ -616,7 +638,7 @@ function loadTables() {
                         // 9. Rmats
                         tipo: event['tipo'],
                         // 10. Maser
-                        maser: event.extra['MASER'] ? '✔️' : '❌',
+                        maser: event.extra['MASER'] ? 'Y' : 'N',
                         // 11. evidence,
                         is3d: event.evidence === 'rMATS' ? event.extra['ID'] : '3DRNASeq',
                         // 12. min iso TPM
@@ -636,7 +658,7 @@ function loadTables() {
                         // 14. min Ptna size
                         ptn: Math.min(isoA.getCDS().len(), isoB.getCDS().len()) / 3,
                         // 15. Prematrr stop codon
-                        ptc: (event.extra['ptc'] && event.extra['ptc'].f1 > 0 && event.extra['ptc'].f2 > 0 && event.extra['ptc'].f3 > 0) ? '✔️' : '❌',
+                        ptc: (event.extra['ptc'] && event.extra['ptc'].f1 > 0 && event.extra['ptc'].f2 > 0 && event.extra['ptc'].f3 > 0) ? 'Y' : 'N',
                         // 16. Nome cromossoo
                         chr: gene.cromossomo.nome,
                         // 17. Exp gene cont
@@ -647,6 +669,34 @@ function loadTables() {
                 })
             }))
     tabE.value = tabevt
+
+    let cols = tabEh.value.map(c => c.meta.id)
+    let tab = [tabEh.value.map(c => c.meta.lab.replace('Δ', 'D'))].concat(tabE.value.map(r => cols.map(c => r[c])))
+    tab && tab.length > 2 && PROJETO.addCSV('Events_table.csv', tab)
+
+    const convE = (x) => x.length > 3 ? (x.slice(0, 3).join(', ') + '... +' + (x.length - 3)) : x.join(', ')
+    getInterpro2GO().then(res => {
+        projeto.getALLGenes().forEach(
+            gene => gene.getAS().forEach(
+                event => {
+                    gene.getGO().forEach(go => {
+                        gene.getInterpro2().forEach(i => {
+                            tabG.value.push({
+                                gene: gene.getNome(),
+                                psi: event.dps.toPrecision(3),
+                                fdr: event.qvalue.toPrecision(3),
+                                go: `${res[go]} (${go})`,
+                                ipro: i,
+                                pathway: convE(gene.getPathway())
+                            })
+                        })
+                    })
+                }))
+    })
+
+    cols = tabGh.value.map(c => c.meta.id)
+    tab = [tabGh.value.map(c => c.meta.lab.replace('Δ', 'D'))].concat(tabG.value.map(r => cols.map(c => r[c])))
+    tab && tab.length > 1 && PROJETO.addCSV('Annotation_table.csv', tab)
 }
 
 function search(s) {
@@ -696,7 +746,8 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                     <TableIcon class="mr-2 w-5 h-5" /> AS Details
                 </template>
                 <template #tableContent>
-                    <div class="flex inline items-center justify-between border rounded-lg my-2 px-4 w-1/2 text-slate-600">
+                    <div
+                        class="flex inline items-center justify-between border rounded-lg my-2 px-4 w-1/2 text-slate-600">
                         <SearchIcon class="h-8 w-8 mx-2 fill-slate-200	" />
                         <FormInputText class="w-lg" label="Search gene" @update="search"></FormInputText>
                         <span class="bg-indigo-500 text-white p-1 rounded-full mx-2 h-8">{{ tabE.filter(r =>
@@ -718,7 +769,7 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                     <TableIcon class="mr-2 w-5 h-5" /> Anottaion table
                 </template>
                 <template #table2Content>
-                    gene, dpsi [,,,] fdr .05, go, biol proc, pfam , pathay
+                    <Table class="my-4" :cols="tabGh" :rows="tabG"></Table>
                 </template>
 
                 <template #chart>

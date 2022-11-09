@@ -40,6 +40,7 @@ export class Projeto {
     private FNA = null;
     private FAA = null;
     private arquivos = [];
+    baixando = false;
 
 
     constructor(nome: string) {
@@ -73,6 +74,11 @@ export class Projeto {
     }
     addResultados(res) {
         Object.entries(res).forEach(([K, V]) => this.resultados[K] = V)
+    }
+    addCSV(f, csv) {
+        let x = {}
+        x[f] = { data: csv.map(x => x.join('\t')).join('\n'), tipo: 'text/csv' }
+        this.addResultados(x)
     }
 
     hasResults = () => Object.keys(this.resultados).length > 0

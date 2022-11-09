@@ -72,10 +72,19 @@ export class Gene extends Locus {
     hasBED = () => this.has_bed
 
     getAnots = (t?) => this.anots || (this.anots = [... new Set(this.isoformas.map(i => i.getAnotsAcession(t)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?'))
-    getGO = () => [... new Set(this.isoformas.map(i => i.getAnots('GO').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
-    getPathway = () => [... new Set(this.isoformas.map(i => i.getAnots('Pathway').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
-    getPfam = () => [... new Set(this.isoformas.map(i => i.getAnots('Pfam').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
-    getInterpro = () => [... new Set(this.isoformas.map(i => i.getAnots('InterPro').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x !== '?')
+
+
+    private gos;
+    private pts;
+    private pfns;
+    private ips;
+    private ips2;
+
+    getGO = () => this.gos || (this.gos = [... new Set(this.isoformas.map(i => i.getAnots('GO').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x && x.startsWith('GO')))
+    getPathway = () => this.pts || (this.pts = [... new Set(this.isoformas.map(i => i.getAnots('Pathway').map(x => x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x && x.length > 3))
+    getPfam = (text?) => this.pfns || (this.pfns = [... new Set(this.isoformas.map(i => i.getAnots('Pfam').map(x => text ? x.get('text') : x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x && x.length > 3))
+    getInterpro = (text?) => this.ips || (this.ips = [... new Set(this.isoformas.map(i => i.getAnots('InterPro').map(x => text ? x.get('text') : x.value)).reduce((p, c) => p.concat(c), []))].filter(x => x && x.startsWith('IPR')))
+    getInterpro2 = () => this.ips2 || (this.ips2 = [... new Set(this.isoformas.map(i => i.getAnots('InterPro').map(x => x.get('text'))).reduce((p, c) => p.concat(c), []))].filter(x => x && x.length > 3))
     // A2M alpha-2-macroglobulin[Homo sapiens]
     // Gene ID: 2, updated on 9-Oct-2022
 

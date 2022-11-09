@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Gene } from './model';
 import { Anotacao } from './model/Anotacao';
-import { EMAIL, MODALS, notificar } from './State';
+import { EMAIL, MODALS, notificar, CACHE } from './State';
 
 function email(next) {
     if (EMAIL.value) {
@@ -142,6 +142,17 @@ export function getInterpro(sequence: string,
             }, 60000)
         })
     })
+}
+
+export function getInterpro2GO() {
+    const HREF = 'https://ftp.ebi.ac.uk/pub/databases/GO/goa//external2go/interpro2go'
+    return axios.get(HREF).then(r => CACHE.value['ipro2go'] || (CACHE.value['ipro2go'] = Object.fromEntries(
+        r.data.split('\n')
+            .filter(x => x.length > 1 && !x.startsWith('!'))
+            .map(x => x.split(' > '))
+            .map(([_, G]) => G.split(' ; '))
+            .map(([E, I]) => [I, E.slice(3)])
+    )))
 }
 
 

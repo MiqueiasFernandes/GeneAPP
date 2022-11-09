@@ -8,7 +8,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <Disclosure as="div" class="mt-2" v-slot="{ open }">
+    <Disclosure as="div" class="mt-2" v-slot="{ open }" :default-open="true">
         <DisclosureButton @click="$emit('open', open)"
             :class="(open ? 'rounded-b-none' : '') + ' flex w-full justify-between rounded-lg bg-purple-100 px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75'">
             <span>{{ titulo }}</span>
