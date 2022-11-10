@@ -107,7 +107,7 @@ const pages = (router) => router.options.routes
   </Disclosure>
 
   <div class="bg-gray-100 pt-16">
-    <header class="bg-gray-50 shadow" v-if="$route.meta.title">
+    <header class="bg-gray-50 shadow" v-if="$route.meta.title && $route.meta.title !== 'GeneAPP'">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 @click="counter = 0" class="text-3xl font-bold leading-tight text-gray-900">
           {{ $route.meta.description }}
