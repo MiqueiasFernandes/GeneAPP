@@ -132,7 +132,10 @@ const pages = (router) => router.options.routes
   </svg>
 
   <div class="bg-gray-800 text-white">
-    <div class="px-4 py-32 flex justify-center">
+    <div class="-mt-24 mb-20 w-100 text-right">
+    <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Versao 1.0</span>  
+    </div>
+    <div class="px-4 py-4 flex justify-center">
       <span class="text-xl font-extrabold">Desenvolvido por <i class=" text-indigo-500 ">mikeias.net</i>
         para o Capitulo III da tese de doutorado submetida ao PPG Bioinformatica ICB/UFMG</span>
     </div>
@@ -140,7 +143,6 @@ const pages = (router) => router.options.routes
 
   <div class="top-8 right-0 -mr-8 fixed max-w-lg px-4 py-2 flex flex-col items-end rounded-l-3xl z-10"
     style="background:  radial-gradient(white, transparent)">
-    <!-- <template v-for="notificacao in Object.values(NOTIFICACOES).sort((a, b) => (a && b) ? a.id - b.id : 0)"> -->
     <template v-for="notificacao in NOTIFICACOES">
       <Notificacao class="pr-10" v-if="notificacao && !notificacao.close" :color="notificacao.color"
         :timeout="notificacao.timeout" :id="notificacao.id">
