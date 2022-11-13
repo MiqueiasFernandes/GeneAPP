@@ -16,9 +16,11 @@ import { ColorSwatchIcon } from '@heroicons/vue/solid';
 import { Arquivo } from '../core/utils/Arquivo';
 import { PROJETO, MODALS, notificar } from "../core/State";
 import { onBeforeMount } from 'vue';
+import { useRoute } from 'vue-router'
 
 useHead({ title: 'New Project' });
-
+const route = useRoute()
+const query = route.query
 const projeto = PROJETO;
 const percent = ref(-1);
 const file = ref(null);
@@ -70,16 +72,21 @@ function setExperimento() {
 
 }
 
-onBeforeMount(() => projeto.reset())
+function carregar() {
+  if (query.create && query.create === 'new') {
+   setTimeout(importar, 500);
+  }
+}
 
+onBeforeMount(() => projeto.reset())
+onMounted(carregar)
 </script>
 
 
 <template>
   <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl p-8">
-      <Sanfona class="sahdow" titulo="Configurar o projeto" :opened="true"
-        @open="(s) => (s && (sanfona_st = 1))">
+      <Sanfona class="sahdow" titulo="Configurar o projeto" :opened="true" @open="(s) => (s && (sanfona_st = 1))">
         <FormRow>
           <FormCol>
             <FormInputText label="Nome do projeto" :content="projeto.nome" @update="(x) => (projeto.nome = x)" />

@@ -9,7 +9,7 @@
 </route>
     
 <script setup>
-import { InformationCircleIcon, SearchIcon, ExclamationIcon, ArrowRightIcon } from '@heroicons/vue/outline';
+import { InformationCircleIcon, SearchIcon, ExclamationIcon, ArrowRightIcon, DownloadIcon, UploadIcon } from '@heroicons/vue/outline';
 import { LightningBoltIcon, LightBulbIcon, DatabaseIcon, ClipboardCheckIcon } from '@heroicons/vue/solid';
 import { onMounted } from 'vue';
 
@@ -20,27 +20,39 @@ const input = ref(null)
 const infos = ref([
   {
     tipo: 'info',
-    titulo: 'Titulo do alert1',
-    texto: 'Texsfato do alafdasert 1 asfspaafsdra adsafapresentar',
+    titulo: 'GeneAPP test data',
+    texto: 'You can open test data as text then verify content layout. To generate you own data read script finalizar() function.',
     active: true
   },
   {
     tipo: 'warn',
-    titulo: 'Titulo do alert2',
-    texto: '23421 Tasdsaf dfexto doasfd alert 2 padsfara apresentar',
-    active: false
+    titulo: 'Configure email',
+    texto: "You'll be prompted to inform your email in order to use InterPro, NCBI, Uniprot and others APIs. Your email not will be cached or processed.",
   },
+  // {
+  //   tipo: 'info',
+  //   titulo: 'Plots legends',
+  //   texto: 'T342e sds wv f wvvwvwfwv  feefxto do alert 4 para apresentar'
+  // },
   {
     tipo: 'info',
-    titulo: 'asdTitulo do alert3',
-    texto: 'Tes ad fax  tosdf sadfdo alersadfat 3 para safda apre asdf sentar',
-    active: false
+    titulo: 'Download all data by one click',
+    texto: 'Graphics and tables opened on GeneAPP navigation will be avaliable in top download button. Click in it then download all files.'
   },
   {
     tipo: 'warn',
-    titulo: 'Titulo do alert4',
-    texto: 'T342e sds wv f wvvwvwfwv  feefxto do alert 4 para apresentar',
-    active: false
+    titulo: 'Cite GeneAPP in your work',
+    texto: 'Use, explore and cite GeneAPP in your work.'
+  },
+  {
+    tipo: 'info',
+    titulo: 'Info on hover',
+    texto: 'Move mouse on plot points and will be displayed anotations as gene name, this feature is supported in some plots.'
+  },
+  {
+    tipo: 'info',
+    titulo: 'Custom project',
+    texto: 'You can buil project to use just needed GeneAPP features'
   },
 ])
 
@@ -155,40 +167,69 @@ onMounted(() => {
     </section>
   </div>
 
-  <section class="h-32 w-full px-32 flex justify-between items-center m-8"
+  <div class="text-center mt-8 text-slate-600 font-extrabold border-b p-2 mx-16">
+    Pipeline to teste GeneAPP features
+  </div>
+
+  <section class=" w-full px-32 flex flex-wrap justify-between items-center m-8"
     style="background-image: url('/img/back4.png');  background-position: center; background-size: contain;">
-    <span>Few clicks</span>
+    <span class="text-lg text-slate-700 font-bold drop-shadow">Few clicks</span>
 
-    <div class="rounded-lg w-64 h-32 bg-indigo-500 shadow-lg shadow-indigo-500/50">
+    <div class="rounded-lg w-64 h-32 my-2 bg-indigo-300/50 shadow-lg shadow-indigo-500/50">
       <div
-        class="rounded-full bg-indigo-100 text-indigo-500 w-8 h-8 flex items-center justify-center -m-4 font-bold shadow">
+        class="rounded-full bg-rose-600 text-white w-8 h-8 flex items-center justify-center -m-4 font-bold drop-shadow-sm shadow">
         1</div>
+      <div class="p-2 text-white text-center">
+        <span class="text-lg text-slate-700 font-bold drop-shadow-sm">
+          With sample data you can test all features
+        </span>
 
-      <div class="flex items-center">
-        Download sample data
-        <br />
-
-        <Button :color="'rose'">Download</Button>
+        <ButtonLink :icon="false" :color="'rose'" class="my-2"
+          href="https://1drv.ms/u/s!AjOYiVKI0SsQtIp8buyk2fJlOijL3A?e=icjGG7">
+          <DownloadIcon class="-ml-1 mr-2 h-5 w-5" /> Download
+        </ButtonLink>
       </div>
-
     </div>
+
+
     <span>
-      <ArrowRightIcon class="w-8 h-8 text-indigo-600 " />
+      <ArrowRightIcon class="w-8 h-8 text-indigo-600 drop-shadow" />
     </span>
 
-    <div class="border rounded-lg w-64 h-32">
-      Extract sample data
+    <div class="rounded-lg w-64 h-32 my-2 bg-indigo-500 shadow-lg shadow-indigo-500/50">
+      <div
+        class="rounded-full bg-rose-600 text-white w-8 h-8 flex items-center justify-center -m-4 font-bold drop-shadow-sm shadow">
+        2</div>
+      <div class="text-white text-center flex flex-wrap items-center justify-center h-full">
+        <InformationCircleIcon class="w-8 h-8" />
+        <span class="text-lg drop-shadow">
+          Extract the compressed sample data in your PC
+        </span>
+      </div>
     </div>
-    <ArrowRightIcon class="w-8 h-8 text-indigo-600" />
-    <div class="border rounded-lg w-64 h-32">
-      Upload sample data
+    <ArrowRightIcon class="w-8 h-8 text-indigo-600  drop-shadow" />
+
+
+    <div class="rounded-lg w-64 h-32 my-2 bg-indigo-300/50 shadow-lg shadow-indigo-500/50">
+      <div
+        class="rounded-full bg-rose-600 text-white w-8 h-8 flex items-center justify-center -m-4 font-bold drop-shadow-sm shadow">
+        3</div>
+      <div class="p-2 text-white text-center">
+        <span class="text-lg text-slate-700 font-bold drop-shadow-sm">
+          Upload sample data and explore them!
+        </span>
+
+        <ButtonLink :icon="false" :color="'rose'" class="my-2" href="/new?create=new" :target="'_self'">
+          <UploadIcon class="-ml-1 mr-2 h-5 w-5" /> Upload
+        </ButtonLink>
+      </div>
     </div>
 
-    <span>Many results</span>
+    <span class="text-lg text-slate-700 font-bold drop-shadow">Many results</span>
   </section>
 
 
-  <section class="w-full h-32 px-12">
+  <section class="w-full h-32 px-12 pt-8">
 
     <template v-for="info in infos">
       <div :class="(info.tipo === 'info' ? 'bg-sky-50' : 'bg-amber-50') +
@@ -202,8 +243,8 @@ onMounted(() => {
         </div>
 
         <div class="w-xl">
-          {{ info.titulo }}<br />
-          {{ info.texto }}
+          <span class="text-slate-700 font-bold">{{ info.titulo }}</span> <br />
+          <span class="text-slate-700"> {{ info.texto }}</span>
         </div>
 
       </div>
@@ -216,7 +257,7 @@ onMounted(() => {
 
 
 
-  <div class="grid grid-cols-2 text-center mt-16 font-semibold text-slate-600">
+  <div class="grid grid-cols-2 text-center mt-16 font-semibold text-slate-600 hidden">
     <div class="">
       TExto texto texto<br />
       TExto texto texto<br />

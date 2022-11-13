@@ -10,7 +10,7 @@ const props = defineProps({
 <template>
   <div class="inline-flex rounded-md shadow">
     <a :href="href" :target="target" :class="{
-      'inline-flex items-center justify-center': true,
+      'inline-flex items-center justify-center cursor-pointer': true,
       'rounded-md border border-transparent': true,
       'px-5 py-3': true,
       'text-base font-medium leading-6': true,
