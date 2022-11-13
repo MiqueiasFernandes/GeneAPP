@@ -133,11 +133,11 @@ const pages = (router) => router.options.routes
 
   <div class="bg-gray-800 text-white">
     <div class="-mt-24 mb-20 w-100 text-right">
-    <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Versao 1.0</span>  
+    <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Version 1.0</span>  
     </div>
     <div class="px-4 py-4 flex justify-center">
-      <span class="text-xl font-extrabold">Desenvolvido por <i class=" text-indigo-500 ">mikeias.net</i>
-        para o Capitulo III da tese de doutorado submetida ao PPG Bioinformatica ICB/UFMG</span>
+      <span class="text-xl font-extrabold">Developed by <i class=" text-indigo-500 ">mikeias.net</i>
+        for the Chapter III of Phd thesis submeted to PPG Bioinformatica ICB/UFMG</span>
     </div>
   </div>
 

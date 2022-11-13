@@ -298,7 +298,7 @@ export class GenePlot extends AbstractPlot {
                     break;
                 case 22:
                     this.arrow(X - 10, Y + 3, X + 3, Y + 3, 'black', 1, 5)
-                    this.text(X + 8, Y + 3, 'Exon skiping event', { fs: '.6rem', vc: 1 })
+                    this.text(X + 8, Y + 5, 'Exon skiping event', { fs: '.6rem', vc: 1 })
                     break;
                 case 30:
                     if (!projeto)

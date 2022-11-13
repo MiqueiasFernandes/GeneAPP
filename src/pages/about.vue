@@ -30,7 +30,7 @@ useHead({ title: 'About' })
       <p>
         citacoes
       <ul>
-        <li>ncbi</li>
+        <li>ncbi deeptols</li>
         <li>interproscan</li>
         <li>agbase</li>
         <li>orthoven</li>

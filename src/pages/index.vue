@@ -9,7 +9,7 @@
 </route>
     
 <script setup>
-import { InformationCircleIcon, SearchIcon, ExclamationIcon } from '@heroicons/vue/outline';
+import { InformationCircleIcon, SearchIcon, ExclamationIcon, ArrowRightIcon } from '@heroicons/vue/outline';
 import { LightningBoltIcon, LightBulbIcon, DatabaseIcon, ClipboardCheckIcon } from '@heroicons/vue/solid';
 import { onMounted } from 'vue';
 
@@ -44,14 +44,14 @@ const infos = ref([
   },
 ])
 
+const top = () => window.scrollTo(0, 0)
+
 function active(i) {
   infos.value.forEach(x => (x.active = false))
   i && (i.active = true)
 }
 
 onMounted(() => {
-  console.log(infos.value)
-  //input.value.focus()
   infos.value.forEach((i, id) => (i['next'] = id + 1))
   infos.value[infos.value.length - 1]['next'] = 0
   setInterval(() => {
@@ -76,11 +76,11 @@ onMounted(() => {
 
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
-        <span class="text-6xl	text-indigo-600 font-extrabold w-full">Explore resultados <br /> de analise de splicing
-          alternativo</span>
+        <span class="text-6xl	text-indigo-600 font-extrabold w-full">Explore outputs of alternative splicing
+          analysis</span>
         <br />
         <span class="w-full text-slate-600 font-semibold text-2xl my-4">
-          Transforme numeros em graficos e direcione sua pesquisa para o caminho certo com o <b>GeneAPP</b>
+          Transform numbers in graphics and drive your research to correct path with the <b>GeneAPP</b>
         </span>
       </div>
     </section>
@@ -88,18 +88,18 @@ onMounted(() => {
     <section class="flex items-center flex-wrap mx-16"
       style="background-image: url('/img/back2.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
-        <span class="text-6xl	text-indigo-600 font-extrabold w-full">Encontre os genes <br /> que voce estuda
-          aqui</span>
+        <span class="text-6xl	text-indigo-600 font-extrabold w-full">Find the gene <br /> one what you study
+          here</span>
         <br />
-        <span class="w-full text-slate-600 font-semibold text-2xl my-4">Visualise genes pelo <b
-            class="font-mono">GID</b> do NCBI com sua estrutura,
-          dominios funcionais e muito mais</span>
+        <span class="w-full text-slate-600 font-semibold text-2xl my-4">Visualize genes by <b class="font-mono">GID</b>
+          of NCBI with its structure,
+          functional domains and many more</span>
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 flex items-center"
         style="background-image: url('/img/monitor.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
         <div class=" w-1/2 h-32 ml-4 mt-8 p-2 flex inline items-center">
-          <FormInputText class="w-64 font-mono" :float="false" ref="input" :auto="false" /> <Button class="h-10 mx-2"
-            color="acent">
+          <FormInputText class="w-64 font-mono" :float="false" ref="input" :auto="false" content="836163" />
+          <Button class="h-10 mx-2" color="acent" @click="top() ; $router.push(`/gene?id=${input.content}`)">
             <SearchIcon class="h-8 w-8 animate-pulse" />
           </Button>
         </div>
@@ -112,62 +112,88 @@ onMounted(() => {
           <LightningBoltIcon class=" bg-sky-100 rounded-full text-sky-600 p-2 m-2 h-16 w-16" />
         </div>
 
-        <p class="text-2xl	text-sky-700 font-bold w-full my-4 underline">Generation</p>
+        <p class="text-2xl	text-sky-700 font-bold w-full my-2 underline">Generation</p>
 
-        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">O GeneAPP disponibiliza um pi sdf sd gs g s
-          gs f g sfh s h s hfshf speline para geraçao de
-          dados de analise de AS.</span>
+        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
+          The GeneAPP has a pipeline to generate AS analysis data. If raw data sample is less than 4gb can run on
+          Colab.</span>
 
       </div>
       <div class="m-4 bg-fuchsia-50 h-72 w-64 rounded-md shadow text-center p-2 ">
         <div class="-mt-8 w-full flex justify-center">
           <DatabaseIcon class=" bg-fuchsia-100 rounded-full text-fuchsia-600 p-2 m-2 h-16 w-16" />
         </div>
-        <p class="text-2xl	text-fuchsia-700 font-bold w-full my-4 underline">Integration</p>
+        <p class="text-2xl	text-fuchsia-700 font-bold w-full my-2 underline">Integration</p>
 
-        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">O GeneAPP disponibiliza um pi sdf sd gs g s
-          gs f g sfh s h s hfshf speline para geraçao de
-          dados de analise de AS.</span>
+        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
+          The GeneAPP integrate data of softwares and link of multiples public databases
+          like NCBI, Interpro, Pfam, Uniprot, GO and others
+        </span>
       </div>
       <div class="m-4 bg-amber-50 h-72 w-64 rounded-md shadow text-center p-2 ">
         <div class="-mt-8 w-full flex justify-center">
           <LightBulbIcon class=" bg-amber-100 rounded-full text-amber-600 p-2 m-2 h-16 w-16" />
         </div>
-        <p class="text-2xl	text-amber-700 font-bold w-full my-4 underline">Curadoria</p>
+        <p class="text-2xl	text-amber-700 font-bold w-full my-2 underline">Curadoria</p>
 
-        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">O GeneAPP disponibiliza um pi sdf sd gs g s
-          gs f g sfh s h s hfshf speline para geraçao de
-          dados de analise de AS.</span>
+        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
+          The GeneAPP was developed to compare AS events and AS gene to select best targets for next steps in hypotesis
+          test
+        </span>
       </div>
       <div class="m-4 bg-lime-50 h-72 w-64 rounded-md shadow text-center p-2 ">
         <div class="-mt-8 w-full flex justify-center">
           <ClipboardCheckIcon class=" bg-lime-100 rounded-full text-lime-600 p-2 m-2 h-16 w-16" />
         </div>
-        <p class="text-2xl	text-lime-700 font-bold w-full my-4 underline">Extras</p>
+        <p class="text-2xl	text-lime-700 font-bold w-full my-2 underline">Extras</p>
 
-        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">O GeneAPP disponibiliza um pi sdf sd gs g s
-          gs f g sfh s h s hfshf speline para geraçao de
-          dados de analise de AS.</span>
+        <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
+          Anote some gene with domains, inspect its sequence with colored features and of your proteins, download and
+          share them
+        </span>
       </div>
     </section>
   </div>
 
-  <section class="h-32 w-full"
-    style="background-image: url('/img/back4.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
-    poucos clikes
+  <section class="h-32 w-full px-32 flex justify-between items-center m-8"
+    style="background-image: url('/img/back4.png');  background-position: center; background-size: contain;">
+    <span>Few clicks</span>
 
+    <div class="rounded-lg w-64 h-32 bg-indigo-500 shadow-lg shadow-indigo-500/50">
+      <div
+        class="rounded-full bg-indigo-100 text-indigo-500 w-8 h-8 flex items-center justify-center -m-4 font-bold shadow">
+        1</div>
 
-    muitos resultados
+      <div class="flex items-center">
+        Download sample data
+        <br />
+
+        <Button :color="'rose'">Download</Button>
+      </div>
+
+    </div>
+    <span>
+      <ArrowRightIcon class="w-8 h-8 text-indigo-600 " />
+    </span>
+
+    <div class="border rounded-lg w-64 h-32">
+      Extract sample data
+    </div>
+    <ArrowRightIcon class="w-8 h-8 text-indigo-600" />
+    <div class="border rounded-lg w-64 h-32">
+      Upload sample data
+    </div>
+
+    <span>Many results</span>
   </section>
 
 
   <section class="w-full h-32 px-12">
 
     <template v-for="info in infos">
-      <div
-        :class="(info.tipo === 'info' ? 'bg-sky-50' : 'bg-amber-50') + 
-        ' w-full h-full rounded-md shadow flex items-center animate-pulse'"
-        style="animation-iteration-count: 1;" v-if="info.active">
+      <div :class="(info.tipo === 'info' ? 'bg-sky-50' : 'bg-amber-50') +
+      ' w-full h-full rounded-md shadow flex items-center animate-pulse'" style="animation-iteration-count: 1;"
+        v-if="info.active">
 
         <div class="w-20 h-full flex justify-center items-center mx-4">
           <InformationCircleIcon v-if="info.tipo === 'info'"
