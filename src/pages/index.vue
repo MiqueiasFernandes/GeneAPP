@@ -171,7 +171,7 @@ onMounted(() => {
     Pipeline to teste GeneAPP features
   </div>
 
-  <section class=" w-full px-32 flex flex-wrap justify-between items-center m-8"
+  <section class=" flex flex-wrap justify-between items-center m-8"
     style="background-image: url('/img/back4.png');  background-position: center; background-size: contain;">
     <span class="text-lg text-slate-700 font-bold drop-shadow">Few clicks</span>
 
