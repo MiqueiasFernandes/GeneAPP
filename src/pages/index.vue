@@ -185,7 +185,7 @@ onMounted(() => {
         </span>
 
         <ButtonLink :icon="false" :color="'rose'" class="my-2"
-          href="https://1drv.ms/u/s!AjOYiVKI0SsQtIp8buyk2fJlOijL3A?e=icjGG7">
+          href="https://1drv.ms/u/s!AjOYiVKI0SsQtIsS1hL_4SB-T4dLjQ?e=30FWnv">
           <DownloadIcon class="-ml-1 mr-2 h-5 w-5" /> Download
         </ButtonLink>
       </div>

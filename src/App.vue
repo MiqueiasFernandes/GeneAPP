@@ -77,10 +77,10 @@ const pages = (router) => router.options.routes
               leave-to-class="transform opacity-0 scale-95">
               <MenuItems
                 class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <MenuItem v-slot="{ active }">
+                <!-- <MenuItem v-slot="{ active }">
                 <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">English
                   version</a>
-                </MenuItem>
+                </MenuItem> -->
                 <MenuItem v-slot="{ active }">
                 <a href="https://github.com/MiqueiasFernandes/GeneAPP"
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">GitHub Repo</a>

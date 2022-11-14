@@ -12,11 +12,14 @@
 import { ClipboardListIcon, FolderDownloadIcon } from '@heroicons/vue/solid'
 import { DownloadIcon } from '@heroicons/vue/outline'
 useHead({ title: 'Get started on GeneAPP' })
+
+const host =window.location.href.replace('/start', '/gene?id=836163')
+
 </script>
   
 <template>
 
-  <div class="py-4">
+  <div class="py-4 text-slate-800">
     <Titulo>
       <template #titulo>1. Experimental design</template>
       <template #subtitulo>Como fazer analise de DAS?</template>
@@ -70,10 +73,15 @@ useHead({ title: 'Get started on GeneAPP' })
         </p>
 
         <ul class="mt-2">
-          <li><span class="font-medium">Genoma:</span> <span class="font-mono">teste de fonte</span></li>
-          <li><span class="font-medium">Anotacao:</span> <span class="font-mono">teste de fonte</span></li>
-          <li><span class="font-medium">Transcritos:</span> <span class="font-mono">teste de fonte</span></li>
-          <li><span class="font-medium">Amostra:</span> <span class="font-mono">teste de fonte</span></li>
+          <li><span class="font-bold">Genoma:</span> <span
+              class="font-mono">GCF_000001735.4_TAIR10.1_genomic.fna.gz</span></li>
+          <li><span class="font-bold">Anotacao:</span> <span
+              class="font-mono">GCF_000001735.4_TAIR10.1_genomic.gtf.gz</span></li>
+          <li><span class="font-bold">Transcritos:</span> <span
+              class="font-mono">GCF_000001735.4_TAIR10.1_cds_from_genomic.fna.gz</span></li>
+          <li><span class="font-bold">Amostra:</span> <span class="font-mono">
+              SRR21411875 SRR21411876 SRR21411877 SRR21411881 SRR21411882 SRR21411883
+            </span></li>
         </ul>
       </div>
       <img src="/img/asexp.png" width="400" class="mx-3 mt-3" />
@@ -146,7 +154,7 @@ useHead({ title: 'Get started on GeneAPP' })
         </ol>
         <p class="indent-3 mt-3">
           <span class=" font-extrabold">A</span>s etapas de preparacao do ambiente, download dos daods brutos, controle
-          de qualidade, mapeamento e anotacao sao onerosas podendo levar dias para executar, nesse exemplo custam XXhrs.
+          de qualidade, mapeamento e anotacao sao onerosas podendo levar dias para executar, nesse exemplo custam ~5hrs.
           TEndo em visata isso, e que euando o Colab reclica o ambiente por falta de interacao ele apaga todos os dados,
           o script foi projetado para retornar onde parou em cada etapa/amostra os dados processaos pelo que persiste no
           diretorio de saida.
@@ -169,7 +177,8 @@ useHead({ title: 'Get started on GeneAPP' })
           COmo o script executa o 3DRNASeq tambem nesse arquivo estao os resultados de uma analise padrao no 3DRNASeq,
           reitero que os parametros do programa devem ser customizados para cada analsie.
           nesse caso de uso foram utilizados muitos parametro default para os programas.
-          Ao descompactar o arquivo results.zip o ususario tera acesso a pasta <span class="font-mono">geneapp</span>
+          Ao descompactar o arquivo <b class="font-mono">import_geneapp.zip</b> o ususario tera acesso a pasta <span
+            class="font-mono">geneapp</span>
           que contem os arquivos necessarios para analise nesse aplicativo GeneAPP.
         </p>
       </div>
@@ -181,7 +190,7 @@ useHead({ title: 'Get started on GeneAPP' })
       <template #titulo>3. Screening AS Data from multiple approach</template>
       <template #subtitulo>Como usar o GeneAPP?</template>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <ButtonLink :href="'https://1drv.ms/u/s!AjOYiVKI0SsQtIp8buyk2fJlOijL3A?e=icjGG7'" :icon="false">
+        <ButtonLink :href="'https://1drv.ms/u/s!AjOYiVKI0SsQtIsS1hL_4SB-T4dLjQ?e=30FWnv'" :icon="false">
           <FolderDownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
           Download data Sample
         </ButtonLink>
@@ -190,27 +199,67 @@ useHead({ title: 'Get started on GeneAPP' })
     <div class="mx-auto max-w-screen-xl sm:px-6 lg:px-8 text-justify  lg:flex lg:items-center lg:justify-between ">
       <div>
         <p class="indent-3">
-          <span class=" font-extrabold">O </span>processament
+          <span class=" font-extrabold">A</span>pos a analise do pipeline as_data_gen.sh ter sido executado com sucesso
+          o usuario tera acesso ao arquivo <b class="font-mono">import_geneapp.zip</b> que precisa ser descompactado
+          antes
+          de ser carregado pela página <a class="p-1 bg-indigo-500 rounded text-white shadow" href="/new">New</a> para
+          explorar no GeneAPP.
+          Um exemplo desse arquivo compactado gerado pelos dados de amostra no Colab pode ser obtido pelo botao
+          "Download data sample" acima.
         </p>
         <p class="indent-3">
-          <span class=" font-extrabold">T</span>endo em vista que as a
+          <span class=" font-extrabold">A</span>o importar os dados com sucesso no GeneAPP,
+          se todos dados foram processados o usuario terá acesso aos seguintes recursos:
         </p>
         <ul class="mt-2">
-          <li><span class="font-medium">Genoma:</span> <span class="font-mono">teste de fonte</span></li>
-          <li><span class="font-medium">Anotacao:</span> <span class="font-mono">teste de fonte</span></li>
-          <li><span class="font-medium">Transcritos:</span> <span class="font-mono">teste de fonte</span></li>
-          <li><span class="font-medium">Amostra:</span> <span class="font-mono">teste de fonte</span></li>
+          <li><span class="font-bold">Overview:</span> pagina com dados da execucao das analises de AS</li>
+          <li><span class="font-bold">Experimental design:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">1</button> Tabela com a lista de amostras processadas,
+            metricas de controle de qualidade e mapemaneto.</li>
+          <li><span class="font-bold">Pipeline results:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">2</button> Tabela com metadados de arquivos usados nas
+            analises e principais numeros de resultados das analises</li>
+          <li><span class="font-bold">Gene repertory:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">3</button> Tabela similar a um GFF para acesso rapido a
+            informacoes estruturais dos genes e mRNAS</li>
+          <li><span class="font-bold">Graphics:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">4</button> graficos da visao geral de quantitativos da
+            analise e da estrutura de genes</li>
+          <li><span class="font-bold">Evevnts:</span> pagina contendo informacoes sobre os eventos de AS identificados
+            nas analises</li>
+          <li><span class="font-bold">AS Detais:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">5</button> tabela contendo varias informacoes para
+            evento de AS identificado</li>
+          <li><span class="font-bold">Annotation table:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">6</button> tabela da anotaçao dos genes contendo
+            ontologia, descricao do InterPro e Pathways identificadas</li>
+          <li><span class="font-bold">Graphics:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">7</button> graficos dos eventos de AS, da anotacao e de
+            expressao diferencial</li>
+          <li><span class="font-bold">Genes:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">8</button> pagina que exibe gene a gene sua estrutura e
+            anotaçao funcional</li>
+          <li><span class="font-bold">Genomic:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">9</button> sequencia de nucleotideos do gene que pode
+            ser colorida pelos exons e CDS</li>
+          <li><span class="font-bold">Protein:</span> <button
+              class="rounded-full bg-sky-600 text-white h-8 w-8">0</button> sequencia de aminoacidos que pode ser
+            anotada pelo Uniprot para explorar por preinas similar mapeada</li>
         </ul>
       </div>
     </div>
+    <div class="w-full flex justify-center">
+          <img src="/img/results.png" width="800" class="my-4" />
+    </div>
+  
   </div>
 
   <div class="bg-gray-50 py-4">
     <Titulo>
       <template #titulo>4. Export and Share your results</template>
-      <template #subtitulo>Quais os proximos passos?</template>
+      <template #subtitulo>Como extrair as informacoes?</template>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <ButtonLink :href="'https://www.ncbi.nlm.nih.gov/'" :icon="false">
+        <ButtonLink :href="'https://1drv.ms/u/s!AjOYiVKI0SsQtIsTZGA7ESo-ckdlbA?e=NQWniJ'" :icon="false">
           <FolderDownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
           Download Results
         </ButtonLink>
@@ -219,10 +268,15 @@ useHead({ title: 'Get started on GeneAPP' })
     <div class="mx-auto max-w-screen-xl sm:px-6 lg:px-8 text-justify  lg:flex lg:items-center lg:justify-between ">
       <div>
         <p class="indent-3">
-          <span class=" font-extrabold">O </span>processament esse app foi desenv para encondtrar alvos apra validacao
+          <span class=" font-extrabold">O </span>usuario pode baixar os resultados ou compartilhar o gene com as anotaçoes 
+          de eventos de AS identificados. No botao acima esta disponibilizado os arquivos que podem ser obtidos ao explorar 
+          a analise de teste do GeneAPP. As figuras sao geradas no formato vetorial que permite rasterizar em qualidade de impressao.
+          As tabelas sao exportadas no formato TSV.
         </p>
         <p class="indent-3">
-          <span class=" font-extrabold">T</span>validacao experimental, minha tese
+          <span class=" font-extrabold">O</span> principal proposito do GeneAPP é axuxiliar o usuario na escolha de alvos
+          para realizar a validacao experimental, uma vez que muitos genes sao identificados com AS pelas diferentes abordagens.
+          O usuario pode utilizar uma documentacao mais elaborada no trabalho:.
         </p>
       </div>
     </div>
@@ -230,22 +284,15 @@ useHead({ title: 'Get started on GeneAPP' })
 
   <div class="bg-gray-100 py-4">
     <Titulo>
-      <template #titulo>4. Export and Share your results</template>
+      <template #titulo>5. Explore others features</template>
       <template #subtitulo>Quais os proximos passos?</template>
-      <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <ButtonLink :href="'https://www.ncbi.nlm.nih.gov/'" :icon="false">
-          <FolderDownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-          Download Results
-        </ButtonLink>
-      </div>
     </Titulo>
     <div class="mx-auto max-w-screen-xl sm:px-6 lg:px-8 text-justify  lg:flex lg:items-center lg:justify-between ">
       <div>
         <p class="indent-3">
-          <span class=" font-extrabold">O </span>processament esse app foi desenv para encondtrar alvos apra validacao
-        </p>
-        <p class="indent-3">
-          <span class=" font-extrabold">T</span>validacao experimental, minha tese
+          <span class=" font-extrabold">E</span>xperimente visualizar um gene do NCBI pelo seu GID, plotar uma 
+          arvore filogenetica ou uma rede de anotaçao
+          por um projeto customizado. <br/>Exemplo de gene: <a class="text-sky-500" :href="host">{{host}}</a>
         </p>
       </div>
     </div>
