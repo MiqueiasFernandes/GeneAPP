@@ -132,7 +132,7 @@ const pages = (router) => router.options.routes
   </svg>
 
   <div class="bg-gray-800 text-white">
-    <div class="-mt-24 mb-20 w-100 text-right">
+    <div class="-mt-0 mb-20 w-100 text-right md:-mt-16">
     <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Version 1.0</span>  
     </div>
     <div class="px-4 py-4 flex justify-center">

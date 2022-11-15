@@ -81,11 +81,11 @@ onMounted(() => {
     style="background-image: url('/img/back3.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
 
 
-    <section class="flex items-center flex-wrap mx-16"
+    <section class="flex items-center flex-wrap mx-16 mb-40"
       style="background-image: url('/img/back1.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
-      <div class="lg:w-1/2 sm:w-full h-96 flex items-center"
+      <div class="w-full md:w-1/2 h-96 flex items-center"
         style="background-image: url('/img/grafs.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
-
+       
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
         <span class="text-6xl	text-indigo-600 font-extrabold w-full">Explore outputs of alternative splicing
@@ -244,7 +244,7 @@ onMounted(() => {
 
         <div class="w-xl">
           <span class="text-slate-700 font-bold">{{ info.titulo }}</span> <br />
-          <span class="text-slate-700"> {{ info.texto }}</span>
+          <span class="w-80% text-slate-700 text-elipsis	text-sm"> {{ info.texto }}</span>
         </div>
 
       </div>
