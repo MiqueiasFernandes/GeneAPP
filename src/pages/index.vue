@@ -81,14 +81,14 @@ onMounted(() => {
     style="background-image: url('/img/back3.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
 
 
-    <section class="flex items-center flex-wrap mx-16 mb-40"
+    <section class="flex items-center flex-wrap mx-16 mb-12 md:mb-0"
       style="background-image: url('/img/back1.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
       <div class="w-full md:w-1/2 h-96 flex items-center"
         style="background-image: url('/img/grafs.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
        
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
-        <span class="text-6xl	text-indigo-600 font-extrabold w-full">Explore outputs of alternative splicing
+        <span class="text-4xl md:text-6xl	text-indigo-600 font-extrabold w-full">Explore outputs of alternative splicing
           analysis</span>
         <br />
         <span class="w-full text-slate-600 font-semibold text-2xl my-4">
@@ -100,7 +100,7 @@ onMounted(() => {
     <section class="flex items-center flex-wrap mx-16"
       style="background-image: url('/img/back2.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
-        <span class="text-6xl	text-indigo-600 font-extrabold w-full">Find the gene <br /> one what you study
+        <span class="text-4xl md:text-6xl	text-indigo-600 font-extrabold w-full">Find the gene <br /> one what you study
           here</span>
         <br />
         <span class="w-full text-slate-600 font-semibold text-2xl my-4">Visualize genes by <b class="font-mono">GID</b>
