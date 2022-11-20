@@ -68,7 +68,7 @@ preparar_ambiente() {
     ## hisat2      : http://daehwankimlab.github.io/hisat2/manual/
 
     local p=1
-    for prog in fastq-dump TrimmomaticPE fastqc salmon samtools bamtools hisat2 pip curl wget; do
+    for prog in TrimmomaticPE fastqc salmon samtools bamtools hisat2 pip curl wget; do
         if [ ! $(command -v $prog) ]; then
 
             [[ $prog == "fastq-dump" ]] && prog="sra-toolkit"
