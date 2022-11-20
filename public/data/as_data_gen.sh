@@ -96,7 +96,7 @@ preparar_ambiente() {
 
     # 3 = conferir se os prog foram instalados
     p=1
-    for prog in fastq-dump TrimmomaticPE fastqc salmon samtools bamtools hisat2 pip $FQDUMP curl wget R; do
+    for prog in TrimmomaticPE fastqc salmon samtools bamtools hisat2 pip $FQDUMP curl wget R; do
         if ! command -v $prog 1>/dev/null 2>/dev/null; then
             log 1 3 $p "ao instalar pacote $prog" "ERRO"
             ((p = p + 1))
@@ -110,7 +110,7 @@ preparar_ambiente() {
     echo "usando o hisat2 ! Versão: $(hisat2 --version | tr \\n \  | cut -c-50)" >>$RESUMO
     echo "usando o bamtools ! Versão: $(bamtools --version | tr \\n \  | cut -c-50)" >>$RESUMO
     echo "usando o samtools ! Versão: $(samtools --version | tr \\n \  | cut -c-50)" >>$RESUMO
-    echo "usando o sra-toolkit ! Versão: $(fastq-dump --version | tr \\n \ )" >>$RESUMO
+    #echo "usando o sra-toolkit ! Versão: $(fastq-dump --version | tr \\n \ )" >>$RESUMO
     echo "usando o trimmomatic ! Versão: $(TrimmomaticPE -version | tr \\n \ )" >>$RESUMO
     echo "usando o fastqc ! Versão: $(fastqc --version | tr \\n \ )" >>$RESUMO
     log 1 3 0 "programas instalados"
@@ -478,7 +478,7 @@ quantificar() {
 
     # 1 baixar amostra
     log 5 $SID 1 "obtendo a amostra $SAMPLE pelo acesso $RUN no sra"
-    fastq-dump $SRA_ARG1 $SRA_ARG2 $SRA_ARG3 $SRA_ARG4 --split-3 $RUN 1>$LOG_DIR/_5.$SID.1_download.$RUN.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.1_download.$RUN.$SAMPLE.err.txt
+    #fastq-dump $SRA_ARG1 $SRA_ARG2 $SRA_ARG3 $SRA_ARG4 --split-3 $RUN 1>$LOG_DIR/_5.$SID.1_download.$RUN.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.1_download.$RUN.$SAMPLE.err.txt
     if [[ $(ls -lh | grep -c _[12].fastq) < 1 ]]; then
         log 5 $SID 1 "obtendo a amostra $SAMPLE pelo acesso $RUN no NOVO sra ..."
         $FQDUMP $SRA_ARG1 $SRA_ARG2 $SRA_ARG3 $SRA_ARG4 --split-3 $RUN 1>$LOG_DIR/_5.$SID.1_download.$RUN.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.1_download.$RUN.$SAMPLE.err.txt
