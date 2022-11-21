@@ -294,6 +294,22 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
           arvore filogenetica ou uma rede de anotaçao
           por um projeto customizado. <br/>Exemplo de gene: <a class="text-sky-500" :href="host">{{host}}</a>
         </p>
+        <p class="indent-3">
+          <span class=" font-extrabold">T</span>ambem é possivel usar o docker
+          pelo comando <b>docker pull mikeiasfernandes93/geneapp</b> exemplo de comando:<br>
+          <pre class="font-mono">
+            docker run -v `pwd`:/data -w /data mikeiasfernandes93/geneapp bash /geneapp/as_data_gen.sh \
+              'https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.4_TAIR10.1/GCF_000001735.4_TAIR10.1_genomic.fna.gz' \
+              'https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.4_TAIR10.1/GCF_000001735.4_TAIR10.1_genomic.gtf.gz' \
+              'https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.4_TAIR10.1/GCF_000001735.4_TAIR10.1_cds_from_genomic.fna.gz' \
+              /data/results                                                                \
+              SRA_ARG1='--minReadLen' SRA_ARG2='150' SRA_ARG3='-X' SRA_ARG4='999999'       \
+              SRR21411875,CR1,WILD SRR21411876,CR2,WILD SRR21411877,CR3,WILD               \
+              SRR21411881,MT1,MUTANT SRR21411882,MT2,MUTANT SRR21411883,MT3,MUTANT         \
+              RMATS_ARG1='--readLength' RMATS_ARG2='150' KEEP_TMP GEN_NCBI_TABLE
+          </pre>
+           <br/>Não é recomendado a execuçao em localhost pela demanda de recursos. (>8GB ram/>10GB disco)
+        </p>
       </div>
     </div>
   </div>
