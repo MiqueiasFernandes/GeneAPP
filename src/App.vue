@@ -9,9 +9,14 @@ const pages = (router) => router.options.routes
   .filter(x => parseInt(x.meta.ordem) > 0)
   .sort((a, b) => a.meta.ordem - b.meta.ordem);
 
+const cookies = ref(true)
 </script>
 
 <template>
+
+  <div v-if="cookies" class="w-full h-24 bg-amber-200 text-amber-700 font-extrabold m-0 p-4">
+    Este site usa cookies, ao continuar possui seu consentimento <button @click="cookies = false">OK</button>
+  </div>
 
   <Disclosure as="nav" class="bg-gray-800 fixed w-full shadow z-10" v-slot="{ open }">
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
