@@ -16,7 +16,7 @@ onMounted(() => {
     titulo: 'Organismos',
     color: 'info',
     conteudo: 'O GeneAPP está preparado para trabalhar com multi-exons coding genes para os tipos de AS RI e SE principalmente.',
-    botoes: [{ text: 'OK', action: () => true, end: importar, color: 'bg-indigo-500' }]
+    botoes: [{ text: 'OK', action: () => true, color: 'bg-indigo-500' }]
   })
 })
 
