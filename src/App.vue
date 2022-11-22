@@ -14,9 +14,9 @@ const cookies = ref(true)
 
 <template>
 
-  <div v-if="cookies" class="w-full h-8 bg-amber-200 text-amber-700 font-extrabold m-0 p-1">
+  <div v-if="cookies" class="w-full h-8 bg-amber-200 text-amber-700 font-extrabold m-0 px-4 py-1">
     Este site usa cookies, ao continuar possui seu consentimento 
-    <button class="rounded-sm bg-amber-300 shadow m-2 p-1" @click="cookies = false">OK</button>
+    <button class="rounded-sm bg-amber-300 shadow mx-2 px-3" @click="cookies = false">OK</button>
   </div>
 
   <Disclosure as="nav" class="bg-gray-800 fixed w-full shadow z-10" v-slot="{ open }">
