@@ -19,7 +19,7 @@ useHead({ title: 'About' })
       <h2 class="text-3xl font-extrabold leading-9 tracking-tight text-slate-700 sm:text-4xl sm:leading-10">
         About GeneAPP
         <p class=" text-indigo-500 text-xl">
-          O GeneAPP surguiu de varios scripts que foram necessarios escrever para explorar os outputs de
+          O GeneAPP (2022, Miquéias Fernandes) surguiu de varios scripts que foram necessarios escrever para explorar os outputs de
           softwares de idenficacao de diffetential AS. Alguns desses scripts estao no repositorio
           <a class="underline" target="_blank"
             href="https://github.com/MiqueiasFernandes/bioinformatics">Bioinformatics</a> e nos
@@ -32,6 +32,9 @@ useHead({ title: 'About' })
 
 
     <div class="mx-auto max-w-screen-xl px-16 text-slate-600">
+      <p>
+        Agradeço aos binformatas que revisaram o GeneAPP: Édson M. A., Gustavo e Bruno.
+      </p>
       <p>
         O GeneAPP usa recursos de varios desenvolvedores, credios a:
       </p>
@@ -53,6 +56,7 @@ useHead({ title: 'About' })
         <li><a class="underline font-bold" href="https://heroicons.com/" target="_blank">heroicons</a> icones do app</li>
         <li><a class="underline font-bold" href="https://d3-graph-gallery.com/" target="_blank">d3-graph-gallery</a> graficos do app</li>
         <li><a class="underline font-bold" href="https://observablehq.com" target="_blank">Observablehq</a> graficos do app</li>
+        <li><a class="underline font-bold" href="https://hub.docker.com/r/mikeiasfernandes93/geneapp" target="_blank">Docker</a> container do script do app</li>
       </ul>
     </div>
   </div>
