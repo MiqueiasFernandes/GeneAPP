@@ -15,7 +15,7 @@ useHead({ title: 'About' })
 
 <template>
   <div>
-    <div class="mx-auto max-w-screen-xl px-4 py-4 sm:px-6 lg:flex lg:items-center lg:justify-between lg:px-8">
+    <div style="z-index: 9999" class="mx-auto max-w-screen-xl px-4 py-4 sm:px-6 lg:flex lg:items-center lg:justify-between lg:px-8">
       <h2 class="text-3xl font-extrabold leading-9 tracking-tight text-slate-700 sm:text-4xl sm:leading-10">
         About GeneAPP
         <p class=" text-indigo-500 text-xl">
