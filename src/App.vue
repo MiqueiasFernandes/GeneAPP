@@ -10,6 +10,16 @@ const pages = (router) => router.options.routes
   .sort((a, b) => a.meta.ordem - b.meta.ordem);
 
 const cookies = ref(true)
+
+onMounted(() => {
+  MODALS.push({
+    titulo: 'Organismos',
+    color: 'info',
+    conteudo: 'O GeneAPP está preparado para trabalhar com multi-exons coding genes para os tipos de AS RI e SE principalmente.',
+    botoes: [{ text: 'OK', action: () => true, end: importar, color: 'bg-indigo-500' }]
+  })
+})
+
 </script>
 
 <template>
