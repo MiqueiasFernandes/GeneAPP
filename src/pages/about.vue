@@ -19,7 +19,7 @@ useHead({ title: 'About' })
       <h2 class="text-3xl font-extrabold leading-9 tracking-tight text-slate-700 sm:text-4xl sm:leading-10">
         About GeneAPP
         <p class=" text-indigo-500 text-xl">
-          O GeneAPP (2022, Miquéias Fernandes) surguiu de varios scripts que foram necessarios escrever para explorar os outputs de
+          O GeneAPP (2022, Miquéias Fernandes e Edson Mario de Andrade Silva) surguiu de varios scripts que foram necessarios escrever para explorar os outputs de
           softwares de idenficacao de diffetential AS. Alguns desses scripts estao no repositorio
           <a class="underline" target="_blank"
             href="https://github.com/MiqueiasFernandes/bioinformatics">Bioinformatics</a> e nos

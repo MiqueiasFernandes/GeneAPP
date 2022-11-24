@@ -30,7 +30,8 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
     <div class="mx-auto max-w-screen-xl sm:px-6 lg:px-8 text-justify  lg:flex lg:items-center lg:justify-between ">
       <div>
         <p class="indent-3">
-          <span class=" font-extrabold">O </span>processamento alternativo do RNA mensageiro transcrito do gene nuclear,
+          <span class=" font-extrabold">
+            O </span>processamento alternativo do RNA mensageiro transcrito do gene nuclear,
           denominado <i>alternative splicing (</i>AS),
           é a transformação do transcrito primário em diferentes isoformas pelo spliceossomo ao alternar sítios do
           pre-mRNA entre essas isoformas.
