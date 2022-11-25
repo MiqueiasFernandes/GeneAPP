@@ -153,7 +153,7 @@ onMounted(() => {
     </div>
     <div class="px-4 py-4 flex justify-center">
       <span class="text-xl font-extrabold">Developed 
-        for the Chapter III of Phd thesis submeted to PPG Bioinformatica ICB/UFMG</span>
+        for the Chapter III of MF Phd thesis submeted to PPG Bioinformatica ICB/UFMG</span>
     </div>
   </div>
 
