@@ -152,7 +152,7 @@ onMounted(() => {
     <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Version 1.0</span>  
     </div>
     <div class="px-4 py-4 flex justify-center">
-      <span class="text-xl font-extrabold">Developed by <i class=" text-indigo-500 ">mikeias.net</i>
+      <span class="text-xl font-extrabold">Developed 
         for the Chapter III of Phd thesis submeted to PPG Bioinformatica ICB/UFMG</span>
     </div>
   </div>
