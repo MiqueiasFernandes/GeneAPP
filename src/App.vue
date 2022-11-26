@@ -11,16 +11,17 @@ const pages = (router) => router.options.routes
   .sort((a, b) => a.meta.ordem - b.meta.ordem);
 
 const cookies = ref(true)
-function baixando(){
+function baixando() {
   const lista = LINGUAGEM.value.para_trauzir
-  const lista_uniq = [...new Set(lista)]
-  Arquivo.download("textos.txt", lista_uniq.join("\n"))
+  const lista_uniq = [...new Set(lista)].map(x => `    "${x}",\n    ""`).concat(
+    Object.entries(LINGUAGEM.value.dicionario).map(x => `    "${x[0]}",\n    "${x[1]}"`))
+  Arquivo.download("textos.txt", "[\n" + lista_uniq.join(",\n") + '\n]')
 }
 onMounted(() => {
   MODALS.push({
     titulo: 'Organismos',
     color: 'info',
-    conteudo:LINGUAGEM.value.traduzir('O GeneAPP está preparado para trabalhar com multi-exons coding genes para os tipos de AS RI e SE principalmente.'),
+    conteudo: LINGUAGEM.value.traduzir('O GeneAPP está preparado para trabalhar com multi-exons coding genes para os tipos de AS RI e SE principalmente.'),
     botoes: [{ text: 'OK', action: () => true, color: 'bg-indigo-500' }]
   })
 })
@@ -29,11 +30,12 @@ onMounted(() => {
 
 <template>
 
-  <div style="z-index: 9999" v-if="cookies" class="w-full h-8 fixed bottom-0 bg-amber-200 text-amber-700 font-extrabold m-0 px-4 py-1">
-    Este site usa cookies, ao continuar possui seu consentimento 
+  <div style="z-index: 9999" v-if="cookies"
+    class="w-full h-8 fixed bottom-0 bg-amber-200 text-amber-700 font-extrabold m-0 px-4 py-1">
+    <Texto>Este site usa cookies, ao continuar possui seu consentimento.</Texto>
     <button class="rounded-sm bg-amber-300 shadow mx-2 px-3" @click="cookies = false">OK</button>
   </div>
-  
+
   <Disclosure as="nav" class="bg-gray-800 fixed w-full shadow z-10" v-slot="{ open }">
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
@@ -41,7 +43,9 @@ onMounted(() => {
           <!-- Mobile menu button-->
           <DisclosureButton
             class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-            <span class="sr-only"><Texto>Open main menu</Texto></span>
+            <span class="sr-only">
+              <Texto>Open main menu</Texto>
+            </span>
             <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
             <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
           </DisclosureButton>
@@ -79,7 +83,9 @@ onMounted(() => {
             <div>
               <MenuButton
                 class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-                <span class="sr-only"><Texto>Open options men</Texto>u</span>
+                <span class="sr-only">
+                  <Texto>Open options men</Texto>u
+                </span>
                 <button type="button"
                   class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                   <span class="sr-only">View options</span>
@@ -111,10 +117,13 @@ onMounted(() => {
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Suport</a>
                 </MenuItem>
                 <MenuItem v-slot="{ active }" v-for="idioma in IDIOMAS">
-                <a @click="LINGUAGEM=idioma"
-                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">{{idioma.nome}}</a>
+                <a @click="LINGUAGEM = idioma"
+                  :class="[active || LINGUAGEM.nome === idioma.nome ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">{{
+                      idioma.bandeira
+                  }}
+                  {{ idioma.nome }}</a>
                 </MenuItem>
-                <MenuItem v-slot="{ active }">
+                <MenuItem v-slot="{ active }" v-if="LINGUAGEM.para_trauzir.length > 0">
                 <a @click="baixando"
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">baixar lista</a>
                 </MenuItem>
@@ -136,7 +145,8 @@ onMounted(() => {
   </Disclosure>
 
   <div class="bg-gray-100 pt-16">
-    <header class="bg-gray-50 shadow" v-if="$route.meta.title && $route.meta.title !== 'GeneAPP' && !$route.meta.hideTitle">
+    <header class="bg-gray-50 shadow"
+      v-if="$route.meta.title && $route.meta.title !== 'GeneAPP' && !$route.meta.hideTitle">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold leading-tight text-gray-900">
           {{ $route.meta.description }}
@@ -162,10 +172,10 @@ onMounted(() => {
 
   <div class="bg-gray-800 text-white">
     <div class="-mt-0 mb-20 w-100 text-right md:-mt-16">
-    <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Version 1.0</span>  
+      <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Version 1.0</span>
     </div>
     <div class="px-4 py-4 flex justify-center">
-      <span class="text-xl font-extrabold">Developed 
+      <span class="text-xl font-extrabold">Developed
         for the Chapter III of MF Phd thesis submeted to PPG Bioinformatica ICB/UFMG</span>
     </div>
   </div>
@@ -180,8 +190,7 @@ onMounted(() => {
     </template>
   </div>
 
-  <Modal
-  v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color" :html="modal.html"
+  <Modal v-for="modal in MODALS" :titulo="modal.titulo" :botoes="modal.botoes" :color="modal.color" :html="modal.html"
     :inputs="modal.inputs">
     {{ modal.conteudo }}
   </Modal>
