@@ -15,7 +15,7 @@ function baixando() {
   const lista = LINGUAGEM.value.para_trauzir
   const lista_uniq = [...new Set(lista)].map(x => `    "${x}",\n    ""`).concat(
     Object.entries(LINGUAGEM.value.dicionario).map(x => `    "${x[0]}",\n    "${x[1]}"`))
-  Arquivo.download("textos.txt", "[\n" + lista_uniq.join(",\n") + '\n]')
+  Arquivo.download("IDIOMA-" + LINGUAGEM.value.nome + ".txt", "[\n" + lista_uniq.join(",\n") + '\n]')
 }
 onMounted(() => {
   MODALS.push({
@@ -44,7 +44,7 @@ onMounted(() => {
           <DisclosureButton
             class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
             <span class="sr-only">
-              <Texto>Open main menu</Texto>
+              <Texto>Abrir menu principal</Texto>
             </span>
             <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
             <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
@@ -69,9 +69,8 @@ onMounted(() => {
               'px-3 py-2 rounded-md text-sm font-medium']"
                 :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined"
                 :to="((item.meta.rqproj) && (PROJETO.status < 1)) || ((item.meta.nqproj) && (PROJETO.status > 0)) ? '' : item.path">
-                {{
-                    item.meta.title
-                }}</router-link>
+                <Texto>{{ item.meta.title }}</Texto>
+              </router-link>
             </div>
           </div>
 
@@ -84,11 +83,13 @@ onMounted(() => {
               <MenuButton
                 class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                 <span class="sr-only">
-                  <Texto>Open options men</Texto>u
+                  <Texto>Abrir opçoes do menu</Texto>
                 </span>
                 <button type="button"
                   class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-                  <span class="sr-only">View options</span>
+                  <span class="sr-only">
+                    <Texto>Ver opções</Texto>
+                  </span>
                   <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round"
@@ -110,11 +111,15 @@ onMounted(() => {
                 </MenuItem> -->
                 <MenuItem v-slot="{ active }">
                 <a href="https://github.com/MiqueiasFernandes/GeneAPP"
-                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">GitHub Repo</a>
+                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
+                  <Texto>Repositório do Github</Texto>
+                </a>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
                 <a href="https://mikeias.net"
-                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Suport</a>
+                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
+                  <Texto>Suporte</Texto>
+                </a>
                 </MenuItem>
                 <MenuItem v-slot="{ active }" v-for="idioma in IDIOMAS">
                 <a @click="LINGUAGEM = idioma"
@@ -125,7 +130,7 @@ onMounted(() => {
                 </MenuItem>
                 <MenuItem v-slot="{ active }" v-if="LINGUAGEM.para_trauzir.length > 0">
                 <a @click="baixando"
-                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">baixar lista</a>
+                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Dicionário</a>
                 </MenuItem>
               </MenuItems>
             </transition>
@@ -138,7 +143,8 @@ onMounted(() => {
       <div class="px-2 pt-2 pb-3 space-y-1">
         <DisclosureButton v-for="item in pages($router)" :key="item.meta.title" as="a" :href="item.path"
           :class="[$route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium']"
-          :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined">{{ item.meta.title }}
+          :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined">
+          <Texto>{{ item.meta.title }}</Texto>
         </DisclosureButton>
       </div>
     </DisclosurePanel>
@@ -149,7 +155,7 @@ onMounted(() => {
       v-if="$route.meta.title && $route.meta.title !== 'GeneAPP' && !$route.meta.hideTitle">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold leading-tight text-gray-900">
-          {{ $route.meta.description }}
+          <Texto>{{ $route.meta.description }}</Texto>
         </h1>
         <h5 class="flex content-center  items-center">{{ PROJETO.nome }}
           <button @click="PROJETO.download()" v-if="PROJETO.hasResults()" :disabled="PROJETO.baixando"
@@ -172,11 +178,14 @@ onMounted(() => {
 
   <div class="bg-gray-800 text-white">
     <div class="-mt-0 mb-20 w-100 text-right md:-mt-16">
-      <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">Version 1.0</span>
+      <span class="bg-slate-50 rounded-full p-4 mx-16 text-slate-500 font-bold">
+        <Texto>Versão</Texto> 1.0
+      </span>
     </div>
     <div class="px-4 py-4 flex justify-center">
-      <span class="text-xl font-extrabold">Developed
-        for the Chapter III of MF Phd thesis submeted to PPG Bioinformatica ICB/UFMG</span>
+      <span class="text-xl font-extrabold">
+        <Texto>Desenvolvido para o capitulo III da tese de doutorado de MF submetida ao PPG Bioinformatica ICB/UFMG</Texto>
+      </span>
     </div>
   </div>
 
@@ -194,7 +203,5 @@ onMounted(() => {
     :inputs="modal.inputs">
     {{ modal.conteudo }}
   </Modal>
-
-
 
 </template>

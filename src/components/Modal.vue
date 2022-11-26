@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { ExclamationIcon, ExclamationCircleIcon } from '@heroicons/vue/outline'
 import FormInputText from './FormInputText.vue';
+import  {LINGUAGEM} from '../core/State'
 const props = defineProps({
     titulo: { default: "Atenção" },
     conteudo: { default: "Aprovar." },
@@ -75,7 +76,7 @@ defineExpose({ show })
                                     </div>
                                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                         <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
-                                            {{ titulo }}
+                                            <Texto>{{ titulo }}</Texto>
                                         </DialogTitle>
                                         <div class="mt-2">
                                             <p v-if="html" class="text-sm text-gray-500" v-html="html">
@@ -95,7 +96,7 @@ defineExpose({ show })
                                 <button type="button" v-for="botao in botoes"
                                     :class="parseColor(botao.color) + ' inline-flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm'"
                                     @click="submit(botao)">
-                                    {{ botao.text }}
+                                    <Texto>{{ botao.text }}</Texto>
                                 </button>
                             </div>
                         </DialogPanel>

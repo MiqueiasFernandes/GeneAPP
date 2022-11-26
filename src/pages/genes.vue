@@ -18,7 +18,7 @@ import {
     ArrowSmRightIcon, PresentationChartLineIcon, DocumentTextIcon
 } from '@heroicons/vue/outline';
 import { onMounted } from 'vue';
-import { PROJETO, MODALS, notificar } from "../core/State";
+import { PROJETO, MODALS, notificar, LINGUAGEM } from "../core/State";
 import { GenePlot, Padding, ViewBox } from '../core/d3';
 import { Arquivo } from '../core/utils/Arquivo';
 // import { getUniprot } from '../core/ClientAPI'
@@ -138,34 +138,33 @@ function share(g) {
     const lk = link.value = `${window.location.href.slice(0, -1)}?x=${btoa(JSON.stringify(g.share()))}`
     setTimeout(() => {
         MODALS.push({
-            titulo: 'Compartilhar ' + gene.value.getNome(),
+            titulo: LINGUAGEM.value.traduzir('Compartilhar') + ' ' + gene.value.getNome(),
             html: compartilhar.value.children[0].outerHTML,
             botoes: [{ text: 'Copiar', action: () => navigator.clipboard.writeText(lk), color: 'bg-lime-500' }]
         })
     }, 500);
 }
 
-
-
 function aba(x) {
     x === 'gene' && repaint()
 }
 
-
-
 onMounted(start)
-
 </script>
         
 <template>
+
     <template ref="compartilhar">
         <a :href="link" target="_blank" class="break-all">
             {{ link }}
         </a>
     </template>
+
     <template ref="modal">
         <div v-if="gene">
-            <span class="font-bold">Alternative Splicing:</span>
+            <span class="font-bold">
+                <Texto>Alternative Splicing</Texto>:
+            </span>
             <ul>
                 <li v-for="as in gene.getAS()">{{ as.evidence }}
                     <span class="font-bold mx-1" v-if="as.evidence === 'rMATS'">{{ as.tipo }}</span>
@@ -174,12 +173,16 @@ onMounted(start)
                 </li>
             </ul>
             <div v-if="gene.getDE()" class="mt-2">
-                <span class="font-bold">Differential expression:</span><br />
+                <span class="font-bold">
+                    <Texto>Expressao diferencial</Texto>:
+                </span><br />
                 <span class="mr-2"><b>Log2FC:</b> {{ gene.getDE().log2fc.toPrecision(3) }} </span>
                 <span><b>Sig.: </b>{{ gene.getDE().qvalue.toPrecision(3) }}</span>
             </div>
             <div class="font-bold mt-2">
-                <span>Anotattions:</span>
+                <span>
+                    <Texto>Anotacoes</Texto>:
+                </span>
                 <div class="flex flex-wrap font-bold">
                     <a class="m-1 px-1 bg-sky-500/75 rounded-full text-white drop-shadow-sm" target="_blank"
                         v-for="interpro in gene.getInterpro().slice(1, 10)"
@@ -196,23 +199,26 @@ onMounted(start)
                             class="m-1 px-1 bg-lime-500/75 rounded-full text-white drop-shadow-sm"
                             :href="'https://reactome.org/content/detail/' + pathway">{{ pathway }}</a>
                         <span v-else class="m-1 px-1 bg-lime-500/75 rounded-full text-white drop-shadow-sm">{{ pathway
-                        }}</span>
+                            }}</span>
                     </template>
                 </div>
             </div>
         </div>
     </template>
-    <Modal :show="false" :botoes="[OK, LIMPAR]" ref="filtro" :titulo="`Filtrar ${genes.length} genes`">
+    <Modal :show="false" :botoes="[OK, LIMPAR]" ref="filtro" titulo="Filtrar genes">
         <FormRow>
             <FormCol>
-                <FormInputText label="Nome" :content="filtros.Nome" @update="(x) => filtrar(filtros.Nome = x)" />
+                <FormInputText :label="LINGUAGEM.traduzir('Nome')" :content="filtros.Nome"
+                    @update="(x) => filtrar(filtros.Nome = x)" />
             </FormCol>
         </FormRow>
         <ul>
             <li v-for="f in Object.keys(filtros).filter(x => x.startsWith('Possui'))" class="my-1">
                 <SwitchGroup @click="filtrar">
                     <div class="flex items-center">
-                        <SwitchLabel class="mr-4">{{ f }}</SwitchLabel>
+                        <SwitchLabel class="mr-4">
+                            <Texto>{{ f }}</Texto>
+                        </SwitchLabel>
                         <Switch v-model="filtros[f]" as="template" v-slot="{ checked }">
                             <button class="relative inline-flex h-6 w-11 items-center rounded-full"
                                 :class="checked ? 'bg-blue-600' : 'bg-gray-200'">
@@ -234,6 +240,9 @@ onMounted(start)
                 <FormInputText label="Max FDR" :content="filtros.FDR" @update="(x) => filtrar(filtros.FDR = x)" />
             </FormCol>
         </FormRow>
+        <p>
+            Total {{genes.length}} genes {{LINGUAGEM.traduzir('filtrados')}}.
+        </p>
     </Modal>
     <div class="px-8">
         <Tabs :names="['gene', 'seq', 'ptn']" active="gene" @change="aba">
@@ -252,16 +261,20 @@ onMounted(start)
                                 <ArrowSmLeftIcon class="h-5 w-5" />
                             </Button>
                             <Button class=" mx-1" :disable="!plotou" color="blue" @click="baixar">
-                                <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
+                                <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                                <Texto>Baixar</Texto>
                             </Button>
                             <Button class=" mx-1" :disable="!plotou" color="blue" @click="filtro.show()">
-                                <FilterIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Filter
+                                <FilterIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                                <Texto>Filtrar</Texto>
                             </Button>
                             <Button class=" mx-1" :disable="!plotou" color="blue" @click="dialog">
-                                <ChatIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Anots
+                                <ChatIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                                <Texto>Anotacoes</Texto>
                             </Button>
                             <Button class=" mx-1" :disable="!plotou" color="blue" @click="share(gene)">
-                                <ShareIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Share
+                                <ShareIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                                <Texto>Compartilhar</Texto>
                             </Button>
                             <Button class=" mx-1" color="blue" @click="next"
                                 :disable="!plotou || idx > (genes.length - 2)">
@@ -269,13 +282,14 @@ onMounted(start)
                             </Button>
                             <span
                                 class="bg-slate-500/75 rounded-full  mx-1 text-white inline-flex items-center justify-center p-2">{{
-                                        idx + 1
+                                idx + 1
                                 }}/{{ genes.length }}</span>
                         </div>
                     </div>
                     <br class="my-1" />
                     <Button class="m-4 w-24" v-if="!plotou" @click="start()">
-                        <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Plot
+                        <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                        <Texto>Plotar</Texto>
                     </Button>
                     <div id="plotg" class="w-full flex justify-center">
                         <Imagem class="m-32"></Imagem>
@@ -284,14 +298,16 @@ onMounted(start)
             </template>
 
             <template #seq>
-                <DocumentTextIcon class="mr-2 w-5 h-5" /> Genomic
+                <DocumentTextIcon class="mr-2 w-5 h-5" />
+                <Texto>Genomico</Texto>
             </template>
             <template #seqContent>
                 <Sequence :gene="gene.getNome().slice(0, 9)" :genes="genes" :isos="isos" />
             </template>
 
             <template #ptn>
-                <DocumentTextIcon class="mr-2 w-5 h-5" /> Protein
+                <DocumentTextIcon class="mr-2 w-5 h-5" />
+                <Texto>Proteina</Texto>
             </template>
             <template #ptnContent>
                 <Sequence modo="2" :gene="gene.getNome().slice(0, 9)" :genes="genes" :isos="isos" />

@@ -15,7 +15,7 @@ useHead({ title: '404 - Pagina nao encontrada' })
 <template>
   <header class="shadow">
     <div class="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
-      <h1 class="text-3xl font-bold leading-tight text-gray-900">Not Found :(</h1>
+      <h1 class="text-3xl font-bold leading-tight text-gray-900"><Texto>Página não encontrada.</Texto> :(</h1>
     </div>
   </header>
 </template>

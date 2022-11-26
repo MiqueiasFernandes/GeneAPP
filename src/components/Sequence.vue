@@ -103,7 +103,7 @@ onMounted(() => {
                                 class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                 <div v-if="filteredGene.length === 0 && query !== ''"
                                     class="relative cursor-default select-none py-2 px-4 text-gray-700">
-                                    Nothing found.
+                                    <Texto>Nenhum resultado encontrado.</Texto>
                                 </div>
 
                                 <ComboboxOption v-for="gene in filteredGene" as="template" :key="gene.nome"
@@ -147,7 +147,7 @@ onMounted(() => {
                                 class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                 <div v-if="filteredIso.length === 0 && queryIso !== ''"
                                     class="relative cursor-default select-none py-2 px-4 text-gray-700">
-                                    Nothing found.
+                                    <Texto>Nenhum resultado encontrado.</Texto>
                                 </div>
 
                                 <ComboboxOption v-for="iso in selected.getIsoformas()" as="template" :key="iso.nome"
@@ -213,7 +213,7 @@ onMounted(() => {
                                 class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                 <div v-if="filteredPTN.length === 0 && queryPTN !== ''"
                                     class="relative cursor-default select-none py-2 px-4 text-gray-700">
-                                    Nothing found.
+                                    <Texto>Nenhum resultado encontrado.</Texto>
                                 </div>
 
                                 <ComboboxOption v-for="ptn in filteredPTN" as="template" :key="ptn" :value="ptn"

@@ -29,11 +29,11 @@ const infos = ref([
     titulo: 'Configure email',
     texto: "You'll be prompted to inform your email in order to use InterPro, NCBI, Uniprot and others APIs. Your email not will be cached or processed.",
   },
-  // {
-  //   tipo: 'info',
-  //   titulo: 'Plots legends',
-  //   texto: 'T342e sds wv f wvvwvwfwv  feefxto do alert 4 para apresentar'
-  // },
+  {
+    tipo: 'info',
+    titulo: 'Docker container',
+    texto: 'voce pode executar o script auxiliar tambem pelo docker! consulte a pagina sobre para mais detalhes.'
+  },
   {
     tipo: 'info',
     titulo: 'Download all data by one click',
@@ -85,14 +85,15 @@ onMounted(() => {
       style="background-image: url('/img/back1.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
       <div class="w-full md:w-1/2 h-96 flex items-center"
         style="background-image: url('/img/grafs.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
-       
+
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
-        <span class="text-4xl md:text-6xl	text-indigo-600 font-extrabold w-full">Explore outputs of alternative splicing
-          analysis</span>
+        <span class="text-4xl md:text-6xl	text-indigo-600 font-extrabold w-full">
+          <Texto>Explore outputs de analises de splicing alternativo</Texto>
+        </span>
         <br />
         <span class="w-full text-slate-600 font-semibold text-2xl my-4">
-          Transform numbers in graphics and drive your research to correct path with the <b>GeneAPP</b>
+          <Texto>Transforme numeros em graficos e conduza sua pesquisa para o caminho certo com o</Texto> <b>GeneAPP</b>
         </span>
       </div>
     </section>
@@ -100,12 +101,13 @@ onMounted(() => {
     <section class="flex items-center flex-wrap mx-16"
       style="background-image: url('/img/back2.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
-        <span class="text-4xl md:text-6xl	text-indigo-600 font-extrabold w-full">Find the gene <br /> one what you study
-          here</span>
+        <span class="text-4xl md:text-6xl	text-indigo-600 font-extrabold w-full">
+          <Texto>Encontre o gene que voce estuda aqui</Texto>
+        </span>
         <br />
-        <span class="w-full text-slate-600 font-semibold text-2xl my-4">Visualize genes by <b class="font-mono">GID</b>
-          of NCBI with its structure,
-          functional domains and many more</span>
+        <span class="w-full text-slate-600 font-semibold text-2xl my-4">
+          <Texto>Visualize genes por GID do NCBI com sua estrutura, dominios funcionais e muito mais</Texto>
+        </span>
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 flex items-center"
         style="background-image: url('/img/monitor.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
@@ -124,56 +126,66 @@ onMounted(() => {
           <LightningBoltIcon class=" bg-sky-100 rounded-full text-sky-600 p-2 m-2 h-16 w-16" />
         </div>
 
-        <p class="text-2xl	text-sky-700 font-bold w-full my-2 underline">Generation</p>
+        <p class="text-2xl	text-sky-700 font-bold w-full my-2 underline">
+          <Texto>Geraçao</Texto>
+        </p>
 
         <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
-          The GeneAPP has a pipeline to generate AS analysis data. If raw data sample is less than 4gb can run on
-          Colab.</span>
+          <Texto>O GeneAPP posssui um pipeline para gerar dados de analise de AS.</Texto>
+          <Texto>Se a amostra é menor que 4GB pode-se rodar no Colab.</Texto>
+        </span>
 
       </div>
       <div class="m-4 bg-fuchsia-50 h-72 w-64 rounded-md shadow text-center p-2 ">
         <div class="-mt-8 w-full flex justify-center">
           <DatabaseIcon class=" bg-fuchsia-100 rounded-full text-fuchsia-600 p-2 m-2 h-16 w-16" />
         </div>
-        <p class="text-2xl	text-fuchsia-700 font-bold w-full my-2 underline">Integration</p>
+        <p class="text-2xl	text-fuchsia-700 font-bold w-full my-2 underline">
+          <Texto>Integracao</Texto>
+        </p>
 
         <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
-          The GeneAPP integrate data of softwares and link of multiples public databases
-          like NCBI, Interpro, Pfam, Uniprot, GO and others
+          <Texto>O GeneAPP integra dados de programas e links de multiplas bases de dados como NCBI, Intepro, Pfam,
+            Uniprot, GO entre outras.</Texto>
         </span>
       </div>
       <div class="m-4 bg-amber-50 h-72 w-64 rounded-md shadow text-center p-2 ">
         <div class="-mt-8 w-full flex justify-center">
           <LightBulbIcon class=" bg-amber-100 rounded-full text-amber-600 p-2 m-2 h-16 w-16" />
         </div>
-        <p class="text-2xl	text-amber-700 font-bold w-full my-2 underline">Curadoria</p>
+        <p class="text-2xl	text-amber-700 font-bold w-full my-2 underline">
+          <Texto>Curadoria</Texto>
+        </p>
 
         <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
-          The GeneAPP was developed to compare AS events and AS gene to select best targets for next steps in hypotesis
-          test
+          <Texto>O GeneAPP foi desenvolvido para comparae eventos de AS e genes AS para selecionar os melhores alvos
+            para sua proxima etapa de teste de hipoteses.</Texto>
         </span>
       </div>
       <div class="m-4 bg-lime-50 h-72 w-64 rounded-md shadow text-center p-2 ">
         <div class="-mt-8 w-full flex justify-center">
           <ClipboardCheckIcon class=" bg-lime-100 rounded-full text-lime-600 p-2 m-2 h-16 w-16" />
         </div>
-        <p class="text-2xl	text-lime-700 font-bold w-full my-2 underline">Extras</p>
-
+        <p class="text-2xl	text-lime-700 font-bold w-full my-2 underline">
+          <Texto>Extras</Texto>
+        </p>
         <span class="w-full text-slate-600 font-bold text-lg text-ellipsis">
-          Anote some gene with domains, inspect its sequence with colored features and of your proteins, download and
-          share them
+          <Texto>Anote alguns genes com dominios, inspecione sua sequencia com sitios coloridos, baixe e compartilhe ele
+            tambem facilmente.</Texto>
         </span>
       </div>
     </section>
   </div>
 
   <div class="text-center mt-8 text-slate-600 font-extrabold border-b p-2 mx-16">
-    Pipeline to teste GeneAPP features
+    <Texto>Pipeline para testar GeneAPP os recursos do GeneAPP</Texto>
   </div>
 
   <section class=" flex flex-wrap justify-between items-center m-8"
     style="background-image: url('/img/back4.png');  background-position: center; background-size: contain;">
-    <span class="text-lg text-slate-700 font-bold drop-shadow">Few clicks</span>
+    <span class="text-lg text-slate-700 font-bold drop-shadow">
+      <Texto>Poucos cliques</Texto>
+    </span>
 
     <div class="rounded-lg w-64 h-32 my-2 bg-indigo-300/50 shadow-lg shadow-indigo-500/50">
       <div
@@ -181,16 +193,16 @@ onMounted(() => {
         1</div>
       <div class="p-2 text-white text-center">
         <span class="text-lg text-slate-700 font-bold drop-shadow-sm">
-          With sample data you can test all features
+          <Texto>Com os dados de amostra voce pode testar todos recursos</Texto>
         </span>
 
         <ButtonLink :icon="false" :color="'rose'" class="my-2"
           href="https://1drv.ms/u/s!AjOYiVKI0SsQtIsS1hL_4SB-T4dLjQ?e=30FWnv">
-          <DownloadIcon class="-ml-1 mr-2 h-5 w-5" /> Download
+          <DownloadIcon class="-ml-1 mr-2 h-5 w-5" />
+          <Texto>Baixar</Texto>
         </ButtonLink>
       </div>
     </div>
-
 
     <span>
       <ArrowRightIcon class="w-8 h-8 text-indigo-600 drop-shadow" />
@@ -203,12 +215,11 @@ onMounted(() => {
       <div class="text-white text-center flex flex-wrap items-center justify-center h-full">
         <InformationCircleIcon class="w-8 h-8" />
         <span class="text-lg drop-shadow">
-          Extract the compressed sample data in your PC
+          <Texto>Descomprima os dados de amostra em seu computador</Texto>
         </span>
       </div>
     </div>
     <ArrowRightIcon class="w-8 h-8 text-indigo-600  drop-shadow" />
-
 
     <div class="rounded-lg w-64 h-32 my-2 bg-indigo-300/50 shadow-lg shadow-indigo-500/50">
       <div
@@ -216,16 +227,19 @@ onMounted(() => {
         3</div>
       <div class="p-2 text-white text-center">
         <span class="text-lg text-slate-700 font-bold drop-shadow-sm">
-          Upload sample data and explore them!
+          <Texto>Carregue os dados de amostra e explore eles!</Texto>
         </span>
 
         <ButtonLink :icon="false" :color="'rose'" class="my-2" href="/new?create=new" :target="'_self'">
-          <UploadIcon class="-ml-1 mr-2 h-5 w-5" /> Upload
+          <UploadIcon class="-ml-1 mr-2 h-5 w-5" />
+          <Texto>Carregar</Texto>
         </ButtonLink>
       </div>
     </div>
 
-    <span class="text-lg text-slate-700 font-bold drop-shadow">Many results</span>
+    <span class="text-lg text-slate-700 font-bold drop-shadow">
+      <Texto>Muitos resultados</Texto>
+    </span>
   </section>
 
 
@@ -243,8 +257,12 @@ onMounted(() => {
         </div>
 
         <div class="w-xl">
-          <span class="text-slate-700 font-bold">{{ info.titulo }}</span> <br />
-          <span class="w-80% text-slate-700 text-elipsis	text-sm"> {{ info.texto }}</span>
+          <span class="text-slate-700 font-bold">
+            <Texto>{{ info.titulo }}</Texto>
+          </span> <br />
+          <span class="w-80% text-slate-700 text-elipsis	text-sm">
+            <Texto>{{ info.texto }}</Texto>
+          </span>
         </div>
 
       </div>
@@ -254,7 +272,6 @@ onMounted(() => {
     <div v-for="info in infos" @click="active(info)"
       :class="'bg-slate-700 rounded-full mx-1 ' + (info.active ? 'w-2 h-2' : 'w-1 h-1')"></div>
   </div>
-
 
 
   <div class="grid grid-cols-2 text-center mt-16 font-semibold text-slate-600 hidden">
@@ -271,7 +288,6 @@ onMounted(() => {
       TExto texto texto
     </div>
   </div>
-
 
 
 </template>

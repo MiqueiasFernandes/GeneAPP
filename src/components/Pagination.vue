@@ -26,7 +26,7 @@ const emits = defineEmits(["change"])
     <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
         <button @click="top(); $emit('change', atual = 0)" v-if="atual > 0"
             class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">
-            <span class="sr-only">Previous</span>
+            <span class="sr-only"><Texto>Anterior</Texto></span>
             <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
         </button>
         <template v-if="atual > 10">
@@ -59,7 +59,7 @@ const emits = defineEmits(["change"])
         </template>
         <button @click="top(); $emit('change', atual = total - 1)" v-if="atual < total - 1"
             class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">
-            <span class="sr-only">Next</span>
+            <span class="sr-only"><Texto>Próximo</Texto></span>
             <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
         </button>
     </nav>

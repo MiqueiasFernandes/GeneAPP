@@ -14,11 +14,11 @@
 <script setup>
 import { ColorSwatchIcon } from '@heroicons/vue/solid';
 import { Arquivo } from '../core/utils/Arquivo';
-import { PROJETO, MODALS, notificar } from "../core/State";
+import { PROJETO, MODALS, notificar, LINGUAGEM } from "../core/State";
 import { onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router'
 
-useHead({ title: 'New Project' });
+useHead({ title: LINGUAGEM.value.traduzir('New Project') });
 const route = useRoute()
 const query = route.query
 const projeto = PROJETO;
@@ -36,19 +36,19 @@ function importar() {
         const result = projeto.validarRawData(raw_data);
 
         if (result.erros > 0) {
-          alert(`Carregou incorretamente. ERRO ${erros.join(', ')}`);
+          alert(`${LINGUAGEM.value.traduzir('Carregou incorretamente. ERRO:')} ${erros.join(', ')}`);
           window.location.href = window.location.href;
         }
-        notificar('Processando arquivos carregados')
-        file.value = "Processando ...";
+        notificar(LINGUAGEM.value.traduzir('Processando arquivos carregados'))
+        file.value = LINGUAGEM.value.traduzir("Processando ...");
         const error = projeto.parseFiles(result, s => {
           ((percent.value = s) > 99 && ++projeto.status)
           if (s > 99) {
-            notificar(`Total ${projeto.getALLGenes().length} genes loaded`, 'success', 10)
+            notificar(`Total ${projeto.getALLGenes().length} ${LINGUAGEM.value.traduzir('genes carregados.')}`, 'success', 10)
           }
         });
         if (error) {
-          alert(`Carregou incorretamente. ERRO ${error}`);
+          alert(`${LINGUAGEM.value.traduzir('Carregou incorretamente. ERRO:')} ${error}`);
           window.location.href = window.location.href;
         }
       }
@@ -66,7 +66,7 @@ function setExperimento() {
   MODALS.push({
     titulo: 'Dados de amostra',
     color: 'info',
-    conteudo: 'Caso vc esteja usando dados de amostra vc precisa descompactar primeiro, e entao carregar os 10 arquivos obtidos do arquivo comprimido.',
+    conteudo: LINGUAGEM.value.traduzir('Caso vc esteja usando dados de amostra vc precisa descompactar primeiro, e entao carregar os 10 arquivos obtidos do arquivo comprimido.'),
     botoes: [{ text: 'OK', action: () => true, end: importar, color: 'bg-indigo-500' }]
   })
 
@@ -89,12 +89,12 @@ onMounted(carregar)
       <Sanfona class="sahdow" titulo="Configurar o projeto" :opened="true" @open="(s) => (s && (sanfona_st = 1))">
         <FormRow>
           <FormCol>
-            <FormInputText label="Nome do projeto" :content="projeto.nome" @update="(x) => (projeto.nome = x)" />
+            <FormInputText :label="LINGUAGEM.traduzir('Nome do projeto')" :content="projeto.nome" @update="(x) => (projeto.nome = x)" />
           </FormCol>
         </FormRow>
         <FormRow v-if="percent < 100">
           <FormCol v-if="percent < 0">
-            <Button color="acent" @click="setExperimento">Load experiment data</Button>
+            <Button color="acent" @click="setExperimento"><Texto>Carregar 10 arquivos</Texto></Button>
           </FormCol>
           <FormCol v-else>
             <ProgressBar :label="file" :percent="percent"></ProgressBar>
@@ -107,9 +107,9 @@ onMounted(carregar)
           <FormCol span="6" style="margin-top: -2.5rem;" class="flex justify-end">
 
             <Button v-if="fator.is_control"
-              @click="fator.is_control = !(fator.is_case = !fator.is_case)">controle</Button>
+              @click="fator.is_control = !(fator.is_case = !fator.is_case)"><Texto>Controle</Texto></Button>
             <Button v-if="fator.is_case"
-              @click="fator.is_control = !(fator.is_case = !fator.is_case)">tratamento</Button>
+              @click="fator.is_control = !(fator.is_case = !fator.is_case)"><Texto>Tratamento</Texto></Button>
 
             <ColorSwatchIcon :style="{ color: fator.cor }" class="w-8 h-8 inline-flex rounded-full cursor-pointer border-4 border-white 
               focus:outline-none focus:shadow-outline" @click="fator.show_cor = !fator.show_cor" />

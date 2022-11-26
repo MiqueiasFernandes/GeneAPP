@@ -516,33 +516,33 @@ const graficos = [
             <Tabs :names="['table2', 'table', 'table3', 'chart']" active="table2">
 
                 <template #table>
-                    <TableIcon class="mr-2 w-5 h-5" /> Pipeline results
+                    <TableIcon class="mr-2 w-5 h-5" /> <Texto>Resultados do pipeline</Texto>
                 </template>
                 <template #tableContent>
                     <Table class="my-4" :cols="tablePRheader" :rows="tablePR"> </Table>
                 </template>
 
                 <template #table2>
-                    <TableIcon class="mr-2 w-5 h-5" /> Experimental design
+                    <TableIcon class="mr-2 w-5 h-5" /> <Texto>Delineamento experimental</Texto>
                 </template>
                 <template #table2Content>
                     <Table class="my-4" :cols="tableEDheader" :rows="tableED" indexed="true"></Table>
                 </template>
 
                 <template #table3>
-                    <TableIcon class="mr-2 w-5 h-5" /> Gene repertory
+                    <TableIcon class="mr-2 w-5 h-5" /> <Texto>Repertorio de genes</Texto>
                 </template>
                 <template #table3Content>
                     <Table class="my-4" :cols="tableGNheader" :rows="tableGN" indexed="true"></Table>
                 </template>
 
                 <template #chart>
-                    <PresentationChartLineIcon class="mr-2 w-5 h-5" /> Graphics
+                    <PresentationChartLineIcon class="mr-2 w-5 h-5" /> <Texto>Graficos</Texto>
                 </template>
                 <template #chartContent>
 
                     <Button class="m-4" v-if="!show" @click="criar()">
-                        <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Plot
+                        <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> <Texto>Plotar</Texto>
                     </Button>
 
                     <template v-else>
@@ -554,7 +554,7 @@ const graficos = [
                                 </div>
                                 <div
                                     class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center flex  items-center justify-center">
-                                    <span class="mx-4"> {{ grafico.titulo }}</span>
+                                    <span class="mx-4"> <Texto>{{ grafico.titulo }}</Texto></span>
                                     <button @click="plots[grafico.id].baixar(grafico.id + '.svg')"
                                         class="place-self-end bg-white dark:bg-slate-800 p-2 w-8 h-8 ring-1 ring-slate-900/5 dark:ring-slate-200/20 shadow-md rounded-full flex items-center justify-center">
                                         <DownloadIcon class="w-6 h-6 text-violet-500" />

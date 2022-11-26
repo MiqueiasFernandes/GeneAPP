@@ -36,7 +36,7 @@ onMounted(() => setTimeout(() => remove(props.id), props.timeout * 1000))
             <button type="button" @click="fechar = true && remove(id)"
                 class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8"
                 aria-label="Close">
-                <span class="sr-only">Close</span>
+                <span class="sr-only"><Texto>Fechar</Texto></span>
                 <XIcon aria-hidden="true" class="w-5 h-5" fill="currentColor" />
             </button>
         </div>

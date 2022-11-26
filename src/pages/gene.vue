@@ -16,7 +16,7 @@ import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue';
 import { GenePlot, Padding, ViewBox } from '../core/d3';
 import { Gene } from '../core/model';
-import { PROJETO, notificar } from "../core/State";
+import { PROJETO, notificar, LINGUAGEM } from "../core/State";
 import { Arquivo } from '../core/utils/Arquivo';
 import { getNCBIaa, getInterpro, withEmail, getNCBIgene, getNCBInc } from '../core/ClientAPI'
 
@@ -24,7 +24,7 @@ useHead({ title: 'Gene View' });
 
 const route = useRoute()
 const query = route.query
-const status = ref('Parametro invalido, use .../gene?id=2')
+const status = ref(LINGUAGEM.value.traduzir('Parametro invalido, use .../gene?id=2'))
 const anotou = ref(false)
 const plotou = ref(false)
 var GENE = null;
@@ -41,7 +41,7 @@ function anotar() {
             if (ptnas.length === 1) {
                 const ptn = ptnas[0].value
                 getNCBIaa(ptn, (seq) => {
-                    notificar(`${ptn} obtida da API do eutis/NCBI`)
+                    notificar(`${ptn} ${LINGUAGEM.value.traduzir('obtida da API do eutis/NCBI')}`)
                     iso.seq = seq
                     getInterpro(seq,
                         (status, t) => notificar(status, t > 1 ? 'warn' : 'success', 60),
@@ -51,7 +51,7 @@ function anotar() {
                         })
 
 
-                }).catch(_ => notificar(`Erro ao obter aa ${ptn} pelo NCBI.`, 'danger', 60))
+                }).catch(_ => notificar(`${LINGUAGEM.value.traduzir('Erro ao obter aa')} ${ptn} ${LINGUAGEM.value.traduzir('pelo NCBI.')}`, 'danger', 60))
             }
         });
     })
@@ -69,7 +69,7 @@ function setGene(g) {
     const gene = GENE = g
     genes.value.push(gene)
     PROJETO.nome = gene.nome;
-    route.meta.description = "Gene View " + query.id;
+    route.meta.description = "Visualizar gene" + query.id;
     const vb = ViewBox.fromScreen((gene.getIsoformas().length) * 50 + 150, Padding.simetric(5).center())
     GENE_PLOT = new GenePlot('plot', vb)
     GENE_PLOT.plot(gene)
@@ -82,13 +82,13 @@ const modo2 = ref(1)
 
 function carregar() {
     if (query.id) {
-        notificar(`Carregando gene ${query.id} pelo NCBI`)
-        status.value = 'carregando gene ' + query.id
+        notificar(` ${LINGUAGEM.value.traduzir('Carregando gene')} ${query.id} ${LINGUAGEM.value.traduzir('pelo NCBI.')}`)
+        status.value = LINGUAGEM.value.traduzir('Carregando gene') + ' ' + query.id
         getNCBIgene(query.id, (gene) => {
-            status.value = 'gene carregado!'
+            status.value = LINGUAGEM.value.traduzir('Gene carregado!')
             setGene(gene)
             getNCBInc(gene, (fna) => seq.value = gene.seq = fna)
-        }).catch(_ => status.value = 'erro ao carregar ' + url)
+        }).catch(_ => status.value = LINGUAGEM.value.traduzir('Erro ao carregar') + ': ' + url)
     }
     if (query.x) {
         const dt = JSON.parse(atob(query.x))
@@ -107,22 +107,28 @@ onMounted(carregar)
         <div class="w-full flex justify-center">
             <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md w-1/2 flex justify-evenly">
                 <Button :disable="!plotou || anotou" color="blue" @click="anotar">
-                    <LightningBoltIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true"></LightningBoltIcon>Anotar
+                    <LightningBoltIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true"></LightningBoltIcon>
+                    <Texto>Anotar</Texto>
                 </Button>
                 <Button :disable="!plotou" color="blue" @click="baixar">
-                    <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Baixar
+                    <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                    <Texto>Baixar</Texto>
                 </Button>
                 <Button v-if="modo === 'graph' && seq" :disable="!plotou" color="blue" @click="modo = 'seq'">
-                    <DocumentTextIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Sequence
+                    <DocumentTextIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                    <Texto>Sequencia</Texto>
                 </Button>
                 <Button v-if="modo === 'seq'" :disable="!plotou" color="blue" @click="repaint(modo = 'graph')">
-                    <PresentationChartLineIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Graphic
+                    <PresentationChartLineIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                    <Texto>Grafico</Texto>
                 </Button>
                 <Button v-if="modo === 'seq' && anotou && modo2 < 2" :disable="!plotou" color="blue" @click="modo2 = 2">
-                    <DocumentTextIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Protein
+                    <DocumentTextIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                    <Texto>Proteina</Texto>
                 </Button>
                 <Button v-if="modo === 'seq' && modo2 > 1" :disable="!plotou" color="blue" @click="modo2 = 1">
-                    <DocumentTextIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Genomic
+                    <DocumentTextIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                    <Texto>Gene</Texto>
                 </Button>
             </div>
         </div>

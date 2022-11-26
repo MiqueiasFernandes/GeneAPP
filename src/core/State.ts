@@ -14,10 +14,10 @@ export const CACHE = ref({})
 
 
 const INGLES = new Linguagem("English", '🇺🇸', en)
-const ESPANHOL = new Linguagem("Spanish", '🇪🇸', sp)
+//const ESPANHOL = new Linguagem("Spanish", '🇪🇸', sp)
 const PORTUGUES = new Linguagem("Portugese", '🇧🇷', pt)
 
-export const IDIOMAS = [INGLES, ESPANHOL, PORTUGUES]
+export const IDIOMAS = [INGLES, PORTUGUES]
 export const LINGUAGEM = ref(INGLES)
 
 export const notificar = (msg, color = 'success', timeout?) => {

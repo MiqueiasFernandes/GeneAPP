@@ -743,7 +743,7 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
             <Tabs :names="['table', 'table2', 'chart']" active="table">
 
                 <template #table>
-                    <TableIcon class="mr-2 w-5 h-5" /> AS Details
+                    <TableIcon class="mr-2 w-5 h-5" /> <Texto>Detalhes de AS</Texto>
                 </template>
                 <template #tableContent>
                     <div
@@ -766,18 +766,18 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                 </template>
 
                 <template #table2>
-                    <TableIcon class="mr-2 w-5 h-5" /> Anottaion table
+                    <TableIcon class="mr-2 w-5 h-5" /> <Texto>Tabela de anontaçao</Texto>
                 </template>
                 <template #table2Content>
                     <Table class="my-4" :cols="tabGh" :rows="tabG"></Table>
                 </template>
 
                 <template #chart>
-                    <PresentationChartLineIcon class="mr-2 w-5 h-5" /> Graphics
+                    <PresentationChartLineIcon class="mr-2 w-5 h-5" /> <Texto>Graficos</Texto>
                 </template>
                 <template #chartContent>
                     <Button class="m-4" v-if="!show" @click="criar()">
-                        <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> Plot
+                        <CursorClickIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" /> <Texto>Plotar</Texto>
                     </Button>
 
                     <template v-else>
@@ -789,7 +789,7 @@ onUpdated(() => (show.value = false) || (setTimeout(() => criar(), 100)))
                                 </div>
                                 <div
                                     class="w-full bg-gray-100 px-6 pt-4 pb-2 text-gray-700  font-bold text-xl text-center flex  items-center justify-center">
-                                    <span class="mx-4"> {{ grafico.titulo }}</span>
+                                    <span class="mx-4"> <Texto>{{ grafico.titulo }}</Texto></span>
                                     <button @click="plots[grafico.id].baixar(grafico.id + '.svg')"
                                         class="place-self-end bg-white dark:bg-slate-800 p-2 w-8 h-8 ring-1 ring-slate-900/5 dark:ring-slate-200/20 shadow-md rounded-full flex items-center justify-center">
                                         <DownloadIcon class="w-6 h-6 text-violet-500" />
