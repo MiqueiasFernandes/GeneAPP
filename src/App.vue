@@ -3,19 +3,24 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { MenuIcon, XIcon, DownloadIcon } from '@heroicons/vue/outline'
 import { BeakerIcon } from '@heroicons/vue/solid'
-import { PROJETO, MODALS, NOTIFICACOES } from "./core/State";
+import { PROJETO, MODALS, NOTIFICACOES, LINGUAGEM, IDIOMAS } from "./core/State";
+import { Arquivo } from './core/utils/Arquivo';
 
 const pages = (router) => router.options.routes
   .filter(x => parseInt(x.meta.ordem) > 0)
   .sort((a, b) => a.meta.ordem - b.meta.ordem);
 
 const cookies = ref(true)
-
+function baixando(){
+  const lista = LINGUAGEM.value.para_trauzir
+  const lista_uniq = [...new Set(lista)]
+  Arquivo.download("textos.txt", lista_uniq.join("\n"))
+}
 onMounted(() => {
   MODALS.push({
     titulo: 'Organismos',
     color: 'info',
-    conteudo: 'O GeneAPP está preparado para trabalhar com multi-exons coding genes para os tipos de AS RI e SE principalmente.',
+    conteudo:LINGUAGEM.value.traduzir('O GeneAPP está preparado para trabalhar com multi-exons coding genes para os tipos de AS RI e SE principalmente.'),
     botoes: [{ text: 'OK', action: () => true, color: 'bg-indigo-500' }]
   })
 })
@@ -25,10 +30,10 @@ onMounted(() => {
 <template>
 
   <div style="z-index: 9999" v-if="cookies" class="w-full h-8 fixed bottom-0 bg-amber-200 text-amber-700 font-extrabold m-0 px-4 py-1">
-    Este site usa cookies, ao continuar possui seu consentimento 
+    <Texto>Este site usa cookies, ao continuar possui seu consentimento.</Texto> 
     <button class="rounded-sm bg-amber-300 shadow mx-2 px-3" @click="cookies = false">OK</button>
   </div>
-
+  
   <Disclosure as="nav" class="bg-gray-800 fixed w-full shadow z-10" v-slot="{ open }">
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       <div class="relative flex items-center justify-between h-16">
@@ -36,7 +41,7 @@ onMounted(() => {
           <!-- Mobile menu button-->
           <DisclosureButton
             class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-            <span class="sr-only">Open main menu</span>
+            <span class="sr-only"><Texto>Open main menu</Texto></span>
             <MenuIcon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
             <XIcon v-else class="block h-6 w-6" aria-hidden="true" />
           </DisclosureButton>
@@ -74,7 +79,7 @@ onMounted(() => {
             <div>
               <MenuButton
                 class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-                <span class="sr-only">Open options menu</span>
+                <span class="sr-only"><Texto>Open options men</Texto>u</span>
                 <button type="button"
                   class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                   <span class="sr-only">View options</span>
@@ -104,6 +109,14 @@ onMounted(() => {
                 <MenuItem v-slot="{ active }">
                 <a href="https://mikeias.net"
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Suport</a>
+                </MenuItem>
+                <MenuItem v-slot="{ active }" v-for="idioma in IDIOMAS">
+                <a @click="LINGUAGEM=idioma"
+                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">{{idioma.nome}}</a>
+                </MenuItem>
+                <MenuItem v-slot="{ active }">
+                <a @click="baixando"
+                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">baixar lista</a>
                 </MenuItem>
               </MenuItems>
             </transition>
