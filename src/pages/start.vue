@@ -35,7 +35,7 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
           <Texto>O splicing alternativo diferencial (DAS) é obtido pelacomparacao do AS de 2 condicoes.</Texto>
           <Texto>Para encontrar DAS, em primeiro momento sao obtidas replicatas biologicas do transcriptoma que sao sequenciadas e i) mapeadas ao genoma (mapeamento) ou ii) alinhadas ao transcriptoma para quantificar as isoformas.</Texto>
           <Texto>Essa analise exige bioinformatica especialmente na etapas finais finais de geracao de dados e exploracao dos resultados.</Texto>
-          <Texto>Limitatacoes da analise de AS com high throughput short reads 1) a amostra pode nao conter o AS exemplo se a mostra de 4Gbp com 1M reads contem 2 AS do gene g uma amostra de 2Gbp tem 50% de probabilidade de ter os 2 AS nesse sentido maior Gbp define a melhor 2) mesmo se grande a amostra pode nao conter o AS: se nao captura-lo se o evento nao ocorrer na condicao analisada se nao tiver anotado e nao analisado AS "de novo" (rMATS) 3) ao comparar CTRL/CASE amostras com DAS, CTRL pode ter canonico+AS e CASE nenhum 4) genes paralogos no genoma podem dificultar encontrar qual locus do gene de AS.</Texto>
+          <Texto>Limitatacoes da analise de AS com high throughput short reads 1) a amostra pode nao conter o AS exemplo se a mostra de 4Gbp com 1M reads contem 2 AS do gene g uma amostra de 2Gbp tem 50% de probabilidade de ter os 2 AS nesse sentido maior Gbp define a melhor 2) mesmo se grande a amostra pode nao conter o AS: se nao captura-lo se o evento nao ocorrer na condicao analisada se nao tiver anotado e nao analisado AS 'de novo' (rMATS) 3) ao comparar CTRL/CASE amostras com DAS, CTRL pode ter canonico+AS e CASE nenhum 4) genes paralogos no genoma podem dificultar encontrar qual locus do gene de AS.</Texto>
           
         </p>
         <p class="indent-3">
@@ -156,7 +156,7 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
       <div>
         <p class="indent-3">
           <Texto>Apos a analise do pipeline as_data_gen.sh ter sido executado com sucesso o usuario tera acesso ao arquivo import_geneapp.zip que precisa ser descompactado antes de ser carregado pela página NOVO para explorar no GeneAPP.</Texto>
-          <Texto>Um exemplo desse arquivo compactado gerado pelos dados de amostra no Colab pode ser obtido pelo botao "Download data sample" acima.</Texto>
+          <Texto>Um exemplo desse arquivo compactado gerado pelos dados de amostra no Colab pode ser obtido pelo botao 'Download data sample' acima.</Texto>
         </p>
         <p class="indent-3">
           <Texto>Ao importar os dados com sucesso no GeneAPP, se todos dados foram processados o usuario terá acesso aos seguintes recursos:</Texto>
