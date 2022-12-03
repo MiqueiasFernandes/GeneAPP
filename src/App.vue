@@ -52,13 +52,12 @@ onMounted(() => {
         </div>
         <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
           <div class="flex-shrink-0 flex items-center">
-            <a href="/">
+            <router-link to="/">
               <BeakerIcon class="h-8 text-white
               transition ease-in-out delay-150 hover:scale-110 duration-300
               " aria-hidden="true" />
-            </a>
+            </router-link>
           </div>
-
 
           <div class="hidden sm:block sm:ml-6">
             <div class="flex space-x-4">

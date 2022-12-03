@@ -78,13 +78,13 @@ onMounted(() => {
 
 <template>
   <div
-    style="background-image: url('/img/back3.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
+    style="background-image: url('img/back3.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
 
 
     <section class="flex items-center flex-wrap mx-16 mb-12 md:mb-0"
-      style="background-image: url('/img/back1.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
+      style="background-image: url('img/back1.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
       <div class="w-full md:w-1/2 h-96 flex items-center"
-        style="background-image: url('/img/grafs.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
+        style="background-image: url('img/grafs.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
 
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
@@ -99,7 +99,7 @@ onMounted(() => {
     </section>
 
     <section class="flex items-center flex-wrap mx-16"
-      style="background-image: url('/img/back2.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
+      style="background-image: url('img/back2.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
       <div class="lg:w-1/2 sm:w-full h-96 p-8 flex items-center flex-wrap content-center">
         <span class="text-4xl md:text-6xl	text-indigo-600 font-extrabold w-full">
           <Texto>Encontre o gene que voce estuda aqui</Texto>
@@ -110,7 +110,7 @@ onMounted(() => {
         </span>
       </div>
       <div class="lg:w-1/2 sm:w-full h-96 flex items-center"
-        style="background-image: url('/img/monitor.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
+        style="background-image: url('img/monitor.png'); background-repeat: no-repeat; background-position: center; background-size: contain;">
         <div class=" w-1/2 h-32 ml-4 mt-8 p-2 flex inline items-center">
           <FormInputText class="w-64 font-mono" :float="false" ref="input" :auto="false" content="836163" />
           <Button class="h-10 mx-2" color="acent" @click="top() ; $router.push(`/gene?id=${input.content}`)">
@@ -182,7 +182,7 @@ onMounted(() => {
   </div>
 
   <section class=" flex flex-wrap justify-between items-center m-8"
-    style="background-image: url('/img/back4.png');  background-position: center; background-size: contain;">
+    style="background-image: url('img/back4.png');  background-position: center; background-size: contain;">
     <span class="text-lg text-slate-700 font-bold drop-shadow">
       <Texto>Poucos cliques</Texto>
     </span>

@@ -2,6 +2,21 @@
 export class Arquivo {
     files = null;
 
+    static inputFile(fn_data, multiple=false) {
+        let input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = multiple;
+        input.onchange = _ => {
+            const files = new Array()
+            for (let index = 0; index < input.files.length; index++) {
+                const file = input.files[index];
+                files.push(file)
+            }
+            fn_data(files)
+        };
+        input.click();
+    }
+
     static importData(fn_data) {
         let input = document.createElement('input');
         input.type = 'file';

@@ -17,6 +17,7 @@ import { Arquivo } from '../core/utils/Arquivo';
 import { PROJETO, MODALS, notificar, LINGUAGEM } from "../core/State";
 import { onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router'
+import { mkProj, upFile } from '../core/ClientAPI'
 
 useHead({ title: LINGUAGEM.value.traduzir('New Project') });
 const route = useRoute()
@@ -74,8 +75,31 @@ function setExperimento() {
 
 function carregar() {
   if (query.create && query.create === 'new') {
-   setTimeout(importar, 500);
+    setTimeout(importar, 500);
   }
+}
+
+function criar_projeto() {
+  Arquivo.inputFile(files => {
+    mkProj(files[0]).then(res => {
+      console.log(res.data)
+      PROJETO.online = res.data
+      PROJETO.nome = res.data.projeto
+      notificar(LINGUAGEM.value.traduzir('Projeto criado com sucesso!'), 'success', 10)
+    })
+  })
+}
+
+function upload() {
+  Arquivo.inputFile(files => {
+    files.forEach(file => {
+      upFile(PROJETO.online.projeto, PROJETO.online.path, file).then(res => {
+        projeto.online.upload = res.data.ok
+        projeto.online.falta = res.data.falta
+        notificar(`${file.name} ${LINGUAGEM.value.traduzir('Arquivo carregado!')}`, 'success', 10)
+      })
+    })
+  }, true)
 }
 
 onBeforeMount(() => projeto.reset())
@@ -86,15 +110,48 @@ onMounted(carregar)
 <template>
   <div class="w-full px-4 pt-4">
     <div class="mx-auto w-full max-w-xl rounded-2xl p-8">
+
+
+      <Sanfona class="sahdow" titulo="Carregar dados" :opened="sanfona_st === 2" @open="(s) => (s && (sanfona_st = 2))">
+        <template v-if="!PROJETO.online.path">
+          <FormRow>
+            <FormCol>
+              <Button color="acent" @click="criar_projeto"><Texto>Criar projeto</Texto></Button>
+            </FormCol>
+          </FormRow>
+        </template>
+        <template v-else>
+          => Projeto criado! <br />
+          => <span class="font-mono font-bold text-lime-700">tar cvfj genoma.fasta.tbz2 genoma.fasta </span> <br />
+          => <span class="font-mono text-lime-700">tar cvfz genoma.fasta.tgz genoma.fasta</span>  <br />
+          => <span class="font-mono text-lime-700/75">zip genoma.fasta.zip genoma.fasta</span>  <br />
+
+          <FormRow>
+            <FormCol>
+              <Button color="acent" @click="upload"><Texto>Carregar arquivos</Texto> (100MB)</Button>
+            </FormCol>
+          </FormRow>
+
+          <ul class="list-disc px-4">
+            <li  class="text-amber-700 font-bold" v-for="f in PROJETO.online.falta">{{f}}</li>
+            <li class="text-lime-700" v-for="f in PROJETO.online.upload">{{f}}</li>
+          </ul>
+        </template>
+
+      </Sanfona>
+
       <Sanfona class="sahdow" titulo="Configurar o projeto" :opened="true" @open="(s) => (s && (sanfona_st = 1))">
         <FormRow>
           <FormCol>
-            <FormInputText :label="LINGUAGEM.traduzir('Nome do projeto')" :content="projeto.nome" @update="(x) => (projeto.nome = x)" />
+            <FormInputText :label="LINGUAGEM.traduzir('Nome do projeto')" :content="projeto.nome"
+              @update="(x) => (projeto.nome = x)" />
           </FormCol>
         </FormRow>
         <FormRow v-if="percent < 100">
           <FormCol v-if="percent < 0">
-            <Button color="acent" @click="setExperimento"><Texto>Carregar 10 arquivos</Texto></Button>
+            <Button color="acent" @click="setExperimento">
+              <Texto>Carregar 10 arquivos</Texto>
+            </Button>
           </FormCol>
           <FormCol v-else>
             <ProgressBar :label="file" :percent="percent"></ProgressBar>
@@ -106,10 +163,12 @@ onMounted(carregar)
           </FormCol>
           <FormCol span="6" style="margin-top: -2.5rem;" class="flex justify-end">
 
-            <Button v-if="fator.is_control"
-              @click="fator.is_control = !(fator.is_case = !fator.is_case)"><Texto>Controle</Texto></Button>
-            <Button v-if="fator.is_case"
-              @click="fator.is_control = !(fator.is_case = !fator.is_case)"><Texto>Tratamento</Texto></Button>
+            <Button v-if="fator.is_control" @click="fator.is_control = !(fator.is_case = !fator.is_case)">
+              <Texto>Controle</Texto>
+            </Button>
+            <Button v-if="fator.is_case" @click="fator.is_control = !(fator.is_case = !fator.is_case)">
+              <Texto>Tratamento</Texto>
+            </Button>
 
             <ColorSwatchIcon :style="{ color: fator.cor }" class="w-8 h-8 inline-flex rounded-full cursor-pointer border-4 border-white 
               focus:outline-none focus:shadow-outline" @click="fator.show_cor = !fator.show_cor" />

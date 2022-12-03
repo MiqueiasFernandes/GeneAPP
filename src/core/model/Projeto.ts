@@ -41,6 +41,7 @@ export class Projeto {
     private FAA = null;
     private arquivos = [];
     baixando = false;
+    online = {};
 
 
     constructor(nome: string) {

@@ -5,12 +5,13 @@ import { createRouter, createWebHistory } from 'vue-router/auto'
 import { createHead } from '@vueuse/head'
 import { PROJETO } from "./core/State"
 
+const HOST = "/"
 
 const app = createApp(App)
 const head = createHead()
 
 const router = createRouter({
-  history: createWebHistory()
+  history: createWebHistory(HOST)
 })
 
 router.beforeEach((to) => {

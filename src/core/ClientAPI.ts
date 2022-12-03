@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Gene } from './model';
 import { Anotacao } from './model/Anotacao';
 import { EMAIL, MODALS, notificar, CACHE } from './State';
+import { Arquivo } from './utils/Arquivo';
 
 function email(next) {
     if (EMAIL.value) {
@@ -155,4 +156,26 @@ export function getInterpro2GO() {
     )))
 }
 
+export function mkProj(file) {
+    var formData = new FormData();
+    formData.append(file.name, file);
 
+    return axios.post('http://100.64.204.170:5000/projeto', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}
+
+export function upFile(proj, path, file) {
+    var formData = new FormData();
+    formData.append('projeto', proj);
+    formData.append('path', path);
+    formData.append(file.name, file);
+
+    return axios.post('http://100.64.204.170:5000/arquivos', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
+}
