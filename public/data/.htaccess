@@ -1,0 +1,8 @@
+Options -MultiViews
+Options -Indexes
+RewriteEngine On
+RewriteBase /geneapp/
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /geneapp/index.html [L]
