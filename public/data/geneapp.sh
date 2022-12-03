@@ -7,9 +7,11 @@ HOST=0.0.0.0
 PORT=5000
 SERVER=3
 LIMIT=5
+DEV=1
+USER=admin
 LOCAL=`pwd`
 
-while getopts p:h:l:s:d:i: opts; do
+while getopts p:h:l:s:d:i:x:u: opts; do
     case ${opts} in
         h) HOST=${OPTARG} ;;
         p) PORT=${OPTARG} ;;
@@ -17,14 +19,18 @@ while getopts p:h:l:s:d:i: opts; do
         s) SERVER=${OPTARG} ;;
         d) LOCAL=${OPTARG} ;;
         i) INSTALL=1 ;;
+        x) PRD=1 ;;
+        u) USER=${OPTARG} ;;
     esac
 done
+
+[ $PRD ] && DEV= && echo "ambiente PRD ..."
 
 echo "Configurando GeneAPP em $LOCAL"
 [ ! -d $LOCAL ] && mkdir -p $LOCAL
 echo "Server [$SERVER] => $HOST :: $PORT ($LIMIT)!"
 
-[ $INSTALL ] && sudo apt install apache2-dev wget curl python3 python3-pip python3-venv
+[ $INSTALL ] && sudo apt install apache2-dev wget curl python3 python3-pip python3-venv libapache2-mod-wsgi-py3
 
 [ ! -d $LOCAL/data ] && mkdir -p $LOCAL/data/`date +%Y-%m-%d`
 [ ! -d $LOCAL/runs ] && mkdir $LOCAL/runs
@@ -32,8 +38,7 @@ echo "Server [$SERVER] => $HOST :: $PORT ($LIMIT)!"
     && mkdir $LOCAL/software \
     && python3 -m venv $LOCAL/software/venv \
     && source $LOCAL/software/venv/bin/activate \
-    && pip install flask flask-cors biopython
-    && sudo pip install mod_wsgi
+    && pip install flask flask-cors biopython mod_wsgi
 
 source $LOCAL/software/venv/bin/activate
 cat > $LOCAL/software/geneapp.py <<EOL
@@ -168,11 +173,6 @@ def arquivos():
 
 EOL
 
-
-
-
-
-
 limpar() {
     while true
     do  echo "executando limpeza em $LOCAL/data/* ..."
@@ -181,9 +181,19 @@ limpar() {
     done
 }
 
-
 limpar &
-flask --app $LOCAL/software/geneapp run --port $PORT --host $HOST
+
+##DEV
+[ $DEV ] && flask --app $LOCAL/software/geneapp run --port $PORT --host $HOST
+
+##PRD
+echo "import sys" > $LOCAL/software/wsgi.py
+echo "sys.path.insert(0,'$LOCAL/software/venv/lib/python3.9/site-packages')" >> $LOCAL/software/wsgi.py
+echo "from geneapp import app" >> $LOCAL/software/wsgi.py
+echo "application = app" >> $LOCAL/software/wsgi.py
+[ $PRD ] && cd $LOCAL/software && sudo mod_wsgi-express start-server wsgi.py --port $PORT --user $USER
+
+sleep 10 && netstat -pln | grep tcp | grep $PORT
+
 wait
 
- 
