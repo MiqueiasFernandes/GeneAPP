@@ -156,26 +156,45 @@ export function getInterpro2GO() {
     )))
 }
 
-export function mkProj(file) {
-    var formData = new FormData();
-    formData.append(file.name, file);
+export function findServer(id = null): Promise<{ host: string }> {
+    return new Promise((resolve, reject) => {
+        const tt = (s1, s2) => axios.get(`http://geneappserver${s1}.mikeias.net/server`)
+            .then(r =>
+                ((!id && r.data.slots > 0) || (id && r.data.servidor === id)) ?
+                    resolve(Object.assign(r.data, { host: `http://geneappserver${s1}.mikeias.net` }))
+                    : (s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
+            )
+            .catch(_ => s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
+        tt(0, [7, [2, [6, [5, [4, [3, [8, [1, [9]]]]]]]]])
+    })
+}
 
-    return axios.post('http://100.64.204.170:5000/projeto', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
+export function mkProj(file) {
+    return findServer().then(s => {
+        var formData = new FormData();
+        formData.append(file.name, file);
+        return axios.post(s.host + '/projeto', formData)
     })
 }
 
 export function upFile(proj, path, file) {
-    var formData = new FormData();
-    formData.append('projeto', proj);
-    formData.append('path', path);
-    formData.append(file.name, file);
+    return findServer(proj.servidor).then(s => {
+        var formData = new FormData();
+        formData.append('projeto', proj.projeto);
+        formData.append('path', path);
+        formData.append(file.name, file);
+        return axios.post(s.host + '/arquivos', formData)
+    })
+}
 
-    return axios.post('http://100.64.204.170:5000/arquivos', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
+export function process(proj) {
+    return findServer(proj.servidor).then(s => {
+        return axios.get(`${s.host}/process/${proj.path}/${proj.projeto}`)
+    })
+}
+
+export function status(proj) {
+    return findServer(proj.servidor).then(s => {
+        return axios.get(`${s.host}/status/${proj.path}/${proj.projeto}`)
     })
 }

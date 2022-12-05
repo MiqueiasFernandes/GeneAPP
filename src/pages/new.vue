@@ -12,12 +12,12 @@
 </route>
       
 <script setup>
-import { ColorSwatchIcon } from '@heroicons/vue/solid';
+import { ColorSwatchIcon, CogIcon } from '@heroicons/vue/solid';
 import { Arquivo } from '../core/utils/Arquivo';
 import { PROJETO, MODALS, notificar, LINGUAGEM } from "../core/State";
 import { onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router'
-import { mkProj, upFile } from '../core/ClientAPI'
+import { mkProj, upFile, process, status } from '../core/ClientAPI'
 
 useHead({ title: LINGUAGEM.value.traduzir('New Project') });
 const route = useRoute()
@@ -80,26 +80,48 @@ function carregar() {
 }
 
 function criar_projeto() {
+  PROJETO.online = { loading: true }
   Arquivo.inputFile(files => {
     mkProj(files[0]).then(res => {
       console.log(res.data)
       PROJETO.online = res.data
       PROJETO.nome = res.data.projeto
       notificar(LINGUAGEM.value.traduzir('Projeto criado com sucesso!'), 'success', 10)
-    })
+    }).catch(_ => (PROJETO.online.loading = false))
   })
 }
 
 function upload() {
   Arquivo.inputFile(files => {
     files.forEach(file => {
-      upFile(PROJETO.online.projeto, PROJETO.online.path, file).then(res => {
+      PROJETO.online.loading = true
+      PROJETO.online.processando = false
+      upFile(PROJETO.online, PROJETO.online.path, file).then(res => {
         projeto.online.upload = res.data.ok
         projeto.online.falta = res.data.falta
         notificar(`${file.name} ${LINGUAGEM.value.traduzir('Arquivo carregado!')}`, 'success', 10)
+        PROJETO.online.loading = false
+        PROJETO.online.podeproc = true
       })
     })
   }, true)
+}
+
+function rodar() {
+  PROJETO.online.processando = true
+  process(PROJETO.online)
+    .then(res => {
+      if (res.data.status === 'OK')
+        PROJETO.online.processandook = true
+    }).catch(_ => (PROJETO.online.processando = false))
+}
+
+function getstatus() {
+  if (PROJETO.online.processando)
+    status(PROJETO.online)
+      .then(res => {
+        PROJETO.online.status = res.data.status
+      }).catch(_ => (PROJETO.online.processando = false))
 }
 
 onBeforeMount(() => projeto.reset())
@@ -113,31 +135,64 @@ onMounted(carregar)
 
 
       <Sanfona class="sahdow" titulo="Carregar dados" :opened="sanfona_st === 2" @open="(s) => (s && (sanfona_st = 2))">
-        <template v-if="!PROJETO.online.path">
-          <FormRow>
-            <FormCol>
-              <Button color="acent" @click="criar_projeto"><Texto>Criar projeto</Texto></Button>
-            </FormCol>
-          </FormRow>
+        <template v-if="PROJETO.online && PROJETO.online.processandook">
+          <template v-if="PROJETO.online.status && PROJETO.online.status.includes('all.tbz2')">
+            arquivos processados com sucesso!
+            <ul>
+              <li v-for="f in PROJETO.online.status.filter(x => x.includes('part') && x.includes('.geneapp'))">{{f}}</li>
+            </ul>
+          </template>
+          <template v-else>
+            <Button color="acent" @click="getstatus">
+              <CogIcon class="-ml-1 mr-2 h-5 w-5 animate-spin" style="animation-duration: 3s;" />
+              <Texto>Status</Texto>
+            </Button>
+            processando os arquivos no servidor...
+            <br />
+            <pre v-if="PROJETO.online.status">
+            {{ PROJETO.online.status.map(x => x.substr(0, 50) + '...') }}
+          </pre>
+          </template>
         </template>
         <template v-else>
-          => Projeto criado! <br />
-          => <span class="font-mono font-bold text-lime-700">tar cvfj genoma.fasta.tbz2 genoma.fasta </span> <br />
-          => <span class="font-mono text-lime-700">tar cvfz genoma.fasta.tgz genoma.fasta</span>  <br />
-          => <span class="font-mono text-lime-700/75">zip genoma.fasta.zip genoma.fasta</span>  <br />
+          <template v-if="!PROJETO.online.path">
+            <FormRow v-if="!PROJETO.online.loading">
+              <FormCol>
+                <Button color="acent" @click="criar_projeto">
+                  <Texto>Criar projeto</Texto>
+                </Button>
+              </FormCol>
+            </FormRow>
+          </template>
+          <template v-else>
+            => Projeto criado! <br />
+            => <span class="font-mono font-bold text-lime-700">tar cvfj genoma.fasta.tbz2 genoma.fasta </span> <br />
+            => <span class="font-mono text-lime-700">tar cvfz genoma.fasta.tgz genoma.fasta</span> <br />
+            => <span class="font-mono text-lime-700/75">zip genoma.fasta.zip genoma.fasta</span> <br />
 
-          <FormRow>
-            <FormCol>
-              <Button color="acent" @click="upload"><Texto>Carregar arquivos</Texto> (100MB)</Button>
-            </FormCol>
-          </FormRow>
+            <FormRow v-if="!PROJETO.online.loading && !PROJETO.online.processando">
+              <FormCol>
+                <Button color="acent" @click="upload">
+                  <Texto>Carregar arquivos</Texto> (100MB)
+                </Button>
+              </FormCol>
+            </FormRow>
 
-          <ul class="list-disc px-4">
-            <li  class="text-amber-700 font-bold" v-for="f in PROJETO.online.falta">{{f}}</li>
-            <li class="text-lime-700" v-for="f in PROJETO.online.upload">{{f}}</li>
-          </ul>
+            <ul class="list-disc px-4">
+              <li class="text-amber-700 font-bold" v-for="f in PROJETO.online.falta">{{ f }}</li>
+              <li class="text-lime-700" v-for="f in PROJETO.online.upload">{{ f }}</li>
+            </ul>
+
+            <FormRow v-if="PROJETO.online.podeproc && !PROJETO.online.loading">
+              <FormCol>
+                <Button color="acent" @click="rodar">
+                  <Texto>Processar</Texto>
+                </Button>
+              </FormCol>
+            </FormRow>
+
+          </template>
         </template>
-
       </Sanfona>
 
       <Sanfona class="sahdow" titulo="Configurar o projeto" :opened="true" @open="(s) => (s && (sanfona_st = 1))">

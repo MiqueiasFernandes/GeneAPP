@@ -1,11 +1,9 @@
 #!/bin/bash
 
 MODE=JCEC
-DATADIR=/home/mfernandes/geneapp/runsteste/data
-OUTDIR=$DATADIR/out
-EXPDIR=$DATADIR/exp
-rm -rf $OUTDIR && mkdir $OUTDIR
-rm -rf $EXPDIR && mkdir $EXPDIR
+DATADIR=$1 ##/home/mfernandes/geneapp/runsteste/data
+RODAR=$2 ## $LOCAL/software/venv/bin/activate
+IPSCAN=$3 ## /home/admin/interproscan-5.59-91.0/interproscan.sh
 
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
@@ -13,6 +11,7 @@ rm -rf $EXPDIR && mkdir $EXPDIR
 
 echo "validando ... $DATADIR `date +%d/%m\ %H:%M`"
 ## dados basicos
+[ ! $DATADIR ] && echo "invalido: precisa informar DATADIR" && exit
 
 ## RUN,SAMPLE,FACTOR,FOLDER
 [ -f $DATADIR/experimental_design.csv ] && TEM_DSG=1 || NTEM_DSG=1
@@ -65,7 +64,14 @@ echo "validando ... $DATADIR `date +%d/%m\ %H:%M`"
 [ $NTEM_R ] && [ $NTEM_3D ] && echo ERRO FALTA rMATS ou 3DRNASeq && ERRO=1
 
 [ $ERRO ] && echo invalido && exit
-
+echo "validado com sucesso VALIDO @VALIDADO@ com sucesso"
+[ ! $RODAR ] && exit
+echo "ativando $RODAR"
+source $RODAR
+OUTDIR=$DATADIR/out
+EXPDIR=$DATADIR/exp
+rm -rf $OUTDIR && mkdir $OUTDIR
+rm -rf $EXPDIR && mkdir $EXPDIR
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
@@ -103,22 +109,45 @@ NTEM_GFF=
 TEM_GFF=1
 [ $TEM_GFF_MIN ] && mv $DATADIR/gene.gff.min $OUTDIR/gene.gff.min
 [ $NTEM_GFF_MIN ] && echo "gerando gff min `date +%d/%m\ %H:%M` ..." &&  python3 <(printf "
-    gff = [l.strip().split(chr(9)) for l in open('$DATADIR/gene.gff').readlines() if l.count(chr(9)) == 8]
+    import shutil
     all_as_genes = set([l.strip() for l in open('$OUTDIR/all_as_genes.txt').readlines() if len(l) > 1])
-    genes = [[[y for y in x[-1].split(';') if y.startswith('ID=')][0][3:], x] for x in gff if 'gene' in x[2]]
-    gfilt = [(i,g) for i, g in genes if i in all_as_genes]
-    gfilt = [(i.replace('gene-', ''),g) for i, g in genes if i.replace('gene-', '') in all_as_genes] if len(gfilt) < 1 else gfilt
-    print(f'genes encontrados no gff: {len(gfilt)} de {len(all_as_genes)}')
-    tmp = [x for x,_ in gfilt]
-    if len(gfilt) < len(all_as_genes): print([x for x in all_as_genes if not x in tmp ])
-    gfilt = [x for _,x in gfilt]
-    gfilt = [[l[0], int(l[3]), int(l[4])] for l in gfilt]
-    gff_p = [[l[0], int(l[3]), int(l[4]), l] for l in gff]
-    gff_d = [g for a, b, c, g in gff_p if 'region' == g[2] or 
-            any([a == x and b >= y and c <= z for x, y, z in gfilt])]
-    print(f'gff ficou reduzido em {len(gff_d)*100//len(gff)}%% => {len(gff_d)} de {len(gff)}')
-    open('$OUTDIR/gene.gff.min', 'w').writelines([chr(9).join(x)+chr(10) for x in gff_d])
+    attrs =  [
+                #'Dbxref', 'Is_circular','Note','chromosome','ecotype','end_range','exception','exon_number',
+                #'gbkey','gene_synonym','genome','inference','mol_type','number','orig_protein_id','orig_transcript_id',
+                #'part','partial','product','pseudo','rpt_type','start_range','transcript_id','transl_table'
+                'ID', 'Name', 'Parent', 'gene', 'gene_biotype', 'locus_tag', 'protein_id'
+            ]
+    gfilt2 = []
+    ## dividir por cromosssomo para conquistar O(1gb)
+    chrms = set([x.split(chr(9))[0] for x in open('$DATADIR/gene.gff').readlines() if x.count(chr(9)) == 8])
+    for chrm in chrms:
+        gff = [[x[:20] for x in l.strip().split(chr(9))[:-1]] for l in open('$DATADIR/gene.gff').readlines() if l.count(chr(9)) == 8 and l.startswith(chrm+chr(9))]
+        print(chrm, len(gff))
+        gff2 = [';'.join([x for x in l.strip().split(chr(9))[-1][:100].split(';') if x.split('=')[0] in attrs])
+                for l in open('$DATADIR/gene.gff').readlines() if l.count(chr(9)) == 8 and l.startswith(chrm+chr(9))]
+        gff = [gff[i]+[gff2[i]] for i in range(len(gff))]
+        genes = [[[y for y in x[-1].split(';') if y.startswith('ID=')][0][3:], x] for x in gff if 'gene' in x[2]]
+        gfilt = [(i,g) for i, g in genes if i in all_as_genes]
+        gfilt = [(i.replace('gene-', ''),g) for i, g in genes if i.replace('gene-', '') in all_as_genes] if len(gfilt) < 1 else gfilt
+        gfilt2.extend([x for x,_ in gfilt])
+        gfilt = [x for _,x in gfilt]
+        gfilt = [[l[0], int(l[3]), int(l[4])] for l in gfilt]
+        gff_p = [[l[0], int(l[3]), int(l[4]), l] for l in gff]
+        gff_d = [g for a, b, c, g in gff_p if 'region' == g[2] or 
+                any([a == x and b >= y and c <= z for x, y, z in gfilt])]
+        open('$OUTDIR/gene.gff.min.'+chrm, 'w').writelines([chr(9).join(x)+chr(10) for x in gff_d])
+
+    with open('$OUTDIR/gene.gff.min', 'wb') as output:
+        for chrm in chrms:
+            shutil.copyfileobj(open('$OUTDIR/gene.gff.min.'+chrm, 'rb'), output)
+
+    lo =  len(open('$DATADIR/gene.gff').readlines())
+    lm =  len(open('$OUTDIR/gene.gff.min').readlines())
+
     print('salvo em $OUTDIR/gene.gff.min') 
+    print(f'gff ficou reduzido em {lm*100//lo}%% => {lm} de {lo}')
+    if len(set(gfilt2)) < len(all_as_genes): print([x for x in all_as_genes if not x in gfilt2 ])
+    print(f'genes encontrados no gff: {len(set(gfilt2))} de {len(all_as_genes)}')
     " | cut -c5-)
 NTEM_GFF_MIN=
 TEM_GFF_MIN=1 
@@ -208,6 +237,12 @@ SeqIO.write([SeqRecord(c.seq.translate(), tdic[c.id], description=f'gene={iso2ge
 open('$OUTDIR/ptnas.inline', 'w').writelines([f'{x.id},{str(x.seq)}{os.linesep}' for x in SeqIO.parse('$OUTDIR/ptnas.faa', 'fasta')])
 ")
 
+sed s/[*]$// $OUTDIR/ptnas.inline | grep -v \* | sed s/^/\>/ | tr , \\n > $OUTDIR/ptnas.ipro
+
+for SMP in $(tail -n+2 $DATADIR/experimental_design.csv )
+    do echo $SMP | awk -F "," '{printf $4"/"$2".rmats.bam,"}' >> $EXPDIR/$(echo $SMP | cut -d, -f3).bams
+done
+
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
@@ -255,6 +290,21 @@ filogenia() {
 }
 [ $NTEM_FILO ] && echo "processando filogenia.txt ...  `date +%d/%m\ %H:%M`" && filogenia &
 
+
+## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
+
+anotar() {
+    $IPSCAN \
+        -appl PANTHER,Pfam,SMART \
+        -cpu 2 -f TSV -goterms -pa -verbose \
+        -i $OUTDIR/ptnas.ipro -o $OUTDIR/anotacao.tsv
+    echo "$(date +%d/%m\ %H:%M) terminou anotacao" 
+}
+
+[ $NTEM_ANOTACAO ] && echo "processando anotacao.txt ... $IPSCAN  `date +%d/%m\ %H:%M`" && anotar &
+
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
@@ -297,146 +347,41 @@ mv $OUTDIR/gene2mrna2cds2ptn.csv $EXPDIR
 mv $OUTDIR/das_genes.inline $EXPDIR
 mv $OUTDIR/ptnas.inline $EXPDIR
 [ -f $OUTDIR/filogenia.txt ] && mv $OUTDIR/filogenia.txt $EXPDIR
-exit
-
-
-## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
-## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
-## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
-
-echo "processando anotacao.txt ...  `date +%d/%m\ %H:%M`"
-anotar_api() {
-
-    local LOCAL=$1
-    local Q=$2
-    local TSV=$3
-    local TTG=$4
-    local PTNAS=$5
-    local THREAD=$6
-    local k=1
-    log 6 4 0 "abrindo thread $THREAD para anotar $TTG / 10 ptnas"
-    sleep $THREAD
-    while read l; do
-        ID=$(echo $l | cut -d, -f1)
-        SEQ=$(echo $l | cut -d, -f2 | tr -cd '[:alpha:]')
-        if [ ! -f $LOCAL/$ID.tsv ]; then
-            JOB=$(curl -sSX POST --header 'Content-Type: application/x-www-form-urlencoded' --header 'Accept: text/plain' -d "email=$EMAIL&$Q&title=$ID&sequence=$SEQ" $API/run)
-            ## log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $(( $TTG / 10 ))] $k rodando $ID pelo job $JOB ..."
-            sleep 30s
-            for i in $(seq $TIMEOUT); do
-                if grep FINISHED <(curl -sSX GET --header 'Accept: text/plain' "$API/status/$JOB") >/dev/null; then
-                    curl -sSX GET --header 'Accept: text/tab-separated-values' "$API/result/$JOB/tsv" >$LOCAL/$ID.tsv
-                    cat $LOCAL/$ID.tsv | sed "s/^/$ID,/" >>$TSV
-                    log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $TTG : $(($(ls -1 $LOCAL | grep -c .) * 100 / $TTG))%]  anotacao de $ID obtida pelo job $JOB ok"
-                    break
-                else
-                    sleep 30s
-                fi
-            done
-            if [ ! -f $LOCAL/$ID.tsv ]; then
-                log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $TTG]  anotacao de $ID NAO obtida pelo job $JOB !!!!" "WARN"
-            fi
-        else
-            cat $LOCAL/$ID.tsv | sed "s/^/$ID,/" >>$TSV
-            log 6 4 $k "[$(ls -1 $LOCAL | grep -c .) de $TTG : $(($(ls -1 $LOCAL | grep -c .) * 100 / $TTG))%] $k -> $ID restaurado de $LOCAL/$ID.tsv"
-        fi
-        ((k = k + 1))
-    done <$PTNAS
-    log 6 4 0 "[$(ls -1 $LOCAL | grep -c .) de $TTG : $(($(ls -1 $LOCAL | grep -c .) * 100 / $TTG))%] finalizado a thread $THREAD"
-}
-
-
-anotar() {
-    if [ ! -f $DATADIR/anotacao.tsv ]
-    then echo anotando as proteinas ... 
-    else
-        cp $DATADIR/anotacao.tsv $OUTDIR/kanotacao.tsv
-        return
-    fi
-    local LOCAL=$OUT_DIR/anotacao
-    local PTNAS=$TMP_DIR/ptnas.inline
-    local TSV=$TMP_DIR/geneapp/anotacao.tsv
-    local Q='goterms=true&pathways=true&appl=PfamA'
-    echo "$(date +%d/%m\ %H:%M) iniciando anotacao"
-
-
-
-    [ -f $TMP_DIR/ptnas.faa ] && echo "Quantiade de proteins: $(grep -c \> $TMP_DIR/ptnas.faa)" >>$RESUMO
-    [ -f $TMP_DIR/ptnas.faa ] && echo "Tamanho total de proteins: $(grep -v \> $TMP_DIR/ptnas.faa | tr -d '\n' | wc -c)" >>$RESUMO
-
-    rm -f $TSV
-
-    if [ $ONLINE ]; then
-        [ ! -d $LOCAL ] && mkdir $LOCAL
-        local TT=$(grep -c , $PTNAS)
-
-        if (($(grep -c , $PTNAS) > 10)); then
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f1 | grep ,) 1 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f2 | grep ,) 2 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f3 | grep ,) 3 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f4 | grep ,) 4 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f5 | grep ,) 5 &
-
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f6 | grep ,) 6 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f7 | grep ,) 7 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f8 | grep ,) 8 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f9 | grep ,) 9 &
-            anotar_api $LOCAL $Q $TSV $TT <(cat $PTNAS | paste - - - - - - - - - - | cut -f10 | grep ,) 0 &
-            wait
-            log 6 4 0 "anotou interpro ONLINE"
-        else
-            anotar_api $LOCAL $Q $TSV $TT $PTNAS 1
-        fi
-    else
-        if [ -f $LOCAL.tsv ]; then
-            log 6 4 0 "recuperoou interpro de $LOCAL.tsv"
-            cp $LOCAL.tsv $TSV
-        else
-            [ -f /tmp/interproscan.tar.gz ] && [ ! -f /tmp/interproscan*/interproscan.sh ] && cd /tmp && tar -xf /tmp/interproscan.tar.gz
-            cd $TMP_DIR
-            sed 's/[*.]$//' $PTNAS | grep -v '*' | awk '{print ">"$1}' | tr , \\n >ptns.faa
-            bash /tmp/interproscan*/interproscan.sh \
-                -appl PANTHER,Pfam,SMART \
-                -cpu 10 -f TSV -goterms -pa -verbose \
-                -i ptns.faa -o $TSV 1>$LOG_DIR/_6.4.2_interproscan.log.txt 2>$LOG_DIR/_6.4.2_interproscan.err.txt
-            cp $TSV $LOCAL.tsv
-            log 6 4 0 "anotou interpro LOCAL"
-        fi
-    fi
-
-    echo "$(date +%d/%m\ %H:%M) terminou anotacao" >>$RESUMO
-}
-
-
+[ -f $OUTDIR/anotacao.tsv ] && mv $OUTDIR/anotacao.tsv $EXPDIR/kanotacao.tsv
 
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 
-anotar & filogenia & wait
 echo "integrando dados ...  `date +%d/%m\ %H:%M`"
+
+
 
 cat \
     <(echo 'part=1') \
-    <(cd $OUTDIR/ && wc -l * | sed 's/^/lines=/') \
-    <(for f in $DATADIR/*.bams; do cat $f <(echo {$f}); done | sed 's/^/map=/') \
+    <(cd $EXPDIR/ && wc -l * | sed 's/^/lines=/') \
+    <(for f in $EXPDIR/*.bams; do cat $f <(echo {$f}); done | sed 's/^/map=/') \
     <(head -20 $DATADIR/gene.gff | grep '#' | sed 's/^/gff=/') \
     <(echo 'part=2') \
-    <(cd $OUTDIR && for file in *; do echo $file=$(echo $file | tr -cd [:alnum:]); done) \
+    <(cd $EXPDIR && for file in *; do echo $file=$(echo $file | tr -cd [:alnum:]); done) \
     <(echo 'part=3') \
-    <(cd $OUTDIR && for file in *; do sed "s/^/$(echo $file | tr -cd [:alnum:])=/" "$file"; done) \
+    <(cd $EXPDIR && for file in *; do sed "s/^/$(echo $file | tr -cd [:alnum:])=/" "$file"; done) \
     <(echo 'part=4') \
-    <(cd $OUTDIR && grep -m1 . *.csv) \
-    >$EXPDIR/to_app.txt
+    <(cd $EXPDIR && grep -m1 . *.csv) \
+    >$OUTDIR/to_app.txt
 
+mv $OUTDIR/to_app.txt $EXPDIR
 
 python3 <(printf "
     lines = [l for l in open('$EXPDIR/to_app.txt').readlines()]
     ck = len(lines)//10
     p1, p2, p3 = lines[:ck], lines[ck:-ck], lines[-ck:]
     parts = [p1] + [p2[x::8] for x in range(8)] + [p3]
-    [open(f'$EXPDIR/parte{i}_{len(parts[i])}.geneapp', 'w').writelines(parts[i]) for i in range(10)] " | \
-    cut -c5-)
+    [open(f'$EXPDIR/parte{i}_{len(parts[i])}.geneapp', 'w').writelines(parts[i]) for i in range(10)] 
+    " | cut -c5-)
+
+mkdir $DATADIR/public
+mv $EXPDIR/parte*geneapp $DATADIR/public
 
 echo "terminado em  `date +%d/%m\ %H:%M`"
 
