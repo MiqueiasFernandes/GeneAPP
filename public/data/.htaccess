@@ -1,3 +1,5 @@
+#AddHandler wsgi-script .wsgi
+#Options ExecCGI
 Options -MultiViews
 Options -Indexes
 RewriteEngine On

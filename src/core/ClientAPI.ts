@@ -165,7 +165,7 @@ export function findServer(id = null): Promise<{ host: string }> {
                     : (s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
             )
             .catch(_ => s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
-        tt(0, [7, [2, [6, [5, [4, [3, [8, [1, [9]]]]]]]]])
+        tt(9, [7, [2, [6, [5, [4, [3, [8, [1, [0]]]]]]]]])
     })
 }
 

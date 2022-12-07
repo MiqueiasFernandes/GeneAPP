@@ -224,6 +224,7 @@ def process(local, projeto):
 ## Fornecer todos dados
 @app.route("/result/<local>/<projeto>/<filea>/<fileb>")
 def result(local, projeto, filea, fileb):
+    ## limitar consumo diario de dados
     path = f"{LOCAL}/data/{local}/{projeto}/public"
     if not os.path.isdir(path):
         abort(400)
@@ -238,6 +239,7 @@ def result(local, projeto, filea, fileb):
 ## Fornecer zip
 @app.route("/zip/<local>/<projeto>")
 def zipar(local, projeto):
+    ## limitar consumo diario de dados
     path = f"{LOCAL}/data/{local}/{projeto}/public/all.tbz2"
     assert os.path.exists(path)
     return send_file(path, as_attachment=True)
