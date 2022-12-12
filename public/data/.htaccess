@@ -1,5 +1,6 @@
 #AddHandler wsgi-script .wsgi
 #Options ExecCGI
+#https://router.vuejs.org/guide/essentials/history-mode.html#apache
 Options -MultiViews
 Options -Indexes
 RewriteEngine On
