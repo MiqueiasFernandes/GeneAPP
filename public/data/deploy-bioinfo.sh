@@ -14,6 +14,7 @@ BODYSIZE=100000000
 USER=geneapp
 IPSCAN=/home/geneapp/interproscan-5.59-91.0/interproscan.sh
 SERVER=101
+DEV=1
 
 if (( `sleep 10 && netstat -pln 2>/dev/null | grep tcp | grep -c $PORT ` > 0 ))
 then 
