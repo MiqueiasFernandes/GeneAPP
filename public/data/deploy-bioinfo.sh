@@ -143,9 +143,9 @@ cp $BASE/GeneAPP/public/data/GeneAPPServer.py $LOCAL
 echo "import os"                                                 > $LOCAL/wsgi.py
 echo "from GeneAPPServer import app"                            >> $LOCAL/wsgi.py
 echo                                                            >> $LOCAL/wsgi.py
-echo os.environ['WRKDIR'] = \'$WRK\'                            >> $LOCAL/wsgi.py
-echo os.environ['SLOTS'] = \'$LIMIT\'                           >> $LOCAL/wsgi.py
-echo os.environ['SERVER'] = \'$SERVER\'                         >> $LOCAL/wsgi.py
+echo "os.environ['WRKDIR'] = '$WRK'"                            >> $LOCAL/wsgi.py
+echo "os.environ['SLOTS'] = '$LIMIT'"                           >> $LOCAL/wsgi.py
+echo "os.environ['SERVER'] = '$SERVER'"                         >> $LOCAL/wsgi.py
 echo "application = app"                                        >> $LOCAL/wsgi.py
 echo                                                            >> $LOCAL/wsgi.py
 

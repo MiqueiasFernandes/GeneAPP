@@ -7,8 +7,9 @@ import shutil
 from datetime import datetime
 
 LOCAL = os.getenv('WRKDIR')
-LIMIT = int(os.getenv('SLOTS', '1'))
-SERVER = int(os.getenv('SERVER', '101'))
+LIMIT = int(os.getenv('SLOTS', '0'))
+SERVER = int(os.getenv('SERVER', '0'))
+assert LIMIT >0 and SERVER >0
 
 print(f"""
 starting GeneAPPServer {datetime.today().strftime('%Y-%m-%d')} ....
