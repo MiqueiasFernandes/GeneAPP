@@ -26,6 +26,8 @@ IPSCAN=/home/geneapp/interproscan-5.59-91.0/interproscan.sh
 SERVER=101
 DEV=1
 
+cd ~
+
 if (( `sleep 10 && netstat -pln 2>/dev/null | grep tcp | grep -c $PORT ` > 0 ))
 then 
       netstat -pln 2>/dev/null | grep tcp | grep $PORT
@@ -34,7 +36,7 @@ then
       exit
 fi
 
-while getopts h:p:l:x:u:i: opts; do
+while getopts h:p:l:x:u:i:s: opts; do
     case ${opts} in
         h) HOST=${OPTARG} ;;
         p) PORT=${OPTARG} ;;
@@ -42,6 +44,7 @@ while getopts h:p:l:x:u:i: opts; do
         x) PRD=1 ;;
         u) USER=${OPTARG} ;;
         i) IPSCAN=${OPTARG} ;;
+        s) SERVER=${OPTARG} ;;
     esac
 done
 
@@ -75,7 +78,7 @@ git clone https://github.com/MiqueiasFernandes/GeneAPP/ && cd GeneAPP
 sed -i 's/"\/"/"\/geneapp\/"/' src/main.js
 ## Compilar e colocar na pasta (node > 16!!)
 npm i node@16 && npm run build -- --base=/geneapp/
-## Copiar o app para dentro da pasta 
+## Copiar o app para dentro da pasta (chown ...)
 cp -r dist/** public/data/.htaccess /var/www/html/geneapp/
 ## ver se implantou com sucesso 
 (( `ls dist/assets/index.*.js | grep -cf \
@@ -190,7 +193,10 @@ rodar & limpar &
      --server-root $BASE/wsgi \
      --python-path $BASE/venv/lib/python3.7/site-packages \
      --python-path $BASE/geneapp \
-     --process-name GeneAPPServer$VERSAO
+     --process-name GeneAPPServer$VERSAO \
+     --setenv WRKDIR $WRK \
+     --setenv SLOTS $LIMIT \
+     --setenv SERVER $SERVER 
 
 [ $PRD ] && $BASE/wsgi/apachectl start \
    && (( `sleep 10 && netstat -pln 2>/dev/null | grep tcp | grep $PORT | grep -c GeneAPPServer` > 0 ))  \
