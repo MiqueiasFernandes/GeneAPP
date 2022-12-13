@@ -12,7 +12,7 @@ SERVER = int(os.getenv('SERVER', '0'))
 assert LIMIT >0 and SERVER >0
 
 print(f"""
-starting GeneAPPServer {datetime.today().strftime('%Y-%m-%d')} ....
+starting GeneAPPServer {datetime.today().strftime('%Y-%m-%d %HH%M')} ....
       ██████╗ ███████╗███╗   ██╗███████╗ █████╗ ██████╗ ██████╗ 
      ██╔════╝ ██╔════╝████╗  ██║██╔════╝██╔══██╗██╔══██╗██╔══██╗
      ██║  ███╗█████╗  ██╔██╗ ██║█████╗  ███████║██████╔╝██████╔╝
