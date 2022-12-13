@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, request, abort, send_file
 #from flask_cors import CORS
 import uuid
@@ -18,7 +19,7 @@ starting GeneAPPServer {datetime.today().strftime('%Y-%m-%d')} ....
      ╚██████╔╝███████╗██║ ╚████║███████╗██║  ██║██║     ██║     
       ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝     
                    version 1.0 2022 mikeias.net   
-  #{SERVER} on {LOCAL}  ~ {LIMIT}
+  #{SERVER} on {LOCAL} ( ~ {LIMIT} )
 
 """)
 

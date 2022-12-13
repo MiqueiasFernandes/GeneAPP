@@ -139,9 +139,15 @@ LOCAL=$BASE/geneapp
 mkdir $LOCAL 
 cp $BASE/GeneAPP/public/data/process.sh $LOCAL/RUN.sh
 cp $BASE/GeneAPP/public/data/GeneAPPServer.py $LOCAL
-echo "import sys" > $LOCAL/wsgi.py
-echo "from GeneAPPServer import app" >> $LOCAL/wsgi.py
-echo "application = app" >> $LOCAL/wsgi.py
+
+echo "import os"                                                 > $LOCAL/wsgi.py
+echo "from GeneAPPServer import app"                            >> $LOCAL/wsgi.py
+echo                                                            >> $LOCAL/wsgi.py
+echo os.environ['WRKDIR'] = \'$WRK\'                            >> $LOCAL/wsgi.py
+echo os.environ['SLOTS'] = \'$LIMIT\'                           >> $LOCAL/wsgi.py
+echo os.environ['SERVER'] = \'$SERVER\'                         >> $LOCAL/wsgi.py
+echo "application = app"                                        >> $LOCAL/wsgi.py
+echo                                                            >> $LOCAL/wsgi.py
 
 WRK=$BASE/workdir
 mkdir -p $WRK/data && mkdir $WRK/runs
@@ -193,10 +199,7 @@ rodar & limpar &
      --server-root $BASE/wsgi \
      --python-path $BASE/venv/lib/python3.7/site-packages \
      --python-path $BASE/geneapp \
-     --process-name GeneAPPServer$VERSAO \
-     --setenv WRKDIR $WRK \
-     --setenv SLOTS $LIMIT \
-     --setenv SERVER $SERVER 
+     --process-name GeneAPPServer$VERSAO 
 
 [ $PRD ] && $BASE/wsgi/apachectl start \
    && (( `sleep 10 && netstat -pln 2>/dev/null | grep tcp | grep $PORT | grep -c GeneAPPServer` > 0 ))  \
