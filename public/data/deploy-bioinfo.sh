@@ -76,7 +76,7 @@ sed -i 's/"\/"/"\/geneapp\/"/' src/main.js
 ## Compilar e colocar na pasta (node > 16!!)
 npm i node@16 && npm run build -- --base=/geneapp/
 ## Copiar o app para dentro da pasta 
-sudo cp -r dist/** public/data/.htaccess /var/www/html/geneapp/
+cp -r dist/** public/data/.htaccess /var/www/html/geneapp/
 ## ver se implantou com sucesso 
 (( `ls dist/assets/index.*.js | grep -cf \
      <(curl -s http://bioinfo.icb.ufmg.br/geneapp/ \
