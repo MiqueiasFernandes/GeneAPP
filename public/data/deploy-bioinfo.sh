@@ -25,6 +25,7 @@ USER=geneapp
 IPSCAN=/home/geneapp/interproscan-5.59-91.0/interproscan.sh
 SERVER=101
 DEV=1
+DEV_IP=192.168.64.2
 
 cd ~
 
@@ -76,6 +77,7 @@ echo "Started deploy at `date +%d/%m\ %H:%M`"
 git clone https://github.com/MiqueiasFernandes/GeneAPP/ && cd GeneAPP
 ## Alterar o vue para as paginas reconhecerem 
 sed -i 's/"\/"/"\/geneapp\/"/' src/main.js
+[ $DEV ] && sed -i "s/GENEAPP_API=.*/GENEAPP_API=\'$DEV_IP\'/" src/core/ClientAPI.ts
 ## Compilar e colocar na pasta (node > 16!!)
 npm i node@16 && npm run build -- --base=/geneapp/
 ## Copiar o app para dentro da pasta (chown ...)
