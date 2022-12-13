@@ -56,7 +56,7 @@ echo "Server [$SERVER] => $HOST :: $PORT ($LIMIT)!"
 ##  aqui o apache compartilha o mesmo host e porta com varias aplicacoes
 ##  usamos apache@proxi para redirecionar /geneappserver => localhost:5001
 ##  -> Logar no server user@bioinfo.icb.ufmg.br
-DIR=/home/geneapp
+DIR=/home/$USER
 VERSAO=$(echo v`date +%d%b%y_%Hh%M`)
 BASE=$DIR/$VERSAO
 mkdir $BASE &&  cd $BASE
@@ -82,7 +82,7 @@ npm i node@16 && npm run build -- --base=/geneapp/
 cp -r dist/** public/data/.htaccess /var/www/html/geneapp/
 ## ver se implantou com sucesso 
 (( `ls dist/assets/index.*.js | grep -cf \
-     <(curl -s http://bioinfo.icb.ufmg.br/geneapp/ \
+     <(curl -s http://$HOST/geneapp/ \
      | grep .js | sed 's/.*\/index.//' | sed s/[.].*//)` > 0 \
 )) && echo tudo ok || echo teve erros
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
@@ -115,21 +115,23 @@ cd $DIR
 ## esse caminho é apontado via proxy para o app flask
 ## 1) configurar o proxy: /etc/httpd/conf.d/flask.conf 
 ## cp /etc/httpd/conf.d/flask.conf flask.conf.old
-## sudo echo 'ProxyPass /geneappserver http://127.0.0.1:5000/' > /etc/httpd/conf.d/flask.conf 
-## sudo echo 'ProxyPassReverse /geneappserver http://127.0.0.1:5000/' >> /etc/httpd/conf.d/flask.conf 
+## sudo echo 'ProxyPass /geneappserver http://127.0.0.1:5001/' > /etc/httpd/conf.d/flask.conf 
+## sudo echo 'ProxyPassReverse /geneappserver http://127.0.0.1:5001/' >> /etc/httpd/conf.d/flask.conf 
 ## 2) reiniciar o apache: service httpd restart
 ## 3) consultar o status: service httpd status
 ## 
 ## *** *** *** *** *** *** ***  configurar o PYTHON 3.7 *** *** *** *** *** ***
 ## wget https://www.python.org/ftp/python/3.7.1/Python-3.7.1.tar.xz
 ## tar -xvf Python-3.7.1.tar.xz
-## cd Python-3.7.1 && ./configure --enable-shared && make && cp libpython3.* lib/ && cd ..
+## cd Python-3.7.1 && ./configure --enable-shared && make && mkdir lib && cp libpython3.* lib/ && cd ..
 ## pip3 install --user virtualenv
 
 ## 1) configurar o mod_wsgi
 cd $BASE
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR/Python-3.7.1/lib
-$DIR/.local/bin/virtualenv -p $DIR/Python-3.7.1/python $BASE/venv
+
+[ `which virtualenv` ] && virtualenv $BASE/venv
+[ ! `which virtualenv` ] && $DIR/.local/bin/virtualenv -p $DIR/Python-3.7.1/python $BASE/venv
 source $BASE/venv/bin/activate
 pip install mod_wsgi --global-option=build_ext --global-option="-L$DIR/Python-3.7.1/lib"
 pip install flask flask-cors biopython
@@ -189,7 +191,10 @@ limpar() {
 
 rodar & limpar &
 
-[ $DEV ] && flask --app $BASE/geneapp/geneapp run --port $PORT --host $HOST
+[ $DEV ] && export WRKDIR=$WRK  
+[ $DEV ] && export SLOTS=$LIMIT 
+[ $DEV ] && export SERVER=$SERVER
+[ $DEV ] && flask --app $BASE/geneapp/GeneAPPServer run --port $PORT --host $HOST
 
 [ $PRD ] && mod_wsgi-express setup-server $LOCAL/wsgi.py \
      --host $HOST --port $PORT \
@@ -197,7 +202,7 @@ rodar & limpar &
      --processes 10 \
      --limit-request-body $BODYSIZE \
      --server-root $BASE/wsgi \
-     --python-path $BASE/venv/lib/python3.7/site-packages \
+     --python-path $BASE/venv/lib/`ls -1 $BASE/venv/lib/ | grep python3 | head -1`/site-packages \
      --python-path $BASE/geneapp \
      --process-name GeneAPPServer$VERSAO 
 
