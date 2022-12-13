@@ -1,85 +1,14 @@
-#!/bin/bash
-
-## usage: rm -rf workdir && ./geneapp.sh -d `pwd`/workdir
-## scp -i Downloads/MacAWS.pem local/capitulo3/GeneAPP/public/data/geneapp.sh admin@ec2-54-167-115-1.compute-1.amazonaws.com:
-
-##  GeneAPPServer (microservice)
-##  --------\
-##          |
-##          |------ Flask WSGI :80 => to handle process
-##          |
-##          |------ Clear          => to clear old data (>7days) 
-##          |
-##          |------ Rodar          => to call process for integration data
-##
-
-BASE=$1
-IPSCAN=$2
-LIMIT=$3
-SERVER=$4
-BODYSIZE=$5
-HOST=$6
-PORT=$7
-DEV=$8
-PRD=$9
-
-LOCAL=$BASE/geneapp
-mkdir $LOCAL && cp $BASE/GeneAPP/public/data/process.sh $LOCAL/RUN.sh
-echo "import sys" > $LOCAL/wsgi.py
-echo "from geneapp import app" >> $LOCAL/wsgi.py
-echo "application = app" >> $LOCAL/wsgi.py
-
-WRK=$BASE/workdir
-mkdir -p $WRK/data && mkdir $WRK/runs
-
-
-rodar() {
-    while [ -d $WRK/runs ]
-    do  
-        (( `ls -1 $WRK/runs | grep -c . ` > 0 )) && \
-        for process in $WRK/runs/* 
-        do  DATATMP=`head -1 $process`
-            echo count >> $DATATMP/waits
-            ## limit 10 min p rodar
-            (( `grep -c . $DATATMP/waits` > 100 )) && rm -rf $process $DATATMP && continue
-            [ -f $DATATMP/checkpoint1 ] && $LOCAL/RUN.sh $DATATMP >> $process
-            if  [[ `grep @VALIDADO@ $process` ]]
-                then echo "RODANDO $process em $DATATMP ..."
-                touch $DATATMP/checkpoint2
-                bash $LOCAL/RUN.sh $DATATMP $BASE/venv/bin/activate $IPSCAN >> $process
-                cp $process $DATATMP
-                rm -rf $process
-                touch $DATATMP/checkpoint3
-                [ -d $DATATMP/public ] && tar cvfj $DATATMP/public.tbz2 $DATATMP/public
-                [ -f $DATATMP/public.tbz2 ] && mv $DATATMP/public.tbz2 $DATATMP/public/all.tbz2
-            else
-                [ -f $DATATMP/checkpoint1 ] && rm -rf $DATATMP/checkpoint1
-            fi
-        done
-        sleep 6
-    done 1>> $LOCAL/works.log.txt 2>> $LOCAL/works.err.txt
-}
-
-limpar() {
-    while [ -d $WRK/data ]
-    do  echo "executando limpeza em $WRK/data/* ..."
-        find $WRK/data/* -type d -ctime +7 -exec rm -rf {} \;
-        sleep 1d
-    done 1>> $LOCAL/works.log.txt 2>> $LOCAL/works.err.txt
-}
-
-rodar & limpar &
-
-cat > $LOCAL/geneapp.py <<EOL
 from flask import Flask, request, abort, send_file
-from flask_cors import CORS
+#from flask_cors import CORS
 import uuid
 import os
+import sys
 import shutil
 from datetime import datetime
 
-LIMIT = $LIMIT
-LOCAL = "$WRK"
+LOCAL = sys.argv[0]
+LIMIT = sys.argv[1]
+SERVER = sys.argv[2]
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100000000
@@ -87,7 +16,7 @@ app.config["MAX_CONTENT_LENGTH"] = 100000000
 
 @app.route("/server")
 def server():
-    return {"servidor": $SERVER , "slots": $LIMIT-len(os.listdir(f"{LOCAL}/runs"))}
+    return {"servidor": SERVER , "slots": LIMIT-len(os.listdir(f"{LOCAL}/runs"))}
 
 @app.route("/projeto", methods=["POST"])
 def projeto():
@@ -107,7 +36,7 @@ def projeto():
     return { 
               "projeto":  id, 
               "path":  local, 
-              "servidor": $SERVER 
+              "servidor": SERVER 
             }  
 
 ## Carregar arquivos
@@ -247,25 +176,3 @@ def zipar(local, projeto):
     path = f"{LOCAL}/data/{local}/{projeto}/public/all.tbz2"
     assert os.path.exists(path)
     return send_file(path, as_attachment=True)
-
-EOL
-
-[ $DEV ] && flask --app $BASE/geneapp/geneapp run --port $PORT --host $HOST
-
-[ $PRD ] && mod_wsgi-express setup-server $LOCAL/wsgi.py \
-     --host $HOST --port $PORT \
-     --user geneapp \
-     --processes 10 \
-     --limit-request-body $BODYSIZE \
-     --server-root $BASE/wsgi \
-     --python-path $BASE/venv/lib/python3.7/site-packages \
-     --python-path $BASE/geneapp \
-     --process-name GeneAPPServer$VERSAO
-
-[ $PRD ] && $BASE/wsgi/apachectl start \
-   && (( `sleep 10 && netstat -pln 2>/dev/null | grep tcp | grep $PORT | grep -c GeneAPPServer` > 0 ))  \
-   && echo GeneAPPServer executando OK || echo error
-
-echo "Deploy terminado `date +%d/%m\ %H:%M`"
-
-wait

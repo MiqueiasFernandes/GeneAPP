@@ -1,6 +1,16 @@
 #!/bin/bash
 ## usage:
-## curl -s https://raw.githubusercontent.com/MiqueiasFernandes/GeneAPP/main/public/data/deploy-bioinfo.sh | bash -
+## curl -s https://raw.githubusercontent.com/MiqueiasFernandes/GeneAPP/main/public/data/deploy-bioinfo.sh | bash -s - -x 1
+
+##  GeneAPPServer (microservice)
+##  --------\
+##          |
+##          |------ Flask WSGI :80 => to handle process
+##          |
+##          |------ Clear          => to clear old data (>7days) 
+##          |
+##          |------ Rodar          => to call process for integration data
+##
 
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## configurar o ambiente bioinfo ## ## ## ## ## ## ## ##
@@ -122,5 +132,70 @@ pip install mod_wsgi --global-option=build_ext --global-option="-L$DIR/Python-3.
 pip install flask flask-cors biopython
 
 ## 2) levantar o flask na port 5001
-bash $BASE/GeneAPP/public/data/GeneAPPServer.sh \
-        $BASE $IPSCAN $LIMIT $SERVER $BODYSIZE $HOST $PORT $DEV $PRD
+LOCAL=$BASE/geneapp
+mkdir $LOCAL 
+cp $BASE/GeneAPP/public/data/process.sh $LOCAL/RUN.sh
+cp $BASE/GeneAPP/public/data/GeneAPPServer.py $LOCAL
+echo "import sys" > $LOCAL/wsgi.py
+echo "from GeneAPPServer import app" >> $LOCAL/wsgi.py
+echo "application = app" >> $LOCAL/wsgi.py
+
+WRK=$BASE/workdir
+mkdir -p $WRK/data && mkdir $WRK/runs
+
+rodar() {
+    while [ -d $WRK/runs ]
+    do  
+        (( `ls -1 $WRK/runs | grep -c . ` > 0 )) && \
+        for process in $WRK/runs/* 
+        do  DATATMP=`head -1 $process`
+            echo count >> $DATATMP/waits
+            ## limit 10 min p rodar
+            (( `grep -c . $DATATMP/waits` > 100 )) && rm -rf $process $DATATMP && continue
+            [ -f $DATATMP/checkpoint1 ] && $LOCAL/RUN.sh $DATATMP >> $process
+            if  [[ `grep @VALIDADO@ $process` ]]
+                then echo "RODANDO $process em $DATATMP ..."
+                touch $DATATMP/checkpoint2
+                bash $LOCAL/RUN.sh $DATATMP $BASE/venv/bin/activate $IPSCAN >> $process
+                cp $process $DATATMP
+                rm -rf $process
+                touch $DATATMP/checkpoint3
+                [ -d $DATATMP/public ] && tar cvfj $DATATMP/public.tbz2 $DATATMP/public
+                [ -f $DATATMP/public.tbz2 ] && mv $DATATMP/public.tbz2 $DATATMP/public/all.tbz2
+            else
+                [ -f $DATATMP/checkpoint1 ] && rm -rf $DATATMP/checkpoint1
+            fi
+        done
+        sleep 6
+    done 1>> $LOCAL/works.log.txt 2>> $LOCAL/works.err.txt
+}
+
+limpar() {
+    while [ -d $WRK/data ]
+    do  echo "executando limpeza em $WRK/data/* ..."
+        find $WRK/data/* -type d -ctime +7 -exec rm -rf {} \;
+        sleep 1d
+    done 1>> $LOCAL/works.log.txt 2>> $LOCAL/works.err.txt
+}
+
+rodar & limpar &
+
+[ $DEV ] && flask --app $BASE/geneapp/geneapp run --port $PORT --host $HOST
+
+[ $PRD ] && mod_wsgi-express setup-server $LOCAL/wsgi.py \
+     --host $HOST --port $PORT \
+     --user geneapp \
+     --processes 10 \
+     --limit-request-body $BODYSIZE \
+     --server-root $BASE/wsgi \
+     --python-path $BASE/venv/lib/python3.7/site-packages \
+     --python-path $BASE/geneapp \
+     --process-name GeneAPPServer$VERSAO
+
+[ $PRD ] && $BASE/wsgi/apachectl start \
+   && (( `sleep 10 && netstat -pln 2>/dev/null | grep tcp | grep $PORT | grep -c GeneAPPServer` > 0 ))  \
+   && echo GeneAPPServer executando OK || echo error
+
+echo "Deploy terminado `date +%d/%m\ %H:%M`"
+
+wait

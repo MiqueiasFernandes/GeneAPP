@@ -139,7 +139,7 @@ onMounted(carregar)
           <template v-if="PROJETO.online.status && PROJETO.online.status.includes('all.tbz2')">
             arquivos processados com sucesso!
 <br />
-            <a class="bg-indigo-700 text-white rounded p-2" :href="`http://geneappserver9.mikeias.net/${PROJETO.online.path}/${PROJETO.online.projeto}`">Baixar todos arquivos zipados</a>
+            <a class="bg-indigo-700 text-white rounded p-2" :href="`http://bioinfo.icb.ufmg.br/geneappserver/zip/${PROJETO.online.path}/${PROJETO.online.projeto}`">Baixar todos arquivos zipados</a>
 
             <ul>
               <li v-for="f in PROJETO.online.status.filter(x => x.includes('part') && x.includes('.geneapp'))">{{f}}</li>
