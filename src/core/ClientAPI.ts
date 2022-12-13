@@ -158,14 +158,15 @@ export function getInterpro2GO() {
 
 export function findServer(id = null): Promise<{ host: string }> {
     return new Promise((resolve, reject) => {
-        const tt = (s1, s2) => axios.get(`http://geneappserver${s1}.mikeias.net/server`)
-            .then(r =>
-                ((!id && r.data.slots > 0) || (id && r.data.servidor === id)) ?
-                    resolve(Object.assign(r.data, { host: `http://geneappserver${s1}.mikeias.net` }))
-                    : (s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
-            )
-            .catch(_ => s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
-        tt(9, [7, [2, [6, [5, [4, [3, [8, [1, [0]]]]]]]]])
+        resolve({host: 'http://bioinfo.icb.ufmg.br/geneappserver'})
+        // const tt = (s1, s2) => axios.get(`http://geneappserver${s1}.mikeias.net/server`)
+        //     .then(r =>
+        //         ((!id && r.data.slots > 0) || (id && r.data.servidor === id)) ?
+        //             resolve(Object.assign(r.data, { host: `http://geneappserver${s1}.mikeias.net` }))
+        //             : (s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
+        //     )
+        //     .catch(_ => s2 ? tt(s2[0], s2.length > 1 ? s2[1] : null) : reject())
+        // tt(9, [7, [2, [6, [5, [4, [3, [8, [1, [0]]]]]]]]])
     })
 }
 
