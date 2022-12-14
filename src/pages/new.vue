@@ -87,24 +87,18 @@ function carregar() {
         .then(res => {
           PROJETO.online = { path, projeto: proj, status: res.data.status }
           PROJETO.nome = query.projeto
-
-          switch (res.data.checks.length) {
-            case 1:
-              //console.log('aguardando')
-            case 2:
-              //console.log('executando')
-            case 3:
-              //console.log('comprimindo')
-            case 4:
-              //console.log('finalizado')
-              PROJETO.online.processandook = true
-              getstatus();
-              break;
-            default:
-              console.log('sem arquivo')
-              break;
+          if (res.data.checks.length > 0) {
+            //case 1:
+            //console.log('aguardando')
+            //case 2:
+            //console.log('executando')
+            //case 3:
+            //console.log('comprimindo')
+            //case 4:
+            //console.log('finalizado')
+            PROJETO.online.processandook = true
           }
-
+          getstatus();
           notificar(LINGUAGEM.value.traduzir('Projeto importado com sucesso!'), 'success', 10)
         }).catch(_ => {
           router.push({ path: 'new', query: { projeto: undefined } })
@@ -133,11 +127,18 @@ function upload() {
       PROJETO.online.loading = true
       PROJETO.online.processando = false
       upFile(PROJETO.online, PROJETO.online.path, file).then(res => {
-        projeto.online.upload = res.data.ok
-        projeto.online.falta = res.data.falta
+        projeto.online.upload = res.data.ok.filter(x => !['waits'].includes(x))
+        projeto.online.falta = res.data.falta.filter(x => ![
+          'multiqc_general_stats.txt.csv', 'all_as_isoforms.txt',
+          'das_genes.inline', 'gene2mrna2cds2ptn.csv', ,
+          'gene.gff.min', 'ptnas.inline', 'resumo.txt', 'ri_psc.csv'
+        ].includes(x))
         notificar(`${file.name} ${LINGUAGEM.value.traduzir('Arquivo carregado!')}`, 'success', 10)
         PROJETO.online.loading = false
         PROJETO.online.podeproc = true
+      }).catch(_ => {
+        PROJETO.online.loading = false
+        getstatus()
       })
     })
   }, true)
@@ -147,17 +148,24 @@ function rodar() {
   PROJETO.online.processando = true
   process(PROJETO.online)
     .then(res => {
-      if (res.data.status === 'OK')
+      if (res.data.status === 'OK') {
         PROJETO.online.processandook = true
+        PROJETO.online.tm = setInterval(getstatus, 5000);
+      }
     }).catch(_ => (PROJETO.online.processando = false))
 }
 
 function getstatus() {
-  if (PROJETO.online.processando)
-    status(PROJETO.online)
-      .then(res => {
-        PROJETO.online.status = res.data.status
-      }).catch(_ => (PROJETO.online.processando = false))
+  // if (PROJETO.online.processando)
+  status(PROJETO.online)
+    .then(res => {
+      PROJETO.online.upload = res.data.files ? res.data.files.filter(x => !['waits'].includes(x)) : []
+      PROJETO.online.status = res.data.status
+      if (PROJETO.online.upload && PROJETO.online.upload.length > 2)
+        PROJETO.online.podeproc = true
+      if (PROJETO.online.terminou = PROJETO.online.status.includes('geneapp.tbz2'))
+        clearInterval(PROJETO.online.tm)
+    }).catch(_ => (PROJETO.online.processando = false))
 }
 
 onBeforeMount(() => projeto.reset())
@@ -170,24 +178,28 @@ onMounted(carregar)
     <div class="mx-auto w-full max-w-xl rounded-2xl p-8">
 
 
-      <Sanfona class="sahdow" titulo="Carregar dados" :opened="sanfona_st === 2" @open="(s) => (s && (sanfona_st = 2))">
-      
-      <template v-if="PROJETO.online && PROJETO.online.processandook">
-          <template v-if="PROJETO.online.status && PROJETO.online.status.includes('all.tbz2')">
-            arquivos processados com sucesso!
-            <br />
-            <a class="bg-indigo-700 text-white rounded p-2"
-              :href="`http://bioinfo.icb.ufmg.br/geneappserver/zip/${PROJETO.online.path}/${PROJETO.online.projeto}`">Baixar
-              todos arquivos zipados</a>
+      <Sanfona class="sahdow" titulo="Enriquecer dados" :opened="sanfona_st === 2"
+        @open="(s) => (s && (sanfona_st = 2))">
 
-            <ul>
+        <template v-if="PROJETO.online && PROJETO.online.processandook">
+
+          <template v-if="PROJETO.online.terminou">
+            arquivos processados com sucesso!
+
+            <p class="mt-2 mb-4">
+              <a class="bg-indigo-700 text-white rounded p-2 hover:bg-indigo-500"
+                :href="`${PROJETO.online.host}/zip/${PROJETO.online.path}/${PROJETO.online.projeto}`">
+                <Texto>Baixar todos arquivos zipados</Texto>
+              </a>
+            </p>
+            <!-- <ul>
               <li v-for="f in PROJETO.online.status.filter(x => x.includes('part') && x.includes('.geneapp'))">{{ f }}
               </li>
-            </ul>
+            </ul> -->
           </template>
           <template v-else>
             <Button color="acent" @click="getstatus">
-              <CogIcon class="-ml-1 mr-2 h-5 w-5 animate-spin" style="animation-duration: 3s;" />
+              <CogIcon class="-ml-1 mr-2 h-5 w-5 animate-spin" style="animation-duration: 6s;" />
               <Texto>Status</Texto>
             </Button>
             processando os arquivos no servidor...
@@ -223,10 +235,10 @@ onMounted(carregar)
 
             <ul class="list-disc px-4">
               <li class="text-amber-700 font-bold" v-for="f in PROJETO.online.falta">{{ f }}
-           
-                  <StatusOnlineIcon  v-if="PROJETO.online.floading && PROJETO.online.floading.some(x => x.includes(f))"
-                   class="-ml-1 mr-2 h-5 w-5 animate-spin inline" style="animation-duration: 3s;" />
-              
+
+                <StatusOnlineIcon v-if="PROJETO.online.floading && PROJETO.online.floading.some(x => x.includes(f))"
+                  class="-ml-1 mr-2 h-5 w-5 animate-spin inline" style="animation-duration: 3s;" />
+
               </li>
               <li class="text-lime-700" v-for="f in PROJETO.online.upload">{{ f }}
               </li>
@@ -244,7 +256,7 @@ onMounted(carregar)
         </template>
       </Sanfona>
 
-      <Sanfona class="sahdow" titulo="Configurar o projeto" :opened="true" @open="(s) => (s && (sanfona_st = 1))">
+      <Sanfona class="sahdow" titulo="Carregar o projeto" :opened="true" @open="(s) => (s && (sanfona_st = 1))">
         <FormRow>
           <FormCol>
             <FormInputText :label="LINGUAGEM.traduzir('Nome do projeto')" :content="projeto.nome"

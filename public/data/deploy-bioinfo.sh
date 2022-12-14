@@ -26,7 +26,7 @@ USER=geneapp
 IPSCAN=/home/geneapp/interproscan-5.59-91.0/interproscan.sh
 SERVER=101
 DEV=1
-DEV_IP=192.168.64.2
+DEV_IP="192.168.64.2"
 
 cd ~
 
@@ -38,7 +38,7 @@ then
       exit
 fi
 
-while getopts h:p:l:x:u:i:s: opts; do
+while getopts h:p:l:x:u:i:s:d: opts; do
     case ${opts} in
         h) HOST=${OPTARG} ;;
         p) PORT=${OPTARG} ;;
@@ -47,6 +47,7 @@ while getopts h:p:l:x:u:i:s: opts; do
         u) USER=${OPTARG} ;;
         i) IPSCAN=${OPTARG} ;;
         s) SERVER=${OPTARG} ;;
+        d) DEV_IP=${OPTARG} ;;
     esac
 done
 
@@ -80,7 +81,7 @@ echo "Started deploy at `date +%d/%m\ %H:%M`"
 cd GeneAPP || exit
 ## Alterar o vue para as paginas reconhecerem 
 sed -i 's/"\/"/"\/geneapp\/"/' src/main.js
-[ $DEV ] && sed -i "s/GENEAPP_API=.*/GENEAPP_API=\'$DEV_IP\'/" src/core/ClientAPI.ts
+[ $DEV ] && sed -i "s/.*GENEAPP_API=.*/const GENEAPP_API=\'$DEV_IP\'/" src/core/ClientAPI.ts
 ## Compilar e colocar na pasta (node > 16!!)
 npm i node@16 && npm run build -- --base=/geneapp/
 ## Copiar o app para dentro da pasta (chown ...)
@@ -144,7 +145,7 @@ pip install flask flask-cors biopython
 ## 2) levantar o flask na port 5001
 LOCAL=$BASE/geneapp
 mkdir $LOCAL 
-cp $BASE/GeneAPP/public/data/process.sh $LOCAL/RUN.sh
+cp $BASE/GeneAPP/public/data/GeneAPPServer.sh $LOCAL/RUN.sh
 cp $BASE/GeneAPP/public/data/GeneAPPServer.py $LOCAL
 
 WRK=$BASE/workdir
@@ -176,8 +177,10 @@ rodar() {
                 cp $process $DATATMP
                 rm -rf $process
                 touch $DATATMP/checkpoint3
-                [ -d $DATATMP/public ] && tar cvfj $DATATMP/public.tbz2 $DATATMP/public
-                [ -f $DATATMP/public.tbz2 ] && mv $DATATMP/public.tbz2 $DATATMP/public/all.tbz2
+                PROJ=GeneAPP_`head -1 $DATATMP/projeto`_proj
+                [ -d $DATATMP/public ] && mkdir $PROJ && cp $DATATMP/public/part*.geneapp $PROJ
+                [ -d $DATATMP/public ] && tar cvfj $DATATMP/public/geneapp.tbz2 $PROJ
+                rm -rf $PROJ
                 touch $DATATMP/checkpoint4
             else
                 [ -f $DATATMP/checkpoint1 ] && rm -rf $DATATMP/checkpoint1

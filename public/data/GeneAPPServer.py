@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, abort, send_file
-from flask_cors import CORS
+#from flask_cors import CORS
 import uuid
 import os
 import shutil
@@ -26,7 +26,7 @@ starting GeneAPPServer {datetime.today().strftime('%Y-%m-%d %HH%M')} ....
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100000000
-CORS(app)
+#CORS(app)
 
 
 @app.route("/server")
@@ -50,6 +50,7 @@ def projeto():
     #assert lns[0] == 'RUN,SAMPLE,FACTOR,FOLDER\n'
     #assert all([max(l) < 1000 and l.count(',') == 3 for l in lns])
     open(f"{LOCAL}/runs/{id}", "w").write(f"{data}\n")
+    open(f"{data}/projeto", "w").write(f"{local}-{id}")
     return {
         "projeto":  id,
         "path":  local,
@@ -156,7 +157,7 @@ def status(local, projeto):
     sf = f"{LOCAL}/runs/{projeto}"
     # ver se o arq de log existe pq ta rodando
     if os.path.exists(sf):
-        return {"status": [l.strip() for l in open(sf).readlines()], "checks": checks}
+        return {"status": [l.strip() for l in open(sf).readlines()], "checks": checks, 'files': os.listdir(path)}
     # se nao existe retornar o path de resultados se existe
     sf = f"{path}/{projeto}"
     if os.path.exists(sf):
@@ -204,6 +205,7 @@ def result(local, projeto, filea, fileb):
 @app.route("/zip/<local>/<projeto>")
 def zipar(local, projeto):
     # limitar consumo diario de dados
-    path = f"{LOCAL}/data/{local}/{projeto}/public/all.tbz2"
-    assert os.path.exists(path)
+    path = f"{LOCAL}/data/{local}/{projeto}/public/geneapp.tbz2"
+    if not os.path.exists(path):
+        abort(404)
     return send_file(path, as_attachment=True)
