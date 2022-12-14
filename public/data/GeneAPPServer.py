@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, abort, send_file
-#from flask_cors import CORS
+from flask_cors import CORS
 import uuid
 import os
 import shutil
@@ -9,7 +9,7 @@ from datetime import datetime
 LOCAL = os.getenv('WRKDIR')
 LIMIT = int(os.getenv('SLOTS', '0'))
 SERVER = int(os.getenv('SERVER', '0'))
-assert LIMIT >0 and SERVER >0
+assert LIMIT > 0 and SERVER > 0
 
 print(f"""
 starting GeneAPPServer {datetime.today().strftime('%Y-%m-%d %HH%M')} ....
@@ -26,7 +26,7 @@ starting GeneAPPServer {datetime.today().strftime('%Y-%m-%d %HH%M')} ....
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 100000000
-# CORS(app)
+CORS(app)
 
 
 @app.route("/server")
@@ -151,15 +151,19 @@ def arquivos():
 def status(local, projeto):
     path = f"{LOCAL}/data/{local}/{projeto}"
     if not os.path.isdir(path):
-        abort(400)
+        abort(404)
+    checks = [f for f in os.listdir(path) if f.startswith('checkpoint')]
     sf = f"{LOCAL}/runs/{projeto}"
     # ver se o arq de log existe pq ta rodando
     if os.path.exists(sf):
-        return {"status": [l.strip() for l in open(sf).readlines()]}
+        return {"status": [l.strip() for l in open(sf).readlines()], "checks": checks}
     # se nao existe retornar o path de resultados se existe
     sf = f"{path}/{projeto}"
     if os.path.exists(sf):
-        return {"status": [l.strip() for l in open(sf).readlines()] + os.listdir(f"{path}/public")}
+        return {
+            "status": [l.strip() for l in open(sf).readlines()] + os.listdir(f"{path}/public"),
+            "checks": checks
+        }
     # se nao existe retonar erro de falha
     return {"status": ["ERROR"]}
 

@@ -12,15 +12,16 @@
 </route>
       
 <script setup>
-import { ColorSwatchIcon, CogIcon } from '@heroicons/vue/solid';
+import { ColorSwatchIcon, CogIcon, StatusOnlineIcon } from '@heroicons/vue/solid';
 import { Arquivo } from '../core/utils/Arquivo';
 import { PROJETO, MODALS, notificar, LINGUAGEM } from "../core/State";
 import { onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router'
-import { mkProj, upFile, process, status } from '../core/ClientAPI'
+import { useRoute, useRouter } from 'vue-router'
+import { mkProj, upFile, process, status, findProj } from '../core/ClientAPI'
 
 useHead({ title: LINGUAGEM.value.traduzir('New Project') });
 const route = useRoute()
+const router = useRouter()
 const query = route.query
 const projeto = PROJETO;
 const percent = ref(-1);
@@ -77,23 +78,58 @@ function carregar() {
   if (query.create && query.create === 'new') {
     setTimeout(importar, 500);
   }
+  if (query.projeto && query.projeto.includes('-')) {
+    const parts = query.projeto.split('-')
+    if (parts.length === 8) {
+      const path = parts.slice(0, 3).join('-')
+      const proj = parts.slice(3).join('-')
+      findProj(path, proj)
+        .then(res => {
+          PROJETO.online = { path, projeto: proj, status: res.data.status }
+          PROJETO.nome = query.projeto
+
+          switch (res.data.checks.length) {
+            case 1:
+              //console.log('aguardando')
+            case 2:
+              //console.log('executando')
+            case 3:
+              //console.log('comprimindo')
+            case 4:
+              //console.log('finalizado')
+              PROJETO.online.processandook = true
+              getstatus();
+              break;
+            default:
+              console.log('sem arquivo')
+              break;
+          }
+
+          notificar(LINGUAGEM.value.traduzir('Projeto importado com sucesso!'), 'success', 10)
+        }).catch(_ => {
+          router.push({ path: 'new', query: { projeto: undefined } })
+        })
+    }
+  }
 }
 
 function criar_projeto() {
   PROJETO.online = { loading: true }
   Arquivo.inputFile(files => {
     mkProj(files[0]).then(res => {
-      console.log(res.data)
       PROJETO.online = res.data
-      PROJETO.nome = res.data.projeto
+      PROJETO.nome = res.data.path + '-' + res.data.projeto
+      router.push({ path: 'new', query: { projeto: PROJETO.nome } })
       notificar(LINGUAGEM.value.traduzir('Projeto criado com sucesso!'), 'success', 10)
     }).catch(_ => (PROJETO.online.loading = false))
   })
 }
 
 function upload() {
+  PROJETO.online.floading = []
   Arquivo.inputFile(files => {
     files.forEach(file => {
+      PROJETO.online.floading.push(file.name)
       PROJETO.online.loading = true
       PROJETO.online.processando = false
       upFile(PROJETO.online, PROJETO.online.path, file).then(res => {
@@ -135,14 +171,18 @@ onMounted(carregar)
 
 
       <Sanfona class="sahdow" titulo="Carregar dados" :opened="sanfona_st === 2" @open="(s) => (s && (sanfona_st = 2))">
-        <template v-if="PROJETO.online && PROJETO.online.processandook">
+      
+      <template v-if="PROJETO.online && PROJETO.online.processandook">
           <template v-if="PROJETO.online.status && PROJETO.online.status.includes('all.tbz2')">
             arquivos processados com sucesso!
-<br />
-            <a class="bg-indigo-700 text-white rounded p-2" :href="`http://bioinfo.icb.ufmg.br/geneappserver/zip/${PROJETO.online.path}/${PROJETO.online.projeto}`">Baixar todos arquivos zipados</a>
+            <br />
+            <a class="bg-indigo-700 text-white rounded p-2"
+              :href="`http://bioinfo.icb.ufmg.br/geneappserver/zip/${PROJETO.online.path}/${PROJETO.online.projeto}`">Baixar
+              todos arquivos zipados</a>
 
             <ul>
-              <li v-for="f in PROJETO.online.status.filter(x => x.includes('part') && x.includes('.geneapp'))">{{f}}</li>
+              <li v-for="f in PROJETO.online.status.filter(x => x.includes('part') && x.includes('.geneapp'))">{{ f }}
+              </li>
             </ul>
           </template>
           <template v-else>
@@ -182,8 +222,14 @@ onMounted(carregar)
             </FormRow>
 
             <ul class="list-disc px-4">
-              <li class="text-amber-700 font-bold" v-for="f in PROJETO.online.falta">{{ f }}</li>
-              <li class="text-lime-700" v-for="f in PROJETO.online.upload">{{ f }}</li>
+              <li class="text-amber-700 font-bold" v-for="f in PROJETO.online.falta">{{ f }}
+           
+                  <StatusOnlineIcon  v-if="PROJETO.online.floading && PROJETO.online.floading.some(x => x.includes(f))"
+                   class="-ml-1 mr-2 h-5 w-5 animate-spin inline" style="animation-duration: 3s;" />
+              
+              </li>
+              <li class="text-lime-700" v-for="f in PROJETO.online.upload">{{ f }}
+              </li>
             </ul>
 
             <FormRow v-if="PROJETO.online.podeproc && !PROJETO.online.loading">

@@ -1,7 +1,8 @@
 #!/bin/bash
-## usage:
+## usage PRD
 ## curl -s https://raw.githubusercontent.com/MiqueiasFernandes/GeneAPP/main/public/data/deploy-bioinfo.sh | bash -s - -x 1
-
+## usage DEV
+## rm -rf v* && bash ~/Home/local/capitulo3/GeneAPP/public/data/deploy-bioinfo.sh -u ubuntu -l 2 -s 103
 ##  GeneAPPServer (microservice)
 ##  --------\
 ##          |
@@ -73,8 +74,10 @@ echo "Started deploy at `date +%d/%m\ %H:%M`"
 ## ## ## ## ## ## ## ## ## implantar o GeneAPPExplorer ## ## ## ## ## ## ## ## #
 ## ## ## ## ## ## ## ## ## http://bioinfo.icb.ufmg.br/geneapp/ ## ## ## ## ## ##
 ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ## ##
-## Obter o projeto do github 
-git clone https://github.com/MiqueiasFernandes/GeneAPP/ && cd GeneAPP
+## Obter o projeto do github
+[ $DEV ] &&  cp -r ~/Home/local/capitulo3/GeneAPP/ .
+[ $PRD ] && git clone https://github.com/MiqueiasFernandes/GeneAPP/ 
+cd GeneAPP || exit
 ## Alterar o vue para as paginas reconhecerem 
 sed -i 's/"\/"/"\/geneapp\/"/' src/main.js
 [ $DEV ] && sed -i "s/GENEAPP_API=.*/GENEAPP_API=\'$DEV_IP\'/" src/core/ClientAPI.ts
@@ -175,6 +178,7 @@ rodar() {
                 touch $DATATMP/checkpoint3
                 [ -d $DATATMP/public ] && tar cvfj $DATATMP/public.tbz2 $DATATMP/public
                 [ -f $DATATMP/public.tbz2 ] && mv $DATATMP/public.tbz2 $DATATMP/public/all.tbz2
+                touch $DATATMP/checkpoint4
             else
                 [ -f $DATATMP/checkpoint1 ] && rm -rf $DATATMP/checkpoint1
             fi

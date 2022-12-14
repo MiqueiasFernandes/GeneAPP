@@ -156,7 +156,7 @@ export function getInterpro2GO() {
     )))
 }
 
-const GENEAPP_API="bioinfo.icb.ufmg.br"
+const GENEAPP_API="192.168.64.2"///bioinfo.icb.ufmg.br"
 
 export function findServer(id = null): Promise<{ host: string }> {
     return new Promise((resolve, reject) => {
@@ -199,5 +199,11 @@ export function process(proj) {
 export function status(proj) {
     return findServer(proj.servidor).then(s => {
         return axios.get(`${s.host}/status/${proj.path}/${proj.projeto}`)
+    })
+}
+
+export function findProj(path,proj) {
+    return findServer().then(s => {
+        return axios.get(`${s.host}/status/${path}/${proj}`)
     })
 }
