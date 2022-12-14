@@ -96,6 +96,7 @@ function carregar() {
             //console.log('comprimindo')
             //case 4:
             //console.log('finalizado')
+            PROJETO.online.tm = setInterval(getstatus, 5000);
             PROJETO.online.processandook = true
           }
           getstatus();
