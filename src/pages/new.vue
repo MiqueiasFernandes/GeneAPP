@@ -151,6 +151,8 @@ function rodar() {
     .then(res => {
       if (res.data.status === 'OK') {
         PROJETO.online.processandook = true
+        if (PROJETO.online.tm)
+          clearInterval(PROJETO.online.tm)
         PROJETO.online.tm = setInterval(getstatus, 5000);
       }
     }).catch(_ => (PROJETO.online.processando = false))
