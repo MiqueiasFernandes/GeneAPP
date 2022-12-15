@@ -164,7 +164,9 @@ function getstatus() {
       PROJETO.online.status = res.data.status
       if (PROJETO.online.upload && PROJETO.online.upload.length > 2)
         PROJETO.online.podeproc = true
-      if (PROJETO.online.terminou = PROJETO.online.status.includes('checkpoint4'))
+      if (PROJETO.online.terminou = (
+        (PROJETO.online.status && PROJETO.online.status.includes('checkpoint4')) || (
+          (res.data.checks && res.data.checks.includes('checkpoint4')))))
         clearInterval(PROJETO.online.tm)
     }).catch(_ => (PROJETO.online.processando = false))
 }
