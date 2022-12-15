@@ -217,8 +217,8 @@ rodar & limpar &
 
 [ $PRD ] && $BASE/wsgi/apachectl start \
    && (( `sleep 10 && netstat -pln 2>/dev/null | grep tcp | grep $PORT | grep -c GeneAPP` > 0 ))  \
-   && (( `curl -s 'http://$HOST:$PORT/server' | grep -c slots ` > 0)) \
-   && echo GeneAPPServer executando OK || echo error
+   && (( `curl -s $HOST:$PORT/server | grep -c slots ` >  0 )) \
+   && echo "GeneAPPServer executando OK" || echo "ERRO GeneAPPServer NOT runinng"
 
 echo "Deploy terminado `date +%d/%m\ %H:%M`"
 
