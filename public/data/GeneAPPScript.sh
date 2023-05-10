@@ -96,7 +96,7 @@ preparar_ambiente() {
 
     # 3 = conferir se os prog foram instalados
     p=1
-    for prog in fastq-dump TrimmomaticPE fastqc salmon samtools bamtools hisat2 pip $FQDUMP curl wget R; do
+    for prog in TrimmomaticPE fastqc salmon samtools bamtools hisat2 pip $FQDUMP curl wget R; do
         if ! command -v $prog 1>/dev/null 2>/dev/null; then
             log 1 3 $p "ao instalar pacote $prog" "ERRO"
             ((p = p + 1))
