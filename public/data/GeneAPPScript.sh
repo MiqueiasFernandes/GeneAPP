@@ -110,7 +110,7 @@ preparar_ambiente() {
     echo "usando o hisat2 ! Versão: $(hisat2 --version | tr \\n \  | cut -c-50)" >>$RESUMO
     echo "usando o bamtools ! Versão: $(bamtools --version | tr \\n \  | cut -c-50)" >>$RESUMO
     echo "usando o samtools ! Versão: $(samtools --version | tr \\n \  | cut -c-50)" >>$RESUMO
-    echo "usando o sra-toolkit ! Versão: $(fastq-dump --version | tr \\n \ )" >>$RESUMO
+    ##echo "usando o sra-toolkit ! Versão: $(fastq-dump --version | tr \\n \ )" >>$RESUMO
     echo "usando o trimmomatic ! Versão: $(TrimmomaticPE -version | tr \\n \ )" >>$RESUMO
     echo "usando o fastqc ! Versão: $(fastqc --version | tr \\n \ )" >>$RESUMO
     log 1 3 0 "programas instalados"
