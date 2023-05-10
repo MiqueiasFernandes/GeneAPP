@@ -369,7 +369,8 @@ processar_sequencias() {
         gtf = 'gene.gtf' 
         if len(add_gen) > 0: print(len(add_gen), 'genes adicionados por $OUT_DIR/novel_as.txt') 
         if no_filter: print('MAPEANDO EM TODOS GENES')
-        gen_acecc = set(add_gen + [l.split('locus_tag=')[1].split()[0].replace(']', '') for l in open(cds).readlines() if l.startswith('>')]) 
+        tag = 'locus_tag=' if '[locus_tag=' in open(cds).readline() else 'gene='
+        gen_acecc = set(add_gen + [l.split(tag)[1].split()[0].replace(']', '') for l in open(cds).readlines() if l.startswith('>')]) 
         gns = [l.strip().split('\t') for l in open(gtf).readlines() if '\tgene\t' in l] 
         cords = [[x[0], int(x[3]), int(x[4]), x[6] == '+',  
                   [z.split('\"')[1] for z in [k.strip() for k in x[-1].split(';')] if z.startswith('gene_id \"') or z.startswith('gene \"')]+[''] 
