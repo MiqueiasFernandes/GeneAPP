@@ -316,7 +316,10 @@ processar_sequencias() {
         cds = 'cds.fa'
         seqs = [(l.strip(), l[1:-1].split()) for l in open(cds).readlines() if l.startswith('>')]
         print(len(seqs), 'sequencias de CDS')
-        pars = [[a, b[0], c] for a, b, c in [[x[0], [z for z in x if 'locus_tag=' in z], y] for y, x in seqs] if len(b) == 1] 
+        pars1 = [[a, b[0], c] for a, b, c in [[x[0], [z for z in x if 'locus_tag=' in z], y] for y, x in seqs] if len(b) == 1] 
+        pars2 = [[a, b[0], c] for a, b, c in [[x[0], [z for z in x if 'gene=' in z], y] for y, x in seqs] if len(b) == 1] 
+        pars =  pars1 if len(pars1) > 0 else pars2
+        tag = 'locus_tag=' if len(pars1) > 0 else 'gene='
         conts = {g: [0, []] for g in set([x[1] for x in pars])}
         print(len(conts), 'genes')
         for a, b, c in pars:
@@ -338,7 +341,7 @@ processar_sequencias() {
           if l.startswith('>'):
             k = l.strip() in ok
             if k:
-              genetrn.append(f\"{l[1:].split()[0]},{l.split('locus_tag=')[1].split(']')[0].strip()}{os.linesep}\")
+              genetrn.append(f\"{l[1:].split()[0]},{l.split(tag)[1].split(']')[0].strip()}{os.linesep}\")
           if k: \n\
             as_cds.append(l)
         open(cds, 'w').writelines(as_cds)
