@@ -182,7 +182,12 @@ onMounted(() => {
       </span>
     </div>
     <div class="px-4 py-4 flex justify-center">
-      <span class="text-xl font-extrabold">
+      <span class="text-lg font-extrabold">
+        <Texto>Direitos registrados a UFMG & UFV - permitido uso apenas não comercial - para fins de pesquisa</Texto>
+      </span>
+    </div>
+    <div class="px-4 py-4 flex justify-center">
+      <span class="text-sm font-extrabold">
         <Texto>Desenvolvido para o capitulo III da tese de doutorado de MF submetida ao PPG Bioinformatica ICB/UFMG</Texto>
       </span>
     </div>

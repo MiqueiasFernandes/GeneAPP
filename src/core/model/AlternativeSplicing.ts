@@ -158,18 +158,26 @@ export class ASrmats extends AlternativeSplicing {
 
         if (this.tipo === 'RI') {
             cand.forEach(([a, b]) => { /////                      o intron tem que estar dentro do evento
-                const validRI = (i: Intron) => this.extra['AS_SITE_START'] <= i.start && i.end <= this.extra['AS_SITE_END']
-                const isRI = (i: Intron, es: Exon[]) => es.some(e => e.start <= i.start && e.end >= i.end) && validRI(i)
-                if (a.getIntrons().some(i => isRI(i, b.getExons())) || b.getIntrons().some(i => isRI(i, a.getExons())))
-                    ret.push([a, b])
+                try {
+                    const validRI = (i: Intron) => this.extra['AS_SITE_START'] <= i.start && i.end <= this.extra['AS_SITE_END']
+                    const isRI = (i: Intron, es: Exon[]) => es.some(e => e.start <= i.start && e.end >= i.end) && validRI(i)
+                    if (a.getIntrons().some(i => isRI(i, b.getExons())) || b.getIntrons().some(i => isRI(i, a.getExons())))
+                        ret.push([a, b])
+                } catch {
+                    console.warn('Falha ao processar', a, b)
+                }
             })
         }
         if (this.tipo === 'SE') {
             cand.forEach(([a, b]) => {
-                const validSE = (e: Exon) => this.extra['AS_SITE_START'] <= e.start && e.end <= this.extra['AS_SITE_END']
-                const isSE = (e: Exon, is: Intron[]) => is.some(i => i.start <= e.start && i.end >= e.end) && validSE(e)
-                if (a.getExons().some(e => isSE(e, b.getIntrons())) || b.getExons().some(e => isSE(e, a.getIntrons())))
-                    ret.push([a, b])
+                try {
+                    const validSE = (e: Exon) => this.extra['AS_SITE_START'] <= e.start && e.end <= this.extra['AS_SITE_END']
+                    const isSE = (e: Exon, is: Intron[]) => is.some(i => i.start <= e.start && i.end >= e.end) && validSE(e)
+                    if (a.getExons().some(e => isSE(e, b.getIntrons())) || b.getExons().some(e => isSE(e, a.getIntrons())))
+                        ret.push([a, b])
+                } catch {
+                    console.warn('Falha ao processar', a, b)
+                }
             })
         }
         return ret;

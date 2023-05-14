@@ -35,6 +35,8 @@ export class WordCloudPlot extends AbstractPlot {
         const rows = parseInt('' + 20 * qtd)
         const cols = parseInt('' + 10 * qtd)
         words = words.sort((b, a) => wconts[a].count - wconts[b].count).slice(0, rows * cols).sort()
+        if (words.length < 1)
+        return
         const menor = words.map(w => wconts[w].count).reduce((p, c) => p ? Math.min(p, c) : c)
         const maior = words.map(w => wconts[w].count).reduce((p, c) => Math.max(p, c), 0)
         const base = maior - menor;

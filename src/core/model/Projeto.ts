@@ -288,6 +288,8 @@ export class Projeto {
                         cromossomos[crh_nome] = new Cromossomo(crh_nome, locus.end + 1);
                         break;
                     case "gene":
+                        if (!cromossomos[crh_nome])
+                        cromossomos[crh_nome] = new Cromossomo(crh_nome, locus.end + 1000000000);
                         locus.meta['NID'] = locus.meta.ID.slice(this.gene_prefix);
                         if (!this.as_genes.includes(locus.meta['NID']))
                             break;
@@ -420,7 +422,7 @@ export class Projeto {
     }
 
     parseCobertura(files) {
-        this.part(files, 'cov_all.bed').map(x => x.split(',')).forEach(r => this.genes[r[1]].setBED(r));
+        this.part(files, 'cov_all.bed').map(x => x.split(',')).forEach(r => this.genes[r[1]] && this.genes[r[1]].setBED(r));
     }
 
     parse3D(files, headers): string {

@@ -572,6 +572,9 @@ function plotTr() {
         .filter(x => x && x[0].startsWith('IPR'))
         .map(x => ({ path: x[0], value: x[1][0], link: `https://www.ebi.ac.uk/interpro/entry/InterPro/${x[0]}/`, lab: x[1][1] }))
 
+    if (pfam.length < 1)
+    return
+
     plots['graphTr'] = new TreePlot('graphTr', ViewBox.fromSize(W * 2.5, H, Padding.simetric(0)))
         .plot(pfam);
 
@@ -725,7 +728,7 @@ function criar() {
         plotPTC();
         wordCloud();
         plotTr();
-        projeto.addResultados(Object.fromEntries(Object.entries(plots).filter(([_, X]) => X.download())
+        projeto.addResultados(Object.fromEntries(Object.entries(plots).filter(([_, X]) => X && X.download())
             .map(([K, V]) => [K + '.svg', {
                 data: V.download(), tipo: 'image/svg+xml'
             }])))
