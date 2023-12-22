@@ -1,4 +1,476 @@
 [
+    "Abrir menu principal",
+    "Open main menu",
+    
+    "Start",
+    "Start",
+    
+    "Events",
+    "Events",
+    
+    "Genes",
+    "Genes",
+    
+    "About",
+    "About",
+    
+    "Abrir opçoes do menu",
+    "Open menu options",
+    
+    "Ver opções",
+    "View options",
+    
+    "Versão",
+    "Version",
+    
+    "Direitos registrados a UFMG & UFV - permitido uso apenas não comercial - para fins de pesquisa",
+    "Rights registered to UFMG & UFV - allowed for non-commercial use only - for research purposes",
+    
+    "Desenvolvido para o capitulo III da tese de doutorado de MF submetida ao PPG Bioinformatica ICB/UFMG",
+    "Developed for Chapter III of MF's doctoral thesis submitted to PPG Bioinformatics ICB/UFMG",
+    
+    "O GeneAPP está preparado para trabalhar com multi-exons coding genes para os tipos de AS RI e SE principalmente.",
+    "GeneAPP is prepared to work with multi-exon coding genes for types of AS RI and SE mainly.",
+    
+    "Organismos",
+    "Organisms",
+    
+    "OK",
+    "OK",
+    
+    "About GeneAPP",
+    "About GeneAPP",
+  
+    "O GeneAPP (2022, Miquéias Fernandes e Edson Mario de Andrade Silva) surguiu de varios scripts que foram necessarios escrever para explorar os outputs de softwares de idenficacao de diffetential AS.",
+    "GeneAPP (2022, Miquéias Fernandes and Edson Mario de Andrade Silva) emerged from various scripts that were necessary to write to explore the outputs of software for the identification of differential AS.",
+    
+    "Alguns desses scripts estao no repositorio",
+    "Some of these scripts are in the repository",
+    
+    "e nos",
+    "and in the",
+    
+    "notebboks gerados",
+    "generated notebooks",
+    
+    "para uma analise do café.",
+    "for a coffee analysis.",
+    
+    "Agradeço aos binformatas que revisaram o GeneAPP: Édson M. A., Gustavo e Bruno.",
+    "I thank the bioinformaticians who reviewed GeneAPP: Édson M. A., Gustavo, and Bruno.",
+    
+    "O GeneAPP usa recursos de varios desenvolvedores, credios a:",
+    "GeneAPP uses resources from various developers, credits to:",
+    
+    "disponibilizou dados biologicos e programas",
+    "provided biological data and programs",
+    
+    "gera os dados de entrada",
+    "generates input data",
+    
+    "calcula a profundidade de reads",
+    "calculates read depth",
+    
+    "filtra eventos AS significativos",
+    "filters significant AS events",
+    
+    "gerou as imagens da pagina inicial",
+    "generated images for the home page",
+    
+    "desenho de graficos",
+    "graphic design",
+    
+    "infraestrutura para executar a analise de teste",
+    "infrastructure to run the test analysis",
+    
+    "hospedagem do WebAPP",
+    "WebAPP hosting",
+    
+    "plotagem dos graficos",
+    "plotting of graphics",
+    
+    "framework JS do APP",
+    "APP's JS framework",
+    
+    "framework css do APP",
+    "APP's CSS framework",
+ 
+    "icones do app",
+    "app icons",
+
+    "graficos do app",
+    "app graphics",
+    
+    "container do script do app",
+    "app script container",
+   
+    "Get started on GeneAPP",
+    "Get started on GeneAPP",
+
+    "1. Experimental design",
+    "1. Experimental design",
+ 
+    "Como fazer analise de DAS?",
+    "How to perform DAS analysis?",
+ 
+    "Conhecer o NCBI",
+    "Understanding NCBI",
+   
+    "O processamento alternativo do RNA mensageiro transcrito do gene nuclear, denominado alternative splicing (AS), é a transformação do transcrito primário em diferentes isoformas pelo spliceossomo ao alternar sítios do pre-mRNA entre essas isoformas.",
+    "The alternative processing of messenger RNA transcribed from the nuclear gene, known as alternative splicing (AS), is the transformation of the primary transcript into different isoforms by the spliceosome by alternating pre-mRNA sites between these isoforms.",
+    
+    "Esse mecanismo habilita os eucariotos, em seus genes multi-exons, estender a diversidade de seu transcriptoma e proteoma por meio de diferentes isoformas mesmo com um número limitado de genes.",
+    "This mechanism enables eukaryotes, in their multi-exon genes, to extend the diversity of their transcriptome and proteome through different isoforms even with a limited number of genes.",
+    
+    "O splicing alternativo diferencial (DAS) é obtido pelacomparacao do AS de 2 condicoes.",
+    "Differential alternative splicing (DAS) is obtained by comparing AS between 2 conditions.",
+    
+    "Para encontrar DAS, em primeiro momento sao obtidas replicatas biologicas do transcriptoma que sao sequenciadas e i) mapeadas ao genoma (mapeamento) ou ii) alinhadas ao transcriptoma para quantificar as isoformas.",
+    "To find DAS, initially, biological replicates of the transcriptome are obtained, which are sequenced and i) mapped to the genome (mapping) or ii) aligned to the transcriptome to quantify the isoforms.",
+    
+    "Essa analise exige bioinformatica especialmente na etapas finais finais de geracao de dados e exploracao dos resultados.",
+    "This analysis requires bioinformatics, especially in the final stage of data generation and exploration of results.",
+    
+    "Limitatacoes da analise de AS com high throughput short reads 1) a amostra pode nao conter o AS exemplo se a mostra de 4Gbp com 1M reads contem 2 AS do gene g uma amostra de 2Gbp tem 50% de probabilidade de ter os 2 AS nesse sentido maior Gbp define a melhor 2) mesmo se grande a amostra pode nao conter o AS: se nao captura-lo se o evento nao ocorrer na condicao analisada se nao tiver anotado e nao analisado AS 'de novo' (rMATS) 3) ao comparar CTRL/CASE amostras com DAS, CTRL pode ter canonico+AS e CASE nenhum 4) genes paralogos no genoma podem dificultar encontrar qual locus do gene de AS.",
+    "Limitations of AS analysis with high-throughput short reads: 1) the sample may not contain the AS example if a sample of 4Gbp with 1M reads contains 2 AS of gene g, a sample of 2Gbp has a 50% probability of having the 2 AS in that sense; more Gbp defines the better one. 2) even if large, the sample may not contain the AS: if it doesn't capture it, if the event doesn't occur in the analyzed condition, if it's not annotated, and not analyzed AS 'de novo' (rMATS). 3) when comparing CTRL/CASE samples with DAS, CTRL may have canonical+AS, and CASE none. 4) paralogous genes in the genome can make it difficult to find the locus of the AS gene.",
+    
+    "Tendo em vista que as analises de DAS exigem alta profundidade de sequenciamento e considerando que decadas atras o custo para gerar esse volume de dados com tecnologias de highthrougthput era alto as analises de DAS nao eram tao comumns quando comparada as de expresssao diferencial (DE).",
+    "Considering that DAS analyses require high sequencing depth and considering that decades ago the cost to generate this volume of data with high-throughput technologies was high, DAS analyses were not as common as differential expression (DE) analyses.",
+    
+    "Assim é possivel encontrar dados onde so foram analisados DE que podemos usar para tentar descobrir DAS extendendo as analised de DE.",
+    "Thus, it is possible to find data where only DE analyses have been performed that we can use to try to discover DAS by extending DE analyses.",
+    
+    "Nesse exemplo vamos utilizar parte dos dados brutos de um experimento publicado no NCBI de uma analise em Arabidosis thaliana. voce pode encontrar dados de plantas em bancos de dados publicos como ncbi, phytozome, ensemble e outros organism-spefice como solnetwork, guavadb ...",
+    "In this example, we will use part of the raw data from an experiment published on NCBI for an analysis on Arabidopsis thaliana. You can find plant data in public databases such as NCBI, Phytozome, Ensemble, and other organism-specific databases such as Solnetwork, Guavadb ...",
+    
+    "Selecione os dados que voce vai precisar para sua analise de splicing alternativo diferencial (DAS), a partir do NCBI ou de uma pasta local.",
+    "Select the data you will need for your differential alternative splicing (DAS) analysis, from NCBI or a local folder.",
+    
+    "Genoma:",
+    "Genome:",
+    
+    "Anotacao:",
+    "Annotation:",
+    
+    "Transcritos:",
+    "Transcripts:",
+    
+    "Amostras:",
+    "Samples:",
+    
+    "2. Gene APP Data Generation",
+    "2. Gene APP Data Generation",
+
+    "Como gerar dados para o GeneAPP?",
+    "How to generate data for GeneAPP?",
+    
+    "Clonar Notebook no Colab ",
+    "Clone Notebook in Colab",
+    
+    "Baixar Script",
+    "Download Script",
+    
+    "Com os dados definidos sera necerraio rodar softesres para descobrir o DAS e gerar consolidar os resultados para importar no GeneAPP.",
+    "With the defined data, it will be necessary to run software to discover DAS and generate and consolidate the results to import into GeneAPP.",
+    
+    "O GeneAPP pode explorar resultados de software de abordagem event=based (como rMTAS) e isoform-based (como 3DRNASeq). Para auxiliar na execucao dessas analises que exeige muitas linhas de comando para configuracao do ambiente e execucao dos programas, desenvolvi o pipeline as_data_gen.sh em bash script.",
+    "GeneAPP can explore results from event-based software (like rMTAS) and isoform-based software (like 3DRNASeq). To assist in the execution of these analyses that require many command lines for environment configuration and program execution, I developed the pipeline as_data_gen.sh in a bash script.",
+    
+    "Esse script pode ser obtido e executado em uma maquina local com s.o. LINUX, na nuvem, em cluster ou como nesse exemplo no Colab.",
+    "This script can be obtained and run on a local machine with LINUX OS, in the cloud, on a cluster, or, as in this example, in Colab.",
+    
+    "Para executar esse script o usuario deve passar os argumentos epxlicados a seguir.",
+    "To execute this script, the user must pass the arguments explained below.",
+    
+    "A proxima imagem e um print do codigo que deve ser digitado no Colab, para testar, pode-se clonar esse notebook pelo botao ao lado.",
+    "The next image is a screenshot of the code that must be typed in Colab. To test, you can clone this notebook using the button next to it.",
+    
+    "Importante observar que o script foi desenvolvido apenas para auxiliar o usuario, sendo necessario altrea-lo de acordo com as necessidades de cada experimento.",
+    "It is important to note that the script was developed only to assist the user and must be modified according to the needs of each experiment.",
+    
+    "Os softesres executados pelos scirpt possuem sua propria licenca, o usuario deve observar cada uma sob sua responsabilidade.",
+    "The software executed by the scripts has its own license, and the user must observe each one under their responsibility.",
+    
+    "Nesta linha o script é obtido diretamente do repositorio para rodar.",
+    "In this line, the script is obtained directly from the repository to run.",
+    
+    "o primeiro arqumento é a localizacao do genoma, pode passar a URL para que ele seja baixado ou o caminho do arquivo fasta que contem as sequencias de nucleotideos do genoma no computafdor onde o script sera executado.",
+    "The first argument is the location of the genome; you can pass the URL for it to be downloaded or the path to the FASTA file containing the nucleotide sequences of the genome on the computer where the script will be executed.",
+    
+    "agora eh o caminho do aruqivo da anotacao GTF, se houver no mesmo local um aqrquivo GFF ele sera baixado tambem, seus nomes precisam ser identicos variando apenas a extensao (.gtf / .gff)",
+    "Now is the path to the GTF annotation file; if there is a GFF file in the same location, it will also be downloaded, and their names need to be identical, varying only the extension (.gtf / .gff).",
+    
+    "por ultimo dados do organismo precisa passar as sequencias dos transcritos, recomendo usar as sequencias da CDS",
+    "Finally, organism data needs to pass the sequences of the transcripts; I recommend using the CDS sequences.",
+    
+    "informar o caminho do diretorio para persistir os resultados, no COlab pode-se conectar ao G. Drive e informar aqui o cominho dentro dele, sera explicado melhor a seguir",
+    "Specify the directory path to persist the results; in Colab, you can connect to Google Drive and inform the path within it, it will be explained further below.",
+    
+    "informar argumentos para o sra-tools, aqui, por exemplo estou limitando as reads ate o spot 999,999 nao e necessario baixar o arquivo FASTQ completo para essa analise de teste",
+    "Provide arguments for the sra-tools; here, for example, I am limiting the reads up to spot 999,999. It is not necessary to download the complete FASTQ file for this test analysis.",
+    
+    "informar cada uma das amostras pelo padrao RUN,NOME,FATOR com espaco",
+    "Provide each of the samples in the pattern RUN, NAME, FACTOR with a space.",
+    
+    "informar parametros para passar ao programas rMATS, nesse exemplo estou informando o parametro obrigatorio --read-length com o valor 150. Informar outros parametros opcionais no script, o argumento KEEP_TEMP indica para nao apagar a pasta demporaria.",
+    "Provide parameters to pass to the rMATS programs; in this example, I am informing the mandatory parameter --read-length with the value 150. Provide other optional parameters in the script; the argument KEEP_TEMP indicates not to delete the temporary folder.",
+    
+    "esses dois ultimos argumentos sao opcionais",
+    "These last two arguments are optional.",
+    
+    "As etapas de preparacao do ambiente, download dos daods brutos, controle de qualidade, mapeamento e anotacao sao onerosas podendo levar dias para executar, nesse exemplo custam ~5hrs.",
+    "The steps of preparing the environment, downloading raw data, quality control, mapping, and annotation are costly and can take days to execute; in this example, it takes ~5hrs.",
+    
+    "TEndo em visata isso, e que euando o Colab reclica o ambiente por falta de interacao ele apaga todos os dados, o script foi projetado para retornar onde parou em cada etapa/amostra os dados processaos pelo que persiste no diretorio de saida.",
+    "Considering this, and that when Colab recycles the environment due to lack of interaction, it deletes all data, the script is designed to resume from where it left off in each step/sample. The processed data persists in the output directory.",
+    
+    "Assim caso o ususario queira reproduzir esse caso de uso recomendo que conecte o notebook ao G Drive e aponte a pasta de saida para uma pasta dentro do G Drive. Caso contrario sera necessario acompanhar o andamento da execucao do script.",
+    "So, if the user wants to reproduce this use case, I recommend connecting the notebook to Google Drive and pointing the output folder to a folder within Google Drive. Otherwise, it will be necessary to monitor the progress of the script execution.",
+    
+    "Caso o usario tente reproduzir em localhost deve observar o limite de RAM, DISCO e as configuracoes no sistema que o scriot tenta realizar em modo administrador, oque faz necessario executar em maquina virtual ou subsistema para nao afetar as configuracoes atuais e permiitr acesso de superususario sudo.",
+    "If the user tries to reproduce it on localhost, they should observe the limit of RAM, DISK, and system settings that the script attempts to perform in administrator mode, which makes it necessary to execute it in a virtual machine or subsystem to avoid affecting the current settings and allow superuser sudo access.",
+    
+    "Serao gerados varios outputs de programas, log de cada execucao e os dados para ser importados no GeneAPP.",
+    "Several program outputs, log of each execution, and data to be imported into GeneAPP will be generated.",
+    
+    "entre os arquivos salvos na pasta de output o to3d.zip, rmats_out.zip e results.zip sao os mais importantes.",
+    "Among the files saved in the output folder, to3d.zip, rmats_out.zip, and results.zip are the most important.",
+    
+    "consulte o arquivo com controle de qualidade de cada amostra em unico arquivo gerado pelo multiqc na pasta results.",
+    "refer to the file with quality control for each sample in a single file generated by multiqc in the results folder.",
+    
+    "a taxa de mapeamento no genoma pode ser encontrada pelo arquivo summary.txt salvo na pasta de output tambem.",
+    "the mapping rate in the genome can be found in the summary.txt file saved in the output folder as well.",
+    
+    "no arquiv compatado rmats_out.zip estao todo outupt do rMATS e do MASER, contendo alguns graficos.",
+    "In the compressed file rmats_out.zip, all outputs from rMATS and MASER are stored, including some graphics.",
+    
+    "no arquivo compatado to3d.zip sao guardados todos arquivos necessarios para executar as analises no servidor web do 3DRNaseq.",
+    "In the compressed file to3d.zip, all files necessary to execute the analyses on the web server of 3DRNaseq are stored.",
+    
+    "COmo o script executa o 3DRNASeq tambem nesse arquivo estao os resultados de uma analise padrao no 3DRNASeq, reitero que os parametros do programa devem ser customizados para cada analsie.",
+    "Since the script also runs 3DRNASeq, in this file are the results of a standard analysis in 3DRNASeq. I reiterate that the program parameters must be customized for each analysis.",
+    
+    "nesse caso de uso foram utilizados muitos parametro default para os programas.",
+    "In this use case, many default parameters for the programs were used.",
+    
+    "Ao descompactar o arquivo import_geneapp.zip o ususario tera acesso a pasta geneapp que contem os arquivos necessarios para analise nesse aplicativo GeneAPP.",
+    "Upon extracting the file import_geneapp.zip, the user will have access to the geneapp folder containing the necessary files for analysis in the GeneAPP application.",
+    
+    "3. Screening dados de AS por diferentes abordagens",
+    "3. Screening AS data by different approaches",
+    
+    "Como usar o GeneAPP?",
+    "How to use GeneAPP?",
+    
+    "Baixar dados de amostra",
+    "Download sample data",
+    
+    "Apos a analise do pipeline as_data_gen.sh ter sido executado com sucesso o usuario tera acesso ao arquivo import_geneapp.zip que precisa ser descompactado antes de ser carregado pela página NOVO para explorar no GeneAPP.",
+    "After the successful execution of the pipeline as_data_gen.sh, the user will have access to the file import_geneapp.zip, which needs to be extracted before being loaded by the NEW page to explore in GeneAPP.",
+    
+    "Um exemplo desse arquivo compactado gerado pelos dados de amostra no Colab pode ser obtido pelo botao 'Download data sample' acima.",
+    "An example of this compressed file generated by sample data in Colab can be obtained by the 'Download data sample' button above.",
+    
+    "Ao importar os dados com sucesso no GeneAPP, se todos dados foram processados o usuario terá acesso aos seguintes recursos:",
+    "When successfully importing the data into GeneAPP, if all data has been processed, the user will have access to the following features:",
+    
+    "Overview:",
+    "Overview:",
+    
+    "pagina com dados da execucao das analises de AS",
+    "page with data from the execution of AS analyses",
+    
+    "Experimental design:",
+    "Experimental design:",
+    
+    "Tabela com a lista de amostras processadas, metricas de controle de qualidade e mapemaneto.",
+    "Table with the list of processed samples, quality control metrics, and mapping.",
+    
+    "Resultados do Pipeline:",
+    "Pipeline results:",
+    
+    "Tabela com metadados de arquivos usados nas analises e principais numeros de resultados das analises",
+    "Table with metadata of files used in the analyses and main numbers of analysis results",
+    
+    "Repertorio de genes:",
+    "Gene repertoire:",
+    
+    "Tabela similar a um GFF para acesso rapido a informacoes estruturais dos genes e mRNAS",
+    "Table similar to a GFF for quick access to structural information of genes and mRNAs",
+    
+    "Graphicos:",
+    "Graphics:",
+    
+    "graficos da visao geral de quantitativos da analise e da estrutura de genes",
+    "graphics of the overall quantitative analysis and gene structure",
+    
+    "Evevntos:",
+    "Events:",
+    
+    "pagina contendo informacoes sobre os eventos de AS identificados nas analises",
+    "page containing information about the AS events identified in the analyses",
+    
+    "Detalhes de AS:",
+    "AS details:",
+    
+    "tabela contendo varias informacoes para evento de AS identificado",
+    "table containing various information for identified AS event",
+    
+    "Tabela de anotacao:",
+    "Annotation table:",
+    
+    "tabela da anotaçao dos genes contendo ontologia, descricao do InterPro e Pathways identificadas",
+    "table of gene annotation containing ontology, InterPro description, and identified Pathways",
+    
+    "graficos dos eventos de AS, da anotacao e de expressao diferencial",
+    "graphics of AS events, annotation, and differential expression",
+    
+    "Genes:",
+    "Genes:",
+    
+    "pagina que exibe gene a gene sua estrutura e anotaçao funcional",
+    "page that displays gene by gene its structure and functional annotation",
+    
+    "Genomico:",
+    "Genomic:",
+    
+    "sequencia de nucleotideos do gene que pode ser colorida pelos exons e CDS",
+    "sequence of gene nucleotides that can be colored by exons and CDS",
+    
+    "Proteina:",
+    "Protein:",
+    
+    "sequencia de aminoacidos que pode ser anotada pelo Uniprot para explorar por preinas similar mapeada",
+    "sequence of amino acids that can be annotated by Uniprot to explore similar mapped proteins",
+    
+    "4. Export and Share your results",
+    "4. Export and Share your results",
+    
+    "Como extrair as informacoes?",
+    "How to extract the information?",
+    
+    "Baixar resultados",
+    "Download results",
+    
+    "O usuario pode baixar os resultados ou compartilhar o gene com as anotaçoes de eventos de AS identificados.",
+    "The user can download the results or share the gene with the annotations of identified AS events.",
+    
+    " No botao acima esta disponibilizado os arquivos que podem ser obtidos ao explorar a analise de teste do GeneAPP.",
+    " The button above provides the files that can be obtained when exploring the GeneAPP test analysis.",
+    
+    "As figuras sao geradas no formato vetorial que permite rasterizar em qualidade de impressao.",
+    "The figures are generated in vector format, which allows rasterization in print quality.",
+    
+    "As tabelas sao exportadas no formato TSV.",
+    "The tables are exported in TSV format.",
+    
+    "O principal proposito do GeneAPP é axuxiliar o usuario na escolha de alvos para realizar a validacao experimental, uma vez que muitos genes sao identificados com AS pelas diferentes abordagens.",
+    "The main purpose of GeneAPP is to assist the user in choosing targets for experimental validation, as many genes are identified with AS by different approaches.",
+    
+    "O usuario pode utilizar uma documentacao mais elaborada no trabalho: (DOI publicacao geneapp).",
+    "The user can use more detailed documentation in the work: (DOI publication geneapp).",
+    
+    "5. Explore others features",
+    "5. Explore other features",
+    
+    "Quais os proximos passos?",
+    "What are the next steps?",
+    
+    "Experimente visualizar um gene do NCBI pelo seu GID, plotar uma arvore filogenetica ou uma rede de anotaçao por um projeto customizado.",
+    "Try viewing a gene from NCBI by its GID, plotting a phylogenetic tree, or an annotation network for a custom project.",
+    
+    "Exemplo de gene:",
+    "Gene example:",
+    
+    "Tambem é possivel usar o docker pelo comando",
+    "It is also possible to use Docker with the command",
+    
+    "exemplo de comando:",
+    "command example:",
+    
+    "Não é recomendado a execuçao em localhost pela demanda de recursos. (>8GB ram/>10GB disco).",
+    "It is not recommended to run it on localhost due to resource demands (>8GB RAM/>10GB disk).",
+    
+    "Explore outputs de analises de splicing alternativo",
+    "Explore outputs of alternative splicing analyses",
+    
+    "Transforme numeros em graficos e conduza sua pesquisa para o caminho certo com o",
+    "Turn numbers into graphics and guide your research in the right direction with",
+    
+    "Encontre o gene que voce estuda aqui",
+    "Find the gene you study here",
+    
+    "Visualize genes por GID do NCBI com sua estrutura, dominios funcionais e muito mais",
+    "Visualize genes by NCBI GID with their structure, functional domains, and much more",
+    
+    "Geraçao",
+    "Generation",
+    
+    "O GeneAPP posssui um pipeline para gerar dados de analise de AS.",
+    "GeneAPP has a pipeline to generate alternative splicing analysis data.",
+    
+    "Se a amostra é menor que 4GB pode-se rodar no Colab.",
+    "If the sample is smaller than 4GB, it can be run on Colab.",
+    
+    "Integracao",
+    "Integration",
+    
+    "O GeneAPP integra dados de programas e links de multiplas bases de dados como NCBI, Intepro, Pfam, Uniprot, GO entre outras.",
+    "GeneAPP integrates data from programs and links from multiple databases such as NCBI, Intepro, Pfam, Uniprot, GO, among others.",
+    
+    "Curadoria",
+    "Curation",
+    
+    "O GeneAPP foi desenvolvido para comparae eventos de AS e genes AS para selecionar os melhores alvos para sua proxima etapa de teste de hipoteses.",
+    "GeneAPP was developed to compare AS events and AS genes to select the best targets for your next hypothesis testing step.",
+    
+    "Extras",
+    "Extras",
+    
+    "Anote alguns genes com dominios, inspecione sua sequencia com sitios coloridos, baixe e compartilhe ele tambem facilmente.",
+    "Annotate some genes with domains, inspect their sequence with colored sites, download, and easily share them.",
+    
+    "Pipeline para testar GeneAPP os recursos do GeneAPP",
+    "Pipeline to test GeneAPP, the resources of GeneAPP",
+    
+    "Poucos cliques",
+    "A few clicks",
+    
+    "Com os dados de amostra voce pode testar todos recursos",
+    "With sample data, you can test all features",
+    
+    "Baixar",
+    "Download",
+    
+    "Descomprima os dados de amostra em seu computador",
+    "Unzip the sample data on your computer",
+    
+    "Carregue os dados de amostra e explore eles!",
+    "Load the sample data and explore them!",
+    
+    "Carregar",
+    "Load",
+    
+    "Muitos resultados",
+    "Many results",
+    
+    "GeneAPP test data",
+    "GeneAPP test data",
+
+    "You can open test data as text then verify content layout. To generate you own data read script finalizar() function.",
+    "You can open test data as text then verify content layout. To generate you own data read script finalizar() function.",
+
+    "Repositório do Github",
+    "GitHub Repository",
+    
+    "Suporte",
+    "Support",
+    
     "Este site usa cookies, ao continuar possui seu consentimento.",
-    "This website uses cookies, by continuing it has your consent."
+    "This site uses cookies; by continuing, you give your consent.",
+
+    "voce pode executar o script auxiliar tambem pelo docker! consulte a pagina sobre para mais detalhes.",
+    "you can also run the helper script through docker! see the about page for more details."
 ]
+
