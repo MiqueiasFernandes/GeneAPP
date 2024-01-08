@@ -23,7 +23,7 @@
 export TZ=America/Sao_Paulo
 export INI_DIR=$(pwd)
 export VERSAO="1.0.0"
-export RMATS="https://github.com/Xinglab/rmats-turbo/releases/download/v4.1.2/rmats_turbo_v4_1_2.tar.gz"
+export RMATS="https://github.com/Xinglab/rmats-turbo/releases/download/v4.2.0/rmats_turbo_v4_2_0.tar.gz"
 export API='https://www.ebi.ac.uk/Tools/services/rest/iprscan5/'
 export EMAIL=teste@teste.com
 export TIMEOUT=60
@@ -213,7 +213,7 @@ preparar_ambiente() {
 
         ###---> Install ThreeDRNAseq
         if(!requireNamespace("ThreeDRNAseq", quietly = TRUE))
-            devtools::install_github("wyguo/ThreeDRNAseq")') $LOG_DIR/_1.7.2_3D_rnaseq.log.txt $LOG_DIR/_1.7.2_3D_rnaseq.err.txt
+            devtools::install_github("slt666666/ThreeDRNAseq")') $LOG_DIR/_1.7.2_3D_rnaseq.log.txt $LOG_DIR/_1.7.2_3D_rnaseq.err.txt
     else
         log 1 7 0 "pulando instalacao do 3DRNAseq"
     fi
@@ -544,10 +544,10 @@ quantificar() {
     # 7 quantificar com salmon
     log 5 $SID 7 "quantificando com a amostra $SAMPLE com salmon"
     if [ $IS_PE ]; then
-        salmon quant -1 $TMP_SAMPLE/$SAMPLE.F.fq -2 $TMP_SAMPLE/$SAMPLE.R.fq -o $TMP_SAMPLE/quant_$SAMPLE --libType IU --index $TMP_DIR/idxcds \
+        salmon quant  --libType IU -1 $TMP_SAMPLE/$SAMPLE.F.fq -2 $TMP_SAMPLE/$SAMPLE.R.fq -o $TMP_SAMPLE/quant_$SAMPLE --libType IU --index $TMP_DIR/idxcds \
             1>$LOG_DIR/_5.$SID.7_quant.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.7_quant.$SAMPLE.err.txt
     else
-        salmon quant -r $TMP_SAMPLE/$SAMPLE.fq -o $TMP_SAMPLE/quant_$SAMPLE --libType IU --index $TMP_DIR/idxcds \
+        salmon quant  --libType IU -r $TMP_SAMPLE/$SAMPLE.fq -o $TMP_SAMPLE/quant_$SAMPLE --index $TMP_DIR/idxcds \
             1>$LOG_DIR/_5.$SID.7_quant.$SAMPLE.log.txt 2>$LOG_DIR/_5.$SID.7_quant.$SAMPLE.err.txt
     fi
     mkdir $QNT_DIR/sample_$SAMPLE && cp $TMP_SAMPLE/quant_$SAMPLE/quant.sf $QNT_DIR/sample_$SAMPLE/quant.sf
