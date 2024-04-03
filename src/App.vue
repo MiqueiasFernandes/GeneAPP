@@ -115,7 +115,7 @@ onMounted(() => {
                 </a>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                <a href="https://mikeias.net"
+                <a href="https://miqueias.net"
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
                   <Texto>Suporte</Texto>
                 </a>
@@ -127,9 +127,15 @@ onMounted(() => {
                   }}
                   {{ idioma.nome }}</a>
                 </MenuItem>
-                <MenuItem v-slot="{ active }" v-if="LINGUAGEM.para_trauzir.length > 0">
+                <!-- <MenuItem v-slot="{ active }" v-if="LINGUAGEM.para_trauzir.length > 0">
                 <a @click="baixando"
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Dicionário</a>
+                </MenuItem> -->
+                <MenuItem v-slot="{ active }">
+                <a href="https://mikeias.net"
+                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
+                  <Texto>User manual</Texto>
+                </a>
                 </MenuItem>
               </MenuItems>
             </transition>
@@ -139,12 +145,19 @@ onMounted(() => {
     </div>
 
     <DisclosurePanel class="sm:hidden">
-      <div class="px-2 pt-2 pb-3 space-y-1">
-        <DisclosureButton v-for="item in pages($router)" :key="item.meta.title" as="a" :href="item.path"
-          :class="[$route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium']"
-          :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined">
-          <Texto>{{ item.meta.title }}</Texto>
-        </DisclosureButton>
+      <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
+        <router-link  v-for="item in pages($router)" :key="item.meta.title" 
+          :class="[
+            $route.meta.title === item.meta.title ?
+                (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.fbgc) || 'bg-gray-900 text-white border-slate-100 border') :
+                (((((item.meta.rqproj) && (PROJETO.status > 0)) || ((item.meta.nqproj) && (PROJETO.status < 1))) && item.meta.hfbgc) || 'text-gray-300 hover:bg-gray-700 hover:text-white'),
+            // $route.meta.title === item.meta.title ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 
+            'block px-3 py-2 rounded-md text-base font-medium w-48 text-center']"
+          :aria-current="$route.meta.title === item.meta.title ? 'page' : undefined"
+          :to="((item.meta.rqproj) && (PROJETO.status < 1)) || ((item.meta.nqproj) && (PROJETO.status > 0)) ? '' : item.path"
+          
+          ><Texto>{{ item.meta.title }}</Texto>
+      </router-link>
       </div>
     </DisclosurePanel>
   </Disclosure>
