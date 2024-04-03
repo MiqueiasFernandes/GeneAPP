@@ -132,7 +132,8 @@ onMounted(() => {
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Dicionário</a>
                 </MenuItem> -->
                 <MenuItem v-slot="{ active }">
-                <a href="https://mikeias.net"
+                <a target="_blank"
+                href="https://github.com/MiqueiasFernandes/GeneAPP/blob/fbd33b3199f826fabc0ae0c231431dcbba5f4ba6/public/data/Geneapp_Manual.pdf"
                   :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
                   <Texto>User manual</Texto>
                 </a>
