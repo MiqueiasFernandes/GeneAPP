@@ -189,7 +189,7 @@ onMounted(carregar)
         <template v-if="PROJETO.online && PROJETO.online.processandook">
 
           <template v-if="PROJETO.online.terminou">
-            arquivos processados com sucesso!
+            <Texto>arquivos processados com sucesso!</Texto>
 
             <p class="mt-2 mb-4">
               <a class="bg-indigo-700 text-white rounded p-2 hover:bg-indigo-500"
@@ -207,7 +207,7 @@ onMounted(carregar)
               <CogIcon class="-ml-1 mr-2 h-5 w-5 animate-spin" style="animation-duration: 6s;" />
               <Texto>Status</Texto>
             </Button>
-            processando os arquivos no servidor...
+            <Texto>processando os arquivos no servidor...</Texto>
             <br />
             <pre v-if="PROJETO.online.status">
             {{ PROJETO.online.status.map(x => x.substr(0, 50) + '...') }}

@@ -71,7 +71,7 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
         <ButtonLink :href="'https://github.com/MiqueiasFernandes/GeneAPP/blob/main/public/data/Generate_AS_data.ipynb'"
           :icon="false">
           <ClipboardListIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-          <Texto>Clonar Notebook no Colab </Texto>
+          <Texto>Clonar Notebook no Colab</Texto>
         </ButtonLink>
         <ButtonLink :href="'../data/as_data_gen.sh.zip'" :icon="false" :acent="false" class="mx-2">
           <DownloadIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
@@ -230,7 +230,7 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
       <div>
         <p class="indent-3">
           <Texto>O usuario pode baixar os resultados ou compartilhar o gene com as anotaçoes de eventos de AS identificados.</Texto>
-          <Texto> No botao acima esta disponibilizado os arquivos que podem ser obtidos ao explorar a analise de teste do GeneAPP.</Texto>
+          <Texto>No botao acima esta disponibilizado os arquivos que podem ser obtidos ao explorar a analise de teste do GeneAPP.</Texto>
           <Texto>As figuras sao geradas no formato vetorial que permite rasterizar em qualidade de impressao.</Texto>
           <Texto>As tabelas sao exportadas no formato TSV.</Texto>
         </p>
