@@ -16,6 +16,8 @@
     "Parametro invalido, use .../gene?id=2", "Invalid parameter, use .../gene?id=2",
 
     "Erro ao carregar", "Error on load",
+    "Erro ao obter aa", "Erro on load protein",
+
     "Grafico", "Graphic",
 
     "Anotar", "Annotate",

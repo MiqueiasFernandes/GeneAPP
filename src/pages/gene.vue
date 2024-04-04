@@ -105,7 +105,7 @@ onMounted(carregar)
 <template>
     <div class="p-4 bg-gray-100 grid grid-cols-1">
         <div class="w-full flex justify-center">
-            <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md w-1/2 flex justify-evenly">
+            <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md w-1/2  flex justify-evenly flex-wrap content-between gap-y-2">
                 <Button :disable="!plotou || anotou" color="blue" @click="anotar">
                     <LightningBoltIcon class="-ml-1 mr-2 h-5 w-5" aria-hidden="true"></LightningBoltIcon>
                     <Texto>Anotar</Texto>
