@@ -1,4 +1,7 @@
 [
+    "Email para utilizar API", "Email to use API",
+    "Cancelar", "Cancel",
+    "obtida da API do eutis/NCBI", "by API from eutis/NCBI",
     "arquivos processados com sucesso!", "Files processed successfully!",
     "processando os arquivos no servidor...", "Processing files on the server...", 
     "Parametro invalido, use .../gene?id=2", "Invalid parameter, use .../gene?id=2",
