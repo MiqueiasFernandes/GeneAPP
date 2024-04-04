@@ -59,7 +59,7 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
             </span></li>
         </ul>
       </div>
-      <img src="img/asexp.png" width="400" class="mx-3 mt-3" />
+      <img src="../../public/img/asexp.png" width="400" class="mx-3 mt-3" />
     </div>
   </div>
 
@@ -90,7 +90,7 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
           <Texto>Importante observar que o script foi desenvolvido apenas para auxiliar o usuario, sendo necessario altrea-lo de acordo com as necessidades de cada experimento.</Texto>
           <Texto>Os softesres executados pelos scirpt possuem sua propria licenca, o usuario deve observar cada uma sob sua responsabilidade.</Texto>
         </p>
-        <img src="img/datagen.png" width="800" class="my-4" />
+        <img src="../../public/img/datagen.png" width="800" class="my-4" />
         <ol class="list-none">
           <li><span class=" font-bold bg-sky-500 rounded-full text-white px-2 py-1">1</span> 
             <Texto>Nesta linha o script é obtido diretamente do repositorio para rodar.</Texto>
@@ -210,7 +210,7 @@ const host =window.location.href.replace('/start', '/gene?id=836163')
       </div>
     </div>
     <div class="w-full flex justify-center">
-          <img src="img/results.png" width="800" class="my-4" />
+          <img src="../../public/img/results.png" width="800" class="my-4" />
     </div>
   
   </div>
