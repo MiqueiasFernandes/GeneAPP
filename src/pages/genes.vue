@@ -253,7 +253,7 @@ onMounted(start)
             <template #geneContent>
                 <div class="p-4 bg-gray-100 grid grid-cols-1">
                     <div class="w-full flex justify-center">
-                        <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md flex justify-evenly">
+                        <div class="p-2 bg-sky-50 rounded-lg drop-shadow-md flex justify-evenly flex-wrap content-between gap-y-2">
                             <BadgeCheckIcon v-if="confirm"
                                 class="p-1 h-8 w-8 text-green-500 bg-green-100 rounded-full mt-1 mx-1" />
                             <BeakerIcon v-else class="h-8 w-8 text-slate-500 mt-1 mx-1" />
