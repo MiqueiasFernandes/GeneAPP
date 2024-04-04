@@ -1,4 +1,7 @@
 [
+    "anotando pela API InterproScan5", "Using InterproScan5 API for annotation",
+    "sem anotacao", "without annotation",
+
     "Algumas APIs solicitam seu email, esse dado será transmitido a ela e não será salvo no GeneAPP. É necessário informar um email valido para utilizar essa funcionalidade.",
     "Some APIs request your email address. This data will be transmitted to them and will not be saved in GeneAPP. You must provide a valid email address to use this feature.",
 

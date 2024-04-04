@@ -118,7 +118,7 @@ export function getInterpro(sequence: string,
             sequence
         }).then(res => {
             const job = res.data;
-            status(`Job ${job.substring(0, 5)}...${job.slice(-5)} anotando pela API InterproScan5`, 1)
+            status(`Job ${job.substring(0, 5)}...${job.slice(-5)} ${LINGUAGEM.value.traduzir('anotando pela API InterproScan5')}`, 1)
             const itv = setInterval(() => {
                 axios.get(`${ipro}/status/${job}`).then(res => {
                     if (res.data === 'FINISHED') {
@@ -126,7 +126,7 @@ export function getInterpro(sequence: string,
                         axios.get(`${ipro}/result/${job}/tsv`).then(res => {
                             if (!res || res.data.split('\t') < 2) {
                                 console.log(res.data)
-                                return status(`Job ${job.substring(0, 5)}...${job.slice(-5)} sem anotacao`, 2)
+                                return status(`Job ${job.substring(0, 5)}...${job.slice(-5)} ${LINGUAGEM.value.traduzir('sem anotacao')}`, 2)
                             }
                             var anotacoes = []
                             res.data
