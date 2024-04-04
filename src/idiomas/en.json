@@ -1,14 +1,18 @@
 [
+    "Algumas APIs solicitam seu email, esse dado será transmitido a ela e não será salvo no GeneAPP. É necessário informar um email valido para utilizar essa funcionalidade.",
+    "Some APIs request your email address. This data will be transmitted to them and will not be saved in GeneAPP. You must provide a valid email address to use this feature.",
+
+    "Só é possivel continuar apos informar email.",
+    "You can only continue after entering your email address.",
+
     "Email para utilizar API", "Email to use API",
     "Cancelar", "Cancel",
     "obtida da API do eutis/NCBI", "by API from eutis/NCBI",
     "arquivos processados com sucesso!", "Files processed successfully!",
     "processando os arquivos no servidor...", "Processing files on the server...", 
     "Parametro invalido, use .../gene?id=2", "Invalid parameter, use .../gene?id=2",
-    "obtida da API do eutis/NCBI", "",
-    "Carregando gene", "",
-    "Gene carregado!", "",
-    "Erro ao carregar", "",
+
+    "Erro ao carregar", "Error on load",
     "Grafico", "Graphic",
 
     "Anotar", "Annotate",

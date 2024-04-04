@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Gene } from './model';
 import { Anotacao } from './model/Anotacao';
-import { EMAIL, MODALS, notificar, CACHE } from './State';
+import { EMAIL, MODALS, notificar, CACHE, LINGUAGEM } from './State';
 import { Arquivo } from './utils/Arquivo';
 
 function email(next) {
@@ -10,7 +10,7 @@ function email(next) {
     } else {
         MODALS.push({
             titulo: 'Email para utilizar API',
-            html: '<p>Algumas APIs solicitam seu email, esse dado será transmitido a ela e não será salvo no GeneAPP. É necessário informar um email valido para utilizar essa funcionalidade.</p>',
+            html: '<p>' + LINGUAGEM.value.traduzir('Algumas APIs solicitam seu email, esse dado será transmitido a ela e não será salvo no GeneAPP. É necessário informar um email valido para utilizar essa funcionalidade.') + '</p>',
             inputs: [{ label: 'email', value: 'your@mail' }],
             botoes: [
                 {
@@ -21,9 +21,9 @@ function email(next) {
                     }
                 },
                 {
-                    text: 'Cancelar', color: 'bg-amber-500',
+                    text: LINGUAGEM.value.traduzir('Cancelar'), color: 'bg-amber-500',
                     action: () => true,
-                    end: () => notificar('Só é possivel continuar apos informar email.', 'warn', 20)
+                    end: () => notificar(LINGUAGEM.value.traduzir('Só é possivel continuar apos informar email.'), 'warn', 20)
                 }
             ]
         })
