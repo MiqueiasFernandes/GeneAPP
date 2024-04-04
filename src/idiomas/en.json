@@ -1,11 +1,19 @@
 [
     "arquivos processados com sucesso!", "Files processed successfully!",
     "processando os arquivos no servidor...", "Processing files on the server...", 
-    "Parametro invalido, use .../gene?id=2", "",
+    "Parametro invalido, use .../gene?id=2", "Invalid parameter, use .../gene?id=2",
     "obtida da API do eutis/NCBI", "",
     "Carregando gene", "",
     "Gene carregado!", "",
     "Erro ao carregar", "",
+    "Grafico", "Graphic",
+
+    "Anotar", "Annotate",
+    "Carregando gene", "Loaded gene",
+    "pelo NCBI.", "by NCBI.",
+    "Gene carregado!", "Gene loaded!",
+    "Sequencia", "Sequence",
+
 
     "Delineamento experimental", "Experimental design", 
     "Resultados do pipeline", "Pipeline results", 
