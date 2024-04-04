@@ -126,7 +126,9 @@ export class Gene extends Locus {
         const from = parseInt(ref.split(' from: ')[1].split(' ')[0])
         const start = Math.min(to, from)
         const end = Math.max(to, from)
-        const chr = new Cromossomo(ref.trim().split(' ')[0], end - start + 1)
+        const chr = new Cromossomo(
+            ref.indexOf(' NC_') > 1 ?  ('NC_' + ref.trim().split(' NC_')[1].split(' ')[0]) :
+            ref.trim().split(' ')[0] , end - start + 1)
         const gene = new Gene(chr, start, end, ref.indexOf(' (minus strand) ') < 1, nome)
         mrnas.map(m => Isoforma.fromTable(m, gene)).forEach(i => gene.addIsoforma(i))
         return gene;

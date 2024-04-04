@@ -1,6 +1,74 @@
 [
-    "Abrir menu principal",
-    "Open main menu",
+    "anotando pela API InterproScan5", "Using InterproScan5 API for annotation",
+    "sem anotacao", "without annotation",
+
+    "Algumas APIs solicitam seu email, esse dado será transmitido a ela e não será salvo no GeneAPP. É necessário informar um email valido para utilizar essa funcionalidade.",
+    "Some APIs request your email address. This data will be transmitted to them and will not be saved in GeneAPP. You must provide a valid email address to use this feature.",
+
+    "Só é possivel continuar apos informar email.",
+    "You can only continue after entering your email address.",
+
+    "Email para utilizar API", "Email to use API",
+    "Cancelar", "Cancel",
+    "obtida da API do eutis/NCBI", "by API from eutis/NCBI",
+    "arquivos processados com sucesso!", "Files processed successfully!",
+    "processando os arquivos no servidor...", "Processing files on the server...", 
+    "Parametro invalido, use .../gene?id=2", "Invalid parameter, use .../gene?id=2",
+
+    "Erro ao carregar", "Error on load",
+    "Erro ao obter aa", "Erro on load protein",
+
+    "Grafico", "Graphic",
+
+    "Anotar", "Annotate",
+    "Carregando gene", "Loaded gene",
+    "pelo NCBI.", "by NCBI.",
+    "Gene carregado!", "Gene loaded!",
+    "Sequencia", "Sequence",
+
+
+    "Delineamento experimental", "Experimental design", 
+    "Resultados do pipeline", "Pipeline results", 
+    "Repertorio de genes", "Gene repertory", 
+    "Graficos", "Graphics", 
+    "Próximo", "Next", 
+    "Plotar", "Plot", 
+    "Detalhes de AS", "AS details", 
+    "Tabela de anontaçao", "Anotattion table", 
+
+    "Genomico", "Genomic", 
+    "Proteina", "Protein", 
+    "Filtrar", "Filter", 
+    "Anotacoes", "Anotattions", 
+    "Compartilhar", "Share", 
+    "filtrados", "Filtered", 
+    "Filtrar genes", "Filter genes", 
+    "Nome", "Name", 
+    "Possui AS rMATS", "With rMATS", 
+    "Possui AS 3DRnaSeq", "With 3DRnaSeq", 
+    "Possui DE", "With DE", 
+    "Possui InterPro", "Have Interpro", 
+    "Possui GO", "Have GO", 
+    "Possui Pathway", "Have pathway", 
+    "Limpar", "Clear", 
+    "Copiar", "Copy", 
+    "Enriquecer dados", "Data enrichment and augmentation",
+    "Criar projeto", "New project",
+    "Carregar o projeto", "Load project",
+    "Nome do projeto", "Project name",
+    "Carregar 10 arquivos", "Open 10 files",
+
+    "Caso vc esteja usando dados de amostra vc precisa descompactar primeiro, e entao carregar os 10 arquivos obtidos do arquivo comprimido.",
+    "If you are using sample data, you need to unzip it first and then load the 10 files obtained from the compressed file.",
+
+    "Dados de amostra", "Sample data",
+    "Processando arquivos carregados", "Processing loaded files",
+    "Processando ...", "Processing...",
+    "Fechar", "Close",
+    "genes carregados.", "loaded genes.",
+    "Controle", "Control",
+    "Tratamento", "Case",
+    "Abrir menu principal", "Open main menu",
     
     "Start",
     "Start",
@@ -164,7 +232,7 @@
     "Como gerar dados para o GeneAPP?",
     "How to generate data for GeneAPP?",
     
-    "Clonar Notebook no Colab ",
+    "Clonar Notebook no Colab",
     "Clone Notebook in Colab",
     
     "Baixar Script",
