@@ -31,7 +31,7 @@ onMounted(() => {
 <template>
 
   <div style="z-index: 9999" v-if="cookies"
-    class="w-full h-8 fixed bottom-0 bg-amber-200 text-amber-700 font-extrabold m-0 px-4 py-1">
+    class="w-full h-8 fixed bottom-0 bg-amber-200 text-amber-700 font-extrabold m-0 px-4 py-1 flex">
     <Texto>Este site usa cookies, ao continuar possui seu consentimento.</Texto>
     <button class="rounded-sm bg-amber-300 shadow mx-2 px-3" @click="cookies = false">OK</button>
   </div>
